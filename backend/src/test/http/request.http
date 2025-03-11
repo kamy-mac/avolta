@@ -1,0 +1,73 @@
+### Authentication
+POST http://localhost:8090/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@avolta.be",
+  "password": "admin123"
+}
+
+### Get All Publications
+GET http://localhost:8090/api/publications
+Authorization: Bearer {{auth_token}}
+
+### Get Public Publications
+GET http://localhost:8090/api/publications/public/active
+
+### Create Publication
+POST http://localhost:8090/api/publications
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Test Publication",
+  "content": "This is a test publication content",
+  "imageUrl": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05",
+  "validFrom": "2025-03-15T00:00:00Z",
+  "validTo": "2025-12-31T23:59:59Z",
+  "category": "news",
+  "sendNewsletter": false
+}
+
+### Update Publication
+PUT http://localhost:8090/api/publications/{{publicationId}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Updated Publication",
+  "content": "Updated content"
+}
+
+### Delete Publication
+DELETE http://localhost:8090/api/publications/{{publicationId}}
+Authorization: Bearer {{auth_token}}
+
+### Subscribe to Newsletter
+POST http://localhost:8090/api/newsletter/subscribe
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+### Get Newsletter Subscribers
+GET http://localhost:8090/api/newsletter/subscribers
+Authorization: Bearer {{auth_token}}
+
+### Get Users
+GET http://localhost:8090/api/users
+Authorization: Bearer {{auth_token}}
+
+### Create User (Super Admin only)
+POST http://localhost:8090/api/auth/register
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "email": "newadmin@avolta.be",
+  "password": "password123",
+  "role": "ADMIN"
+}
