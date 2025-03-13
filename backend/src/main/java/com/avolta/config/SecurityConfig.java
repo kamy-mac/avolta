@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,33 +30,76 @@ public class SecurityConfig {
         this.jwtTokenProvider = jwtTokenProvider;
         this.corsConfig = corsConfig;
     }
-
+    // @Bean
+    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //     http
+    //         .cors().and()
+    //         .csrf().disable()
+    //         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    //         .and()
+    //         .authorizeHttpRequests(auth -> auth
+    //             .anyRequest().permitAll() // Autoriser toutes les requêtes temporairement
+    //         )
+    //         .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
+    //         .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService),
+    //                         UsernamePasswordAuthenticationFilter.class);
+    
+    //     return http.build();
+    // }
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .cors().and()
-            .csrf().disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeHttpRequests(auth -> auth
-                // Allow preflight requests
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Public endpoints
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/publications/public/**").permitAll()
-                .requestMatchers("/api/newsletter/subscribe").permitAll()
-                // Swagger UI
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                // Protected endpoints
-                .requestMatchers("/api/auth/register").hasRole("SUPERADMIN")
-                .requestMatchers("/api/users/**").hasRole("SUPERADMIN")
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService), UsernamePasswordAuthenticationFilter.class);
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .cors().and()
+        .csrf().disable()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authorizeHttpRequests(auth -> auth
+            // Allow preflight requests
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            // Public endpoints
+            .requestMatchers("/api/auth/login").permitAll()
+            .requestMatchers("/api/publications/public/**").permitAll()
+            .requestMatchers("/api/newsletter/subscribe").permitAll()
+            // Swagger UI
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+            // Endpoints protégés
+            .requestMatchers("/api/auth/register").hasAuthority("ROLE_SUPERADMIN")
+            .requestMatchers("/api/users/**").hasAuthority("ROLE_SUPERADMIN")
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService),
+                        UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+}
+    // @Bean
+    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //     http
+    //             .cors().and()
+    //             .csrf().disable()
+    //             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    //             .and()
+    //             .authorizeHttpRequests(auth -> auth
+    //                     // Allow preflight requests
+    //                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+    //                     // Public endpoints - notez le chemin EXACT
+    //                     .requestMatchers("/api/auth/login").permitAll()
+    //                     .requestMatchers("/api/publications/public/**").permitAll()
+    //                     .requestMatchers("/api/newsletter/subscribe").permitAll()
+    //                     // Swagger UI
+    //                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+    //                     // Protected endpoints - ajustez en fonction de comment vos rôles sont définis
+    //                     .requestMatchers("/api/auth/register").hasAuthority("ROLE_SUPERADMIN")
+    //                     .requestMatchers("/api/users/**").hasAuthority("ROLE_SUPERADMIN")
+    //                     .anyRequest().authenticated()
+    //             )
+    //             .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
+    //             .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService),
+    //                     UsernamePasswordAuthenticationFilter.class);
+    
+    //     return http.build();
+    // }
 
     @Autowired
     public void setUserService(@Lazy UserService userService) {
@@ -64,5 +109,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 }

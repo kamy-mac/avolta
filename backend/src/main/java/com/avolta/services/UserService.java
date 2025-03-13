@@ -34,8 +34,7 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-        );
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
     }
 
     @Transactional
@@ -72,7 +71,7 @@ public class UserService implements UserDetailsService {
     public UserDto updateUserStatus(String id, User.Status status) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-        
+
         user.setStatus(status);
         User updatedUser = userRepository.save(user);
         return UserDto.fromEntity(updatedUser);
@@ -92,5 +91,12 @@ public class UserService implements UserDetailsService {
             user.setLastLogin(LocalDateTime.now());
             userRepository.save(user);
         });
+    }
+
+    @Transactional(readOnly = true)
+    public UserDto getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return UserDto.fromEntity(user);
     }
 }
