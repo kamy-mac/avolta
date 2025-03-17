@@ -82,7 +82,7 @@ class AuthService {
   public async register(userData: RegisterRequest): Promise<User> {
     try {
       const response = await api.register(userData);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error("Registration error:", error);
       throw error;

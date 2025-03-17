@@ -33,7 +33,7 @@ export interface PublicationResponse {
   validTo: Date;
   createdAt: Date;
   category: string;
-  status: 'PENDING' | 'PUBLISHED';
+  status: "pending" | "published";
   author: User;
   comments: Comment[];
   likes: number;
@@ -72,10 +72,10 @@ export interface NewsletterSubscriber {
 export interface User {
   id: string;
   email: string;
-  role: 'ADMIN' | 'SUPERADMIN';
+  role: "ADMIN" | "SUPERADMIN";
   createdAt: Date;
   lastLogin?: Date;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: "ACTIVE" | "INACTIVE";
 }
 
 // Réponse API générique
@@ -85,3 +85,6 @@ export interface ApiResponse<T> {
   data: T;
   timestamp: string;
 }
+// Alias pour utilisation dans les services
+export type Post = PublicationResponse;
+export type Comment = CommentResponse;

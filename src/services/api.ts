@@ -3,10 +3,10 @@
  * Gère toutes les requêtes HTTP vers le backend
  */
 
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 
 // Configuration de base
-const API_BASE_URL = 'http://localhost:8090/api';
+const API_BASE_URL = "http://localhost:8090/api";
 
 class ApiService {
   private api: AxiosInstance;
@@ -16,14 +16,14 @@ class ApiService {
     this.api = axios.create({
       baseURL: API_BASE_URL,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     });
 
     // Intercepteur pour les requêtes
     this.api.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -39,8 +39,8 @@ class ApiService {
       (response) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
+          localStorage.removeItem("token");
+          window.location.href = "/login";
         }
         return Promise.reject(error);
       }
@@ -56,16 +56,16 @@ class ApiService {
 
   // Authentification
   public async login(email: string, password: string): Promise<AxiosResponse> {
-    return this.api.post('/auth/login', { email, password });
+    return this.api.post("/auth/login", { email, password });
   }
 
   public async register(userData: any): Promise<AxiosResponse> {
-    return this.api.post('/auth/register', userData);
+    return this.api.post("/auth/register", userData);
   }
 
   // Publications
   public async getPublications(): Promise<AxiosResponse> {
-    return this.api.get('/publications');
+    return this.api.get("/publications");
   }
 
   public async getPublicationById(id: string): Promise<AxiosResponse> {
@@ -73,10 +73,13 @@ class ApiService {
   }
 
   public async createPublication(data: any): Promise<AxiosResponse> {
-    return this.api.post('/publications', data);
+    return this.api.post("/publications", data);
   }
 
-  public async updatePublication(id: string, data: any): Promise<AxiosResponse> {
+  public async updatePublication(
+    id: string,
+    data: any
+  ): Promise<AxiosResponse> {
     return this.api.put(`/publications/${id}`, data);
   }
 
@@ -97,21 +100,29 @@ class ApiService {
     return this.api.get(`/publications/${publicationId}/comments`);
   }
 
-  public async addComment(publicationId: string, data: any): Promise<AxiosResponse> {
+  public async addComment(
+    publicationId: string,
+    data: any
+  ): Promise<AxiosResponse> {
     return this.api.post(`/publications/${publicationId}/comments`, data);
   }
 
-  public async deleteComment(publicationId: string, commentId: string): Promise<AxiosResponse> {
-    return this.api.delete(`/publications/${publicationId}/comments/${commentId}`);
+  public async deleteComment(
+    publicationId: string,
+    commentId: string
+  ): Promise<AxiosResponse> {
+    return this.api.delete(
+      `/publications/${publicationId}/comments/${commentId}`
+    );
   }
 
   // Newsletter
   public async getSubscribers(): Promise<AxiosResponse> {
-    return this.api.get('/newsletter/subscribers');
+    return this.api.get("/newsletter/subscribers");
   }
 
   public async subscribe(data: any): Promise<AxiosResponse> {
-    return this.api.post('/newsletter/subscribe', data);
+    return this.api.post("/newsletter/subscribe", data);
   }
 
   public async unsubscribe(email: string): Promise<AxiosResponse> {
@@ -120,7 +131,7 @@ class ApiService {
 
   // Utilisateurs
   public async getUsers(): Promise<AxiosResponse> {
-    return this.api.get('/users');
+    return this.api.get("/users");
   }
 
   public async updateUser(id: string, data: any): Promise<AxiosResponse> {
@@ -129,6 +140,32 @@ class ApiService {
 
   public async deleteUser(id: string): Promise<AxiosResponse> {
     return this.api.delete(`/users/${id}`);
+  }
+
+  public async getPublicPublications(): Promise<AxiosResponse> {
+    return this.api.get("/publications/public/active");
+  }
+
+  public async getPublicationsByCategory(
+    category: string
+  ): Promise<AxiosResponse> {
+    return this.api.get(`/publications/public/category/${category}`);
+  }
+
+  public async likePublication(id: string): Promise<AxiosResponse> {
+    return this.api.post(`/publications/public/${id}/like`);
+  }
+  public async sendTestEmail(email: string): Promise<AxiosResponse> {
+    return this.api.post(`/newsletter/test?email=${email}`);
+  }
+  public async deleteSubscriber(id: string): Promise<AxiosResponse> {
+    return this.api.delete(`/newsletter/subscribers/${id}`);
+  }
+  public async updateUserStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<AxiosResponse> {
+    return this.api.put(`/users/${id}/status?status=${status}`);
   }
 }
 

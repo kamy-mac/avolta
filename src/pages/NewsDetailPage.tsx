@@ -1,43 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Heart, 
-  MessageCircle, 
-  Share2, 
-  Send, 
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Calendar,
+  Heart,
+  MessageCircle,
+  Share2,
+  Send,
   Tag,
   User,
   Mail,
   Clock,
-  Eye
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { Post, Comment } from '../types';
-import { getPublications, addComment, likePublication } from '../lib/storage';
+  Eye,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Post, Comment } from "../types";
+import publicationService from "../services/publication.service";
+import commentService from "../services/comment.service";
 
 export default function NewsDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [post, setPost] = useState<Post | null>(null);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const posts = await getPublications();
-        const foundPost = posts.find(p => p.id === id);
+        const posts = await publicationService.getAllPublications();
+        const foundPost = posts.find((p) => p.id === id);
         if (foundPost) {
           setPost(foundPost);
         } else {
-          navigate('/news');
+          navigate("/news");
         }
       } catch (error) {
-        console.error('Error fetching post:', error);
+        console.error("Error fetching post:", error);
       } finally {
         setIsLoading(false);
       }
@@ -48,11 +49,11 @@ export default function NewsDetailPage() {
   const handleLike = async () => {
     if (!post || isLiked) return;
     try {
-      await likePublication(post.id);
-      setPost(prev => prev ? { ...prev, likes: prev.likes + 1 } : null);
+      await publicationService.likePublication(post.id);
+      setPost((prev) => (prev ? { ...prev, likes: prev.likes + 1 } : null));
       setIsLiked(true);
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error("Error liking post:", error);
     }
   };
 
@@ -60,27 +61,34 @@ export default function NewsDetailPage() {
     e.preventDefault();
     if (!post || !comment.trim()) return;
     try {
-      const newComment = await addComment(post.id, comment);
-      setPost(prev => prev ? {
-        ...prev,
-        comments: [...prev.comments, newComment]
-      } : null);
-      setComment('');
+      const newComment = await commentService.createComment(post.id, comment);
+      setPost((prev) =>
+        prev
+          ? {
+              ...prev,
+              comments: [...prev.comments, newComment],
+            }
+          : null
+      );
+      setComment("");
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error("Error adding comment:", error);
     }
   };
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: post?.title,
-        text: post?.content,
-        url: window.location.href
-      }).catch(console.error);
+      navigator
+        .share({
+          title: post?.title,
+          text: post?.content,
+          url: window.location.href,
+        })
+        .catch(console.error);
     } else {
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => alert('Lien copié dans le presse-papier !'))
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => alert("Lien copié dans le presse-papier !"))
         .catch(console.error);
     }
   };
@@ -97,9 +105,11 @@ export default function NewsDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Publication non trouvée</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Publication non trouvée
+          </h2>
           <button
-            onClick={() => navigate('/news')}
+            onClick={() => navigate("/news")}
             className="text-[#6A0DAD] hover:underline"
           >
             Retourner aux actualités
@@ -129,7 +139,7 @@ export default function NewsDetailPage() {
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            
+
             {/* Category Badge */}
             <div className="absolute top-4 right-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-[#6A0DAD] shadow">
@@ -138,7 +148,7 @@ export default function NewsDetailPage() {
               </span>
             </div>
           </div>
-          
+
           <div className="p-8">
             {/* Author Info */}
             <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
@@ -147,7 +157,9 @@ export default function NewsDetailPage() {
                   <User className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{post.authorName}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {post.authorName}
+                  </h3>
                   <div className="flex items-center text-gray-500 text-sm">
                     <Mail className="w-4 h-4 mr-1" />
                     {post.authorEmail}
@@ -156,13 +168,15 @@ export default function NewsDetailPage() {
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="w-4 h-4 mr-1" />
-                {new Date(post.createdAt).toLocaleDateString('fr-BE')}
+                {new Date(post.createdAt).toLocaleDateString("fr-BE")}
               </div>
             </div>
 
             {/* Title and Content */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-6">{post.title}</h1>
-            
+            <h1 className="text-4xl font-bold text-gray-900 mb-6">
+              {post.title}
+            </h1>
+
             <div className="prose max-w-none mb-8 text-gray-700 leading-relaxed">
               {post.content}
             </div>
@@ -171,41 +185,51 @@ export default function NewsDetailPage() {
             <div className="flex items-center space-x-6 text-sm text-gray-500 mb-8">
               <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
-                <span>Valide du {new Date(post.validFrom).toLocaleDateString('fr-BE')}</span>
+                <span>
+                  Valide du{" "}
+                  {new Date(post.validFrom).toLocaleDateString("fr-BE")}
+                </span>
               </div>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
-                <span>au {new Date(post.validTo).toLocaleDateString('fr-BE')}</span>
+                <span>
+                  au {new Date(post.validTo).toLocaleDateString("fr-BE")}
+                </span>
               </div>
               <div className="flex items-center">
                 <Eye className="w-4 h-4 mr-1" />
-                <span>Publication {post.status === 'published' ? 'publiée' : 'en attente'}</span>
+                <span>
+                  Publication{" "}
+                  {post.status === "published" ? "publiée" : "en attente"}
+                </span>
               </div>
             </div>
 
             {/* Interaction Buttons */}
             <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-              <button 
+              <button
                 onClick={handleLike}
                 className={`flex items-center px-4 py-2 rounded-full transition-colors ${
-                  isLiked 
-                    ? 'text-[#6A0DAD] bg-purple-50' 
-                    : 'text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50'
+                  isLiked
+                    ? "text-[#6A0DAD] bg-purple-50"
+                    : "text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50"
                 }`}
               >
-                <Heart className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+                <Heart
+                  className={`w-5 h-5 mr-2 ${isLiked ? "fill-current" : ""}`}
+                />
                 <span>{post.likes}</span>
               </button>
               <button className="flex items-center px-4 py-2 rounded-full text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50 transition-colors">
                 <MessageCircle className="w-5 h-5 mr-2" />
                 <span>{post.comments.length}</span>
               </button>
-              <button 
+              <button
                 onClick={handleShare}
                 className="flex items-center px-4 py-2 rounded-full text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50 transition-colors"
               >
                 <Share2 className="w-5 h-5 mr-2" />
-                {t('news.share')}
+                {t("news.share")}
               </button>
             </div>
           </div>
@@ -215,7 +239,7 @@ export default function NewsDetailPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Commentaires ({post.comments.length})
             </h2>
-            
+
             <form onSubmit={handleComment} className="mb-8">
               <div className="flex gap-4">
                 <input
@@ -238,16 +262,21 @@ export default function NewsDetailPage() {
 
             <div className="space-y-6">
               {post.comments.map((comment: Comment) => (
-                <div key={comment.id} className="bg-white rounded-lg p-4 shadow-sm">
+                <div
+                  key={comment.id}
+                  className="bg-white rounded-lg p-4 shadow-sm"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 bg-[#6A0DAD] rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-white" />
                       </div>
-                      <span className="font-medium text-gray-900">{comment.author}</span>
+                      <span className="font-medium text-gray-900">
+                        {comment.author}
+                      </span>
                     </div>
                     <span className="text-sm text-gray-500">
-                      {new Date(comment.createdAt).toLocaleDateString('fr-BE')}
+                      {new Date(comment.createdAt).toLocaleDateString("fr-BE")}
                     </span>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>
@@ -256,7 +285,8 @@ export default function NewsDetailPage() {
 
               {post.comments.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  Aucun commentaire pour le moment. Soyez le premier à commenter !
+                  Aucun commentaire pour le moment. Soyez le premier à commenter
+                  !
                 </div>
               )}
             </div>

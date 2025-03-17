@@ -1,22 +1,12 @@
 /**
  * Newsletter Service
- * 
+ *
  * This module provides functionality for managing newsletter subscriptions.
- * 
+ *
  * @module services/newsletter
  */
 
-import api from './api';
-
-/**
- * API response wrapper interface
- */
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  timestamp: string;
-}
+import api from "./api";
 
 /**
  * Newsletter subscriber interface
@@ -50,10 +40,10 @@ class NewsletterService {
    */
   public async getAllSubscribers(): Promise<NewsletterSubscriber[]> {
     try {
-      const response = await api.get<ApiResponse<NewsletterSubscriber[]>>('/newsletter/subscribers');
-      return response.data;
+      const response = await api.getSubscribers();
+      return response.data.data;
     } catch (error) {
-      console.error('Error fetching newsletter subscribers:', error);
+      console.error("Error fetching newsletter subscribers:", error);
       throw error;
     }
   }
@@ -63,12 +53,14 @@ class NewsletterService {
    * @param data Subscription data
    * @returns Created subscriber
    */
-  public async subscribe(data: NewsletterSubscriptionRequest): Promise<NewsletterSubscriber> {
+  public async subscribe(
+    data: NewsletterSubscriptionRequest
+  ): Promise<NewsletterSubscriber> {
     try {
-      const response = await api.post<ApiResponse<NewsletterSubscriber>>('/newsletter/subscribe', data);
-      return response.data;
+      const response = await api.subscribe(data);
+      return response.data.data;
     } catch (error) {
-      console.error('Error subscribing to newsletter:', error);
+      console.error("Error subscribing to newsletter:", error);
       throw error;
     }
   }
@@ -79,7 +71,7 @@ class NewsletterService {
    */
   public async unsubscribe(email: string): Promise<void> {
     try {
-      await api.delete(`/newsletter/unsubscribe?email=${email}`);
+      await api.unsubscribe(email);
     } catch (error) {
       console.error(`Error unsubscribing email ${email}:`, error);
       throw error;
@@ -92,7 +84,7 @@ class NewsletterService {
    */
   public async deleteSubscriber(id: string): Promise<void> {
     try {
-      await api.delete(`/newsletter/subscribers/${id}`);
+      await api.deleteSubscriber(id);
     } catch (error) {
       console.error(`Error deleting subscriber ${id}:`, error);
       throw error;
@@ -105,7 +97,7 @@ class NewsletterService {
    */
   public async sendTestEmail(email: string): Promise<void> {
     try {
-      await api.post(`/newsletter/test?email=${email}`);
+      await api.sendTestEmail(email);
     } catch (error) {
       console.error(`Error sending test email to ${email}:`, error);
       throw error;

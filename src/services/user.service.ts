@@ -1,23 +1,13 @@
 /**
  * User Service
- * 
+ *
  * This module provides functionality for managing users.
- * 
+ *
  * @module services/user
  */
 
-import api from './api';
-import { User } from '../types';
-
-/**
- * API response wrapper interface
- */
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  timestamp: string;
-}
+import api from "./api";
+import { User } from "../types";
 
 /**
  * User service
@@ -29,10 +19,10 @@ class UserService {
    */
   public async getAllUsers(): Promise<User[]> {
     try {
-      const response = await api.get<ApiResponse<User[]>>('/users');
-      return response.data;
+      const response = await api.getUsers();
+      return response.data.data;
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
       throw error;
     }
   }
@@ -44,8 +34,13 @@ class UserService {
    */
   public async getUserById(id: string): Promise<User> {
     try {
-      const response = await api.get<ApiResponse<User>>(`/users/${id}`);
-      return response.data;
+      // Utiliser une méthode spécifique si elle existe
+      const response = await api.getUsers(); // Remplacer par api.getUserById(id) si disponible
+      const user = response.data.data.find((u: User) => u.id === id);
+      if (!user) {
+        throw new Error(`User with ID ${id} not found`);
+      }
+      return user;
     } catch (error) {
       console.error(`Error fetching user with ID ${id}:`, error);
       throw error;
@@ -58,10 +53,13 @@ class UserService {
    * @param status New status
    * @returns Updated user
    */
-  public async updateUserStatus(id: string, status: 'ACTIVE' | 'INACTIVE'): Promise<User> {
+  public async updateUserStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<User> {
     try {
-      const response = await api.put<ApiResponse<User>>(`/users/${id}/status?status=${status}`);
-      return response.data;
+      const response = await api.updateUserStatus(id, status);
+      return response.data.data;
     } catch (error) {
       console.error(`Error updating status for user ${id}:`, error);
       throw error;
@@ -74,7 +72,7 @@ class UserService {
    */
   public async deleteUser(id: string): Promise<void> {
     try {
-      await api.delete(`/users/${id}`);
+      await api.deleteUser(id);
     } catch (error) {
       console.error(`Error deleting user ${id}:`, error);
       throw error;

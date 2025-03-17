@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, Image as ImageIcon, Send, Type } from 'lucide-react';
-import { api } from '../../lib/api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Calendar, Image as ImageIcon, Send, Type } from "lucide-react";
+import api from "../../services/publication.service";
 
 interface PublicationForm {
   title: string;
@@ -16,13 +16,13 @@ interface PublicationForm {
 export default function CreatePublication() {
   const navigate = useNavigate();
   const [publication, setPublication] = useState<PublicationForm>({
-    title: '',
-    content: '',
-    imageUrl: '',
-    validFrom: '',
-    validTo: '',
-    category: 'news',
-    sendNewsletter: false
+    title: "",
+    content: "",
+    imageUrl: "",
+    validFrom: "",
+    validTo: "",
+    category: "news",
+    sendNewsletter: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,33 +33,37 @@ export default function CreatePublication() {
     setError(null);
 
     try {
-      console.log('Creating publication:', publication);
+      console.log("Creating publication:", publication);
       const response = await api.createPublication(publication);
-      console.log('Publication created:', response);
-      navigate('/admin/publications');
+      console.log("Publication created:", response);
+      navigate("/admin/publications");
     } catch (err) {
-      console.error('Error creating publication:', err);
-      setError('Failed to create publication. Please try again.');
+      console.error("Error creating publication:", err);
+      setError("Failed to create publication. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setPublication(prev => ({ ...prev, [name]: value }));
+    setPublication((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setPublication(prev => ({ ...prev, [name]: checked }));
+    setPublication((prev) => ({ ...prev, [name]: checked }));
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Create Publication</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        Create Publication
+      </h1>
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
@@ -69,7 +73,10 @@ export default function CreatePublication() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-gray-700"
+          >
             Title
           </label>
           <div className="mt-1 relative rounded-md shadow-sm">
@@ -98,9 +105,25 @@ export default function CreatePublication() {
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Creating...
               </>
