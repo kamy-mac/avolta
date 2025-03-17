@@ -2,8 +2,8 @@
 
 ## Variables d'environnement
 @baseUrl = http://localhost:8090
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MTkwMTEyNiwiZXhwIjoxNzQxOTg3NTI2fQ.KOH0f2RbRqOb1rI-sy7GQ1QxxHE_4c2AMR6J3dnJ8zQ
-@superAdminToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MTkwMTEyNiwiZXhwIjoxNzQxOTg3NTI2fQ.KOH0f2RbRqOb1rI-sy7GQ1QxxHE_4c2AMR6J3dnJ8zQ
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjE1NzQxNSwiZXhwIjoxNzQyMjQzODE1fQ.oDZ_frbIE48FlZfSfKUNZaRSYnpWFmVq42XdFodQ6dQ
+@superAdminToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjE1NzQxNSwiZXhwIjoxNzQyMjQzODE1fQ.oDZ_frbIE48FlZfSfKUNZaRSYnpWFmVq42XdFodQ6dQ
 
 ## 1. PublicationController
 
@@ -103,6 +103,7 @@ Content-Type: application/json
 
 ### Se désabonner de la newsletter (endpoint public)
 DELETE {{baseUrl}}/api/newsletter/unsubscribe?email=utilisateur@example.com
+Authorization: Bearer {{token}}
 
 ### Supprimer un abonné (nécessite authentification)
 DELETE {{baseUrl}}/api/newsletter/subscribers/123e4567-e89b-12d3-a456-426614174000

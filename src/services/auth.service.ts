@@ -1,14 +1,14 @@
 /**
  * Authentication Service
- * 
+ *
  * This module provides authentication-related functionality including login, logout,
  * and user management.
- * 
+ *
  * @module services/auth
  */
 
-import api from './api';
-import { User } from '../types';
+import api from "./api";
+import { User } from "../types";
 
 /**
  * Login request interface
@@ -46,15 +46,21 @@ class AuthService {
    */
   public async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
+      console.log("Tentative de connexion avec:", credentials);
       const response = await api.login(credentials.email, credentials.password);
-      
+      console.log("Réponse complète:", response);
+
+      // Correction: accès au bon chemin dans la structure de réponse
+      // La structure est: { success, message, data: { token, user }, timestamp }
+      const { token, user } = response.data.data;
+
       // Store token
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-      
-      return response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("currentUser", JSON.stringify(user));
+
+      return { token, user };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       throw error;
     }
   }
@@ -63,9 +69,9 @@ class AuthService {
    * Logout user
    */
   public logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    window.location.href = '/login';
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
+    window.location.href = "/login";
   }
 
   /**
@@ -78,7 +84,7 @@ class AuthService {
       const response = await api.register(userData);
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       throw error;
     }
   }
@@ -88,7 +94,7 @@ class AuthService {
    * @returns User information or null if not authenticated
    */
   public getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('currentUser');
+    const userStr = localStorage.getItem("currentUser");
     if (userStr) {
       try {
         return JSON.parse(userStr);
@@ -103,7 +109,7 @@ class AuthService {
    * Check if user is authenticated
    */
   public isAuthenticated(): boolean {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem("token");
   }
 
   /**
@@ -118,7 +124,7 @@ class AuthService {
    * Check if user is a super admin
    */
   public isSuperAdmin(): boolean {
-    return this.hasRole('superadmin');
+    return this.hasRole("superadmin");
   }
 }
 
