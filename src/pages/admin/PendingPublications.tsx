@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, X, Eye, Calendar, Search, Edit2 } from 'lucide-react';
-import { getPendingPublications, approvePublication, rejectPublication } from '../../lib/storage';
-import { Post } from '../../types';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Check, X, Eye, Calendar, Search, Edit2 } from "lucide-react";
+import publicationService from "../../services/publication.service";
+import { Post } from "../../types";
+import { useAuth } from "../../context/AuthContext";
 
 export default function PendingPublications() {
   const [publications, setPublications] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user?.role !== 'superadmin') {
-      navigate('/admin');
+    if (user?.role !== "superadmin") {
+      navigate("/admin");
       return;
     }
     loadPublications();
@@ -22,12 +22,15 @@ export default function PendingPublications() {
 
   const loadPublications = async () => {
     try {
-      const data = await getPendingPublications();
-      setPublications(data.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      ));
+      const data = await publicationService.getPendingPublications();
+      setPublications(
+        data.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      );
     } catch (error) {
-      console.error('Error loading pending publications:', error);
+      console.error("Error loading pending publications:", error);
     } finally {
       setIsLoading(false);
     }
@@ -35,20 +38,22 @@ export default function PendingPublications() {
 
   const handleApprove = async (id: string) => {
     try {
-      await approvePublication(id);
-      setPublications(prev => prev.filter(pub => pub.id !== id));
+      await publicationService.approvePublication(id);
+      setPublications((prev) => prev.filter((pub) => pub.id !== id));
     } catch (error) {
-      console.error('Error approving publication:', error);
+      console.error("Error approving publication:", error);
     }
   };
 
   const handleReject = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir rejeter cette publication ?')) {
+    if (
+      window.confirm("Êtes-vous sûr de vouloir rejeter cette publication ?")
+    ) {
       try {
-        await rejectPublication(id);
-        setPublications(prev => prev.filter(pub => pub.id !== id));
+        await publicationService.rejectPublication(id);
+        setPublications((prev) => prev.filter((pub) => pub.id !== id));
       } catch (error) {
-        console.error('Error rejecting publication:', error);
+        console.error("Error rejecting publication:", error);
       }
     }
   };
@@ -61,9 +66,10 @@ export default function PendingPublications() {
     navigate(`/news/${id}`);
   };
 
-  const filteredPublications = publications.filter(pub =>
-    pub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    pub.content.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPublications = publications.filter(
+    (pub) =>
+      pub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pub.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -72,7 +78,7 @@ export default function PendingPublications() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
-            {[1, 2, 3].map(n => (
+            {[1, 2, 3].map((n) => (
               <div key={n} className="h-32 bg-gray-200 rounded"></div>
             ))}
           </div>
@@ -108,7 +114,7 @@ export default function PendingPublications() {
 
         {filteredPublications.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
-            {searchTerm 
+            {searchTerm
               ? "Aucune publication ne correspond à votre recherche"
               : "Aucune publication en attente"}
           </div>
@@ -121,7 +127,9 @@ export default function PendingPublications() {
                     <div className="flex items-center mb-2">
                       <Calendar className="w-4 h-4 text-gray-400 mr-2" />
                       <span className="text-sm text-gray-500">
-                        {new Date(publication.createdAt).toLocaleDateString('fr-BE')}
+                        {new Date(publication.createdAt).toLocaleDateString(
+                          "fr-BE"
+                        )}
                       </span>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -170,9 +178,16 @@ export default function PendingPublications() {
                   )}
                 </div>
                 <div className="mt-4 flex items-center text-sm text-gray-500">
-                  <span>Valide du {new Date(publication.validFrom).toLocaleDateString('fr-BE')}</span>
+                  <span>
+                    Valide du{" "}
+                    {new Date(publication.validFrom).toLocaleDateString(
+                      "fr-BE"
+                    )}
+                  </span>
                   <span className="mx-2">au</span>
-                  <span>{new Date(publication.validTo).toLocaleDateString('fr-BE')}</span>
+                  <span>
+                    {new Date(publication.validTo).toLocaleDateString("fr-BE")}
+                  </span>
                 </div>
               </div>
             ))}

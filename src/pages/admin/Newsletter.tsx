@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Mail, Send, Trash2, Download, Filter, AlertCircle, CheckCircle, Loader2, RefreshCw } from 'lucide-react';
-import { getSubscribers, sendTestEmail, sendNewsletterCampaign } from '../../lib/mailchimp';
-import { getPublishedPublications, deleteNewsletterSubscriber } from '../../lib/storage';
-import { Post } from '../../types';
+import React, { useState, useEffect } from "react";
+import {
+  Mail,
+  Send,
+  Trash2,
+  Download,
+  Filter,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
+import newsletterService from "../../services/newsletter.service";
+import publicationService from "../../services/publication.service";
+import { Post } from "../../types";
 
 interface Subscriber {
   id: string;
@@ -19,14 +29,16 @@ interface Subscriber {
 export default function Newsletter() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
-  const [filter, setFilter] = useState<'all' | 'active' | 'unsubscribed'>('all');
+  const [filter, setFilter] = useState<"all" | "active" | "unsubscribed">(
+    "all"
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [testEmail, setTestEmail] = useState('');
+  const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [publications, setPublications] = useState<Post[]>([]);
-  const [selectedPublication, setSelectedPublication] = useState<string>('');
+  const [selectedPublication, setSelectedPublication] = useState<string>("");
   const [isSendingNewsletter, setIsSendingNewsletter] = useState(false);
   const [showTestEmailForm, setShowTestEmailForm] = useState(false);
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
@@ -36,14 +48,29 @@ export default function Newsletter() {
     loadPublications();
   }, []);
 
+  // Dans le composant Newsletter.tsx
   const loadSubscribers = async () => {
     try {
       setIsLoading(true);
-      const data = await getSubscribers();
-      setSubscribers(data);
+      const response = await newsletterService.getAllSubscribers();
+      //tofix: par rapport à ton mailchimp
+      // Adapter les données au format attendu par le composant
+      const adaptedSubscribers: Subscriber[] = response.map((sub) => ({
+        id: sub.id,
+        email_address: sub.email,
+        status: sub.confirmed ? "subscribed" : "unsubscribed",
+        merge_fields: {
+          FNAME: sub.firstName || "",
+          LNAME: sub.lastName || "",
+        },
+        timestamp_signup: sub.createdAt,
+        last_changed: sub.lastSentAt || sub.createdAt,
+      }));
+
+      setSubscribers(adaptedSubscribers);
     } catch (err) {
       console.error("Error loading subscribers:", err);
-      setError('Erreur lors du chargement des abonnés');
+      setError("Erreur lors du chargement des abonnés");
     } finally {
       setIsLoading(false);
     }
@@ -51,46 +78,44 @@ export default function Newsletter() {
 
   const loadPublications = async () => {
     try {
-      const data = await getPublishedPublications();
+      const data = await publicationService.getActivePublications();
       setPublications(data);
     } catch (err) {
-      console.error('Error loading publications:', err);
+      console.error("Error loading publications:", err);
     }
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedEmails(filteredSubscribers.map(sub => sub.email_address));
+      setSelectedEmails(filteredSubscribers.map((sub) => sub.email_address));
     } else {
       setSelectedEmails([]);
     }
   };
 
   const handleSelectSubscriber = (email: string) => {
-    setSelectedEmails(prev =>
-      prev.includes(email)
-        ? prev.filter(e => e !== email)
-        : [...prev, email]
+    setSelectedEmails((prev) =>
+      prev.includes(email) ? prev.filter((e) => e !== email) : [...prev, email]
     );
   };
 
   const handleSendTestEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!testEmail) return;
-    
+
     try {
       setIsSendingTest(true);
       setError(null);
-      await sendTestEmail(testEmail);
-      setSuccess('Email de test envoyé avec succès !');
-      setTestEmail('');
+      await newsletterService.sendTestEmail(testEmail);
+      setSuccess("Email de test envoyé avec succès !");
+      setTestEmail("");
       setShowTestEmailForm(false);
-      
+
       setTimeout(() => {
         setSuccess(null);
       }, 5000);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'envoi de l\'email de test');
+      setError(err.message || "Erreur lors de l'envoi de l'email de test");
     } finally {
       setIsSendingTest(false);
     }
@@ -99,32 +124,34 @@ export default function Newsletter() {
   const handleSendNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPublication) return;
-    
+
     try {
       setIsSendingNewsletter(true);
       setError(null);
-      
-      const publication = publications.find(p => p.id === selectedPublication);
+
+      const publication = publications.find(
+        (p) => p.id === selectedPublication
+      );
       if (!publication) {
-        throw new Error('Publication non trouvée');
+        throw new Error("Publication non trouvée");
       }
-      
-      await sendNewsletterCampaign({
-        title: publication.title,
-        content: publication.content,
-        imageUrl: publication.imageUrl,
-        category: publication.category
-      });
-      
-      setSuccess('Newsletter envoyée avec succès !');
-      setSelectedPublication('');
+      //tofix: par rapport à ton mailchimp
+      // await sendNewsletterCampaign({
+      //   title: publication.title,
+      //   content: publication.content,
+      //   imageUrl: publication.imageUrl,
+      //   category: publication.category,
+      // });
+
+      setSuccess("Newsletter envoyée avec succès !");
+      setSelectedPublication("");
       setShowNewsletterForm(false);
-      
+
       setTimeout(() => {
         setSuccess(null);
       }, 5000);
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de l\'envoi de la newsletter');
+      setError(err.message || "Erreur lors de l'envoi de la newsletter");
     } finally {
       setIsSendingNewsletter(false);
     }
@@ -132,44 +159,55 @@ export default function Newsletter() {
 
   const handleDeleteSubscriber = async (id: string) => {
     try {
-      await deleteNewsletterSubscriber(id);
-      setSubscribers(prev => prev.filter(sub => sub.id !== id));
-      setSuccess('Abonné supprimé avec succès');
-      
+      await newsletterService.deleteSubscriber(id);
+      setSubscribers((prev) => prev.filter((sub) => sub.id !== id));
+      setSuccess("Abonné supprimé avec succès");
+
       setTimeout(() => {
         setSuccess(null);
       }, 3000);
     } catch (err) {
-      setError('Erreur lors de la suppression de l\'abonné');
+      setError("Erreur lors de la suppression de l'abonné");
     }
   };
 
   const handleExportCSV = () => {
     const csvContent = [
-      ['Email', 'Prénom', 'Nom', 'Statut', 'Date d\'inscription', 'Dernière modification'].join(','),
-      ...filteredSubscribers.map(sub => [
-        sub.email_address,
-        sub.merge_fields.FNAME || '',
-        sub.merge_fields.LNAME || '',
-        sub.status,
-        new Date(sub.timestamp_signup).toLocaleDateString('fr-BE'),
-        new Date(sub.last_changed).toLocaleDateString('fr-BE')
-      ].join(','))
-    ].join('\n');
+      [
+        "Email",
+        "Prénom",
+        "Nom",
+        "Statut",
+        "Date d'inscription",
+        "Dernière modification",
+      ].join(","),
+      ...filteredSubscribers.map((sub) =>
+        [
+          sub.email_address,
+          sub.merge_fields.FNAME || "",
+          sub.merge_fields.LNAME || "",
+          sub.status,
+          new Date(sub.timestamp_signup).toLocaleDateString("fr-BE"),
+          new Date(sub.last_changed).toLocaleDateString("fr-BE"),
+        ].join(",")
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `newsletter-subscribers-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `newsletter-subscribers-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
     link.click();
   };
 
-  const filteredSubscribers = subscribers.filter(sub => {
+  const filteredSubscribers = subscribers.filter((sub) => {
     switch (filter) {
-      case 'active':
-        return sub.status === 'subscribed';
-      case 'unsubscribed':
-        return sub.status === 'unsubscribed';
+      case "active":
+        return sub.status === "subscribed";
+      case "unsubscribed":
+        return sub.status === "unsubscribed";
       default:
         return true;
     }
@@ -181,7 +219,7 @@ export default function Newsletter() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map(n => (
+            {[1, 2, 3, 4, 5].map((n) => (
               <div key={n} className="h-12 bg-gray-200 rounded"></div>
             ))}
           </div>
@@ -221,24 +259,31 @@ export default function Newsletter() {
                   <Send className="h-5 w-5 mr-2" />
                   Envoyer une newsletter
                 </button>
-                
+
                 {showNewsletterForm && (
                   <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg z-10 p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Envoyer une newsletter</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Envoyer une newsletter
+                    </h3>
                     <form onSubmit={handleSendNewsletter}>
                       <div className="mb-4">
-                        <label htmlFor="publication" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="publication"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Sélectionner une publication
                         </label>
                         <select
                           id="publication"
                           value={selectedPublication}
-                          onChange={(e) => setSelectedPublication(e.target.value)}
+                          onChange={(e) =>
+                            setSelectedPublication(e.target.value)
+                          }
                           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                           required
                         >
                           <option value="">Sélectionner une publication</option>
-                          {publications.map(pub => (
+                          {publications.map((pub) => (
                             <option key={pub.id} value={pub.id}>
                               {pub.title}
                             </option>
@@ -275,7 +320,7 @@ export default function Newsletter() {
                   </div>
                 )}
               </div>
-              
+
               <div className="relative">
                 <button
                   onClick={() => setShowTestEmailForm(!showTestEmailForm)}
@@ -284,13 +329,18 @@ export default function Newsletter() {
                   <Mail className="h-5 w-5 mr-2" />
                   Tester
                 </button>
-                
+
                 {showTestEmailForm && (
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-10 p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Envoyer un email de test</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      Envoyer un email de test
+                    </h3>
                     <form onSubmit={handleSendTestEmail}>
                       <div className="mb-4">
-                        <label htmlFor="testEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="testEmail"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Email de test
                         </label>
                         <input
@@ -350,7 +400,8 @@ export default function Newsletter() {
               </select>
             </div>
             <p className="text-sm text-gray-500">
-              {filteredSubscribers.length} abonné{filteredSubscribers.length !== 1 ? 's' : ''}
+              {filteredSubscribers.length} abonné
+              {filteredSubscribers.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -373,27 +424,48 @@ export default function Newsletter() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   <input
                     type="checkbox"
-                    checked={selectedEmails.length === filteredSubscribers.length && filteredSubscribers.length > 0}
+                    checked={
+                      selectedEmails.length === filteredSubscribers.length &&
+                      filteredSubscribers.length > 0
+                    }
                     onChange={handleSelectAll}
                     className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                   />
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Email
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Nom
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Statut
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Date d'inscription
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Dernière modification
                 </th>
                 <th scope="col" className="relative px-6 py-3">
@@ -404,7 +476,10 @@ export default function Newsletter() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSubscribers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
                     Aucun abonné trouvé
                   </td>
                 </tr>
@@ -414,8 +489,12 @@ export default function Newsletter() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
-                        checked={selectedEmails.includes(subscriber.email_address)}
-                        onChange={() => handleSelectSubscriber(subscriber.email_address)}
+                        checked={selectedEmails.includes(
+                          subscriber.email_address
+                        )}
+                        onChange={() =>
+                          handleSelectSubscriber(subscriber.email_address)
+                        }
                         className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                       />
                     </td>
@@ -428,30 +507,43 @@ export default function Newsletter() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {subscriber.merge_fields.FNAME || subscriber.merge_fields.LNAME ? (
-                        `${subscriber.merge_fields.FNAME || ''} ${subscriber.merge_fields.LNAME || ''}`
+                      {subscriber.merge_fields.FNAME ||
+                      subscriber.merge_fields.LNAME ? (
+                        `${subscriber.merge_fields.FNAME || ""} ${
+                          subscriber.merge_fields.LNAME || ""
+                        }`
                       ) : (
-                        <span className="text-gray-400 italic">Non renseigné</span>
+                        <span className="text-gray-400 italic">
+                          Non renseigné
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        subscriber.status === 'subscribed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {subscriber.status === 'subscribed' ? 'Abonné' : 'Désabonné'}
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          subscriber.status === "subscribed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {subscriber.status === "subscribed"
+                          ? "Abonné"
+                          : "Désabonné"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {subscriber.timestamp_signup
-                        ? new Date(subscriber.timestamp_signup).toLocaleDateString('fr-BE')
-                        : '-'}
+                        ? new Date(
+                            subscriber.timestamp_signup
+                          ).toLocaleDateString("fr-BE")
+                        : "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {subscriber.last_changed
-                        ? new Date(subscriber.last_changed).toLocaleDateString('fr-BE')
-                        : '-'}
+                        ? new Date(subscriber.last_changed).toLocaleDateString(
+                            "fr-BE"
+                          )
+                        : "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button

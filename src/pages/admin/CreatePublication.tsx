@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Calendar, 
-  Image as ImageIcon, 
-  Send, 
-  Type, 
-  Bold, 
-  Italic, 
-  Link as LinkIcon, 
-  AlignLeft, 
-  AlignCenter, 
-  AlignRight, 
-  List, 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  Image as ImageIcon,
+  Send,
+  Type,
+  Bold,
+  Italic,
+  Link as LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
   ListOrdered,
   Quote,
   Eye,
@@ -19,10 +19,10 @@ import {
   Clock,
   Bell,
   User,
-  Mail
-} from 'lucide-react';
-import { createPublication } from '../../lib/storage';
-import { useAuth } from '../../context/AuthContext';
+  Mail,
+} from "lucide-react";
+import publicationService from "../../services/publication.service";
+import { useAuth } from "../../context/AuthContext";
 
 interface PublicationForm {
   title: string;
@@ -41,109 +41,124 @@ export default function CreatePublication() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [publication, setPublication] = useState<PublicationForm>({
-    title: '',
-    content: '',
-    imageUrl: '',
-    validFrom: '',
-    validTo: '',
-    category: 'news',
+    title: "",
+    content: "",
+    imageUrl: "",
+    validFrom: "",
+    validTo: "",
+    category: "news",
     sendNewsletter: false,
     tags: [],
-    authorName: '',
-    authorEmail: user?.email || ''
+    authorName: "",
+    authorEmail: user?.email || "",
   });
 
   const [previewMode, setPreviewMode] = useState(false);
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createPublication(publication);
-      if (user?.role === 'admin') {
-        alert('Votre publication a été soumise et est en attente de validation par un super administrateur.');
+      await publicationService.createPublication({
+        title: publication.title,
+        content: publication.content,
+        imageUrl: publication.imageUrl,
+        validFrom: publication.validFrom,
+        validTo: publication.validTo,
+        category: publication.category,
+        sendNewsletter: publication.sendNewsletter,
+      });
+      if (user?.role === "admin") {
+        alert(
+          "Votre publication a été soumise et est en attente de validation par un super administrateur."
+        );
       }
-      navigate('/admin/publications');
+      navigate("/admin/publications");
     } catch (error) {
-      console.error('Error creating publication:', error);
-      alert('Une erreur est survenue lors de la création de la publication.');
+      console.error("Error creating publication:", error);
+      alert("Une erreur est survenue lors de la création de la publication.");
     }
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setPublication(prev => ({ ...prev, [name]: value }));
+    setPublication((prev) => ({ ...prev, [name]: value }));
 
-    if (name === 'imageUrl' && value) {
+    if (name === "imageUrl" && value) {
       setImagePreview(value);
     }
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setPublication(prev => ({ ...prev, [name]: checked }));
+    setPublication((prev) => ({ ...prev, [name]: checked }));
   };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && newTag.trim()) {
+    if (e.key === "Enter" && newTag.trim()) {
       e.preventDefault();
       if (!publication.tags.includes(newTag.trim())) {
-        setPublication(prev => ({
+        setPublication((prev) => ({
           ...prev,
-          tags: [...prev.tags, newTag.trim()]
+          tags: [...prev.tags, newTag.trim()],
         }));
       }
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setPublication(prev => ({
+    setPublication((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('fr-BE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("fr-BE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const toolbarButtons = [
-    { icon: Bold, label: 'Gras', format: '**' },
-    { icon: Italic, label: 'Italique', format: '*' },
-    { icon: Quote, label: 'Citation', format: '> ' },
-    { icon: List, label: 'Liste à puces', format: '- ' },
-    { icon: ListOrdered, label: 'Liste numérotée', format: '1. ' },
-    { icon: LinkIcon, label: 'Lien', format: '[texte](url)' }
+    { icon: Bold, label: "Gras", format: "**" },
+    { icon: Italic, label: "Italique", format: "*" },
+    { icon: Quote, label: "Citation", format: "> " },
+    { icon: List, label: "Liste à puces", format: "- " },
+    { icon: ListOrdered, label: "Liste numérotée", format: "1. " },
+    { icon: LinkIcon, label: "Lien", format: "[texte](url)" },
   ];
 
   const handleFormat = (format: string) => {
-    const textarea = document.getElementById('content') as HTMLTextAreaElement;
+    const textarea = document.getElementById("content") as HTMLTextAreaElement;
     if (!textarea) return;
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = textarea.value.substring(start, end);
-    let formattedText = '';
+    let formattedText = "";
 
-    if (format === '[texte](url)') {
+    if (format === "[texte](url)") {
       formattedText = selectedText ? `[${selectedText}](url)` : format;
-    } else if (format.endsWith(' ')) {
+    } else if (format.endsWith(" ")) {
       // For lists
       formattedText = format + selectedText;
     } else {
       formattedText = `${format}${selectedText}${format}`;
     }
 
-    const newContent = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
-    setPublication(prev => ({ ...prev, content: newContent }));
+    const newContent =
+      textarea.value.substring(0, start) +
+      formattedText +
+      textarea.value.substring(end);
+    setPublication((prev) => ({ ...prev, content: newContent }));
 
     // Reset selection
     setTimeout(() => {
@@ -156,13 +171,15 @@ export default function CreatePublication() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Créer une publication</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Créer une publication
+        </h1>
         <button
           onClick={() => setPreviewMode(!previewMode)}
           className="px-4 py-2 text-sm font-medium text-white bg-[#6A0DAD] rounded-md hover:bg-[#5a0b91] transition-colors flex items-center"
         >
           <Eye className="w-4 h-4 mr-2" />
-          {previewMode ? 'Éditer' : 'Prévisualiser'}
+          {previewMode ? "Éditer" : "Prévisualiser"}
         </button>
       </div>
 
@@ -178,20 +195,26 @@ export default function CreatePublication() {
             </div>
           )}
           <div className="flex items-center space-x-2 mb-4">
-            {publication.tags.map(tag => (
-              <span key={tag} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+            {publication.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+              >
                 {tag}
               </span>
             ))}
           </div>
-          <h2 className="text-2xl font-bold mb-4">{publication.title || 'Titre de la publication'}</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            {publication.title || "Titre de la publication"}
+          </h2>
           <div className="prose max-w-none mb-6">
-            {publication.content || 'Contenu de la publication...'}
+            {publication.content || "Contenu de la publication..."}
           </div>
           <div className="flex items-center text-sm text-gray-500 space-x-4">
             <span className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
-              {publication.validFrom && `Du ${formatDate(publication.validFrom)}`}
+              {publication.validFrom &&
+                `Du ${formatDate(publication.validFrom)}`}
             </span>
             <span className="flex items-center">
               <Clock className="w-4 h-4 mr-1" />
@@ -205,7 +228,10 @@ export default function CreatePublication() {
             {/* Author Information Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="authorName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Nom de l'auteur
                 </label>
                 <div className="relative">
@@ -222,7 +248,10 @@ export default function CreatePublication() {
                 </div>
               </div>
               <div>
-                <label htmlFor="authorEmail" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="authorEmail"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email de l'auteur
                 </label>
                 <div className="relative">
@@ -242,7 +271,10 @@ export default function CreatePublication() {
 
             {/* Title Section */}
             <div className="mb-6">
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Titre
               </label>
               <div className="relative">
@@ -262,7 +294,10 @@ export default function CreatePublication() {
             {/* Category and Tags Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="category"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Catégorie
                 </label>
                 <div className="relative">
@@ -296,7 +331,7 @@ export default function CreatePublication() {
                   <Tag className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {publication.tags.map(tag => (
+                  {publication.tags.map((tag) => (
                     <span
                       key={tag}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
@@ -317,7 +352,10 @@ export default function CreatePublication() {
 
             {/* Rich Text Editor */}
             <div className="mb-6">
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="content"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Contenu
               </label>
               <div className="border rounded-lg overflow-hidden">
@@ -370,7 +408,10 @@ export default function CreatePublication() {
 
             {/* Image Section */}
             <div className="mb-6">
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="imageUrl"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Image
               </label>
               <div className="relative">
@@ -399,7 +440,10 @@ export default function CreatePublication() {
             {/* Date Range Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label htmlFor="validFrom" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="validFrom"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Date de début
                 </label>
                 <div className="relative">
@@ -416,7 +460,10 @@ export default function CreatePublication() {
                 </div>
               </div>
               <div>
-                <label htmlFor="validTo" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="validTo"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Date de fin
                 </label>
                 <div className="relative">
@@ -446,7 +493,10 @@ export default function CreatePublication() {
               />
               <div className="flex items-center">
                 <Bell className="w-5 h-5 text-gray-400 mr-2" />
-                <label htmlFor="sendNewsletter" className="text-sm text-gray-700">
+                <label
+                  htmlFor="sendNewsletter"
+                  className="text-sm text-gray-700"
+                >
                   Envoyer par newsletter aux abonnés
                 </label>
               </div>
