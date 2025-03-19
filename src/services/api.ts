@@ -2,11 +2,10 @@
  * Service API centralisé
  * Gère toutes les requêtes HTTP vers le backend
  */
-
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 
-// Configuration de base
-const API_BASE_URL = "http://localhost:8090/api";
+// Configuration de base - utilisez une variable d'environnement pour faciliter le déploiement
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8090/api";
 
 class ApiService {
   private api: AxiosInstance;
@@ -18,6 +17,7 @@ class ApiService {
       headers: {
         "Content-Type": "application/json",
       },
+      timeout: 10000, // Timeout de 10 secondes
     });
 
     // Intercepteur pour les requêtes
@@ -30,6 +30,7 @@ class ApiService {
         return config;
       },
       (error) => {
+        console.error("Request error:", error);
         return Promise.reject(error);
       }
     );
@@ -38,9 +39,23 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          window.location.href = "/login";
+        // Gestion centralisée des erreurs
+        if (error.response) {
+          // Le serveur a répondu avec un code d'erreur
+          console.error(`API Error ${error.response.status}:`, error.response.data);
+          
+          // Redirection en cas d'erreur d'authentification
+          if (error.response.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("currentUser");
+            window.location.href = "/login";
+          }
+        } else if (error.request) {
+          // La requête a été faite mais aucune réponse n'a été reçue
+          console.error("No response received:", error.request);
+        } else {
+          // Une erreur s'est produite lors de la configuration de la requête
+          console.error("Request configuration error:", error.message);
         }
         return Promise.reject(error);
       }
@@ -68,18 +83,19 @@ class ApiService {
     return this.api.get("/publications");
   }
 
+  public async getPendingPublications(): Promise<AxiosResponse> {
+    return this.api.get("/publications/pending");
+  }
+
   public async getPublicationById(id: string): Promise<AxiosResponse> {
-    return this.api.get(`/publications/${id}`);
+    return this.api.get(`/publications/public/${id}`);
   }
 
   public async createPublication(data: any): Promise<AxiosResponse> {
     return this.api.post("/publications", data);
   }
 
-  public async updatePublication(
-    id: string,
-    data: any
-  ): Promise<AxiosResponse> {
+  public async updatePublication(id: string, data: any): Promise<AxiosResponse> {
     return this.api.put(`/publications/${id}`, data);
   }
 
@@ -95,25 +111,29 @@ class ApiService {
     return this.api.put(`/publications/${id}/reject`);
   }
 
+  public async getPublicPublications(): Promise<AxiosResponse> {
+    return this.api.get("/publications/public/active");
+  }
+
+  public async getPublicationsByCategory(category: string): Promise<AxiosResponse> {
+    return this.api.get(`/publications/public/category/${category}`);
+  }
+
+  public async likePublication(id: string): Promise<AxiosResponse> {
+    return this.api.post(`/publications/public/${id}/like`);
+  }
+
   // Commentaires
   public async getComments(publicationId: string): Promise<AxiosResponse> {
     return this.api.get(`/publications/${publicationId}/comments`);
   }
 
-  public async addComment(
-    publicationId: string,
-    data: any
-  ): Promise<AxiosResponse> {
+  public async addComment(publicationId: string, data: any): Promise<AxiosResponse> {
     return this.api.post(`/publications/${publicationId}/comments`, data);
   }
 
-  public async deleteComment(
-    publicationId: string,
-    commentId: string
-  ): Promise<AxiosResponse> {
-    return this.api.delete(
-      `/publications/${publicationId}/comments/${commentId}`
-    );
+  public async deleteComment(publicationId: string, commentId: string): Promise<AxiosResponse> {
+    return this.api.delete(`/publications/${publicationId}/comments/${commentId}`);
   }
 
   // Newsletter
@@ -129,43 +149,33 @@ class ApiService {
     return this.api.delete(`/newsletter/unsubscribe/${email}`);
   }
 
+  public async deleteSubscriber(id: string): Promise<AxiosResponse> {
+    return this.api.delete(`/newsletter/subscribers/${id}`);
+  }
+
+  public async sendTestEmail(email: string): Promise<AxiosResponse> {
+    return this.api.post(`/newsletter/test?email=${email}`);
+  }
+
   // Utilisateurs
   public async getUsers(): Promise<AxiosResponse> {
     return this.api.get("/users");
+  }
+
+  public async getUserById(id: string): Promise<AxiosResponse> {
+    return this.api.get(`/users/${id}`);
   }
 
   public async updateUser(id: string, data: any): Promise<AxiosResponse> {
     return this.api.put(`/users/${id}`, data);
   }
 
+  public async updateUserStatus(id: string, status: "ACTIVE" | "INACTIVE"): Promise<AxiosResponse> {
+    return this.api.put(`/users/${id}/status?status=${status}`);
+  }
+
   public async deleteUser(id: string): Promise<AxiosResponse> {
     return this.api.delete(`/users/${id}`);
-  }
-
-  public async getPublicPublications(): Promise<AxiosResponse> {
-    return this.api.get("/publications/public/active");
-  }
-
-  public async getPublicationsByCategory(
-    category: string
-  ): Promise<AxiosResponse> {
-    return this.api.get(`/publications/public/category/${category}`);
-  }
-
-  public async likePublication(id: string): Promise<AxiosResponse> {
-    return this.api.post(`/publications/public/${id}/like`);
-  }
-  public async sendTestEmail(email: string): Promise<AxiosResponse> {
-    return this.api.post(`/newsletter/test?email=${email}`);
-  }
-  public async deleteSubscriber(id: string): Promise<AxiosResponse> {
-    return this.api.delete(`/newsletter/subscribers/${id}`);
-  }
-  public async updateUserStatus(
-    id: string,
-    status: "ACTIVE" | "INACTIVE"
-  ): Promise<AxiosResponse> {
-    return this.api.put(`/users/${id}/status?status=${status}`);
   }
 }
 

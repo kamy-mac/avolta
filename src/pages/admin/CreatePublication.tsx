@@ -20,6 +20,7 @@ import {
   Bell,
   User,
   Mail,
+  AlertCircle
 } from "lucide-react";
 import publicationService from "../../services/publication.service";
 import { useAuth } from "../../context/AuthContext";
@@ -44,8 +45,8 @@ export default function CreatePublication() {
     title: "",
     content: "",
     imageUrl: "",
-    validFrom: "",
-    validTo: "",
+    validFrom: new Date().toISOString().split("T")[0], // Format YYYY-MM-DD
+    validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // Par défaut: 30 jours
     category: "news",
     sendNewsletter: false,
     tags: [],
@@ -56,28 +57,49 @@ export default function CreatePublication() {
   const [previewMode, setPreviewMode] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    
     try {
+      // Formatage des dates pour le backend
+      const validFromDate = new Date(publication.validFrom);
+      const validToDate = new Date(publication.validTo);
+      
+      // Formatage au format ISO (YYYY-MM-DDTHH:mm:ss.sssZ) que le backend peut parser en LocalDateTime
+      const formattedValidFrom = validFromDate.toISOString();
+      const formattedValidTo = validToDate.toISOString();
+      
       await publicationService.createPublication({
         title: publication.title,
         content: publication.content,
         imageUrl: publication.imageUrl,
-        validFrom: publication.validFrom,
-        validTo: publication.validTo,
+        validFrom: formattedValidFrom,
+        validTo: formattedValidTo,
         category: publication.category,
         sendNewsletter: publication.sendNewsletter,
       });
+      
+      setSuccess("Publication créée avec succès!");
+      
       if (user?.role === "admin") {
-        alert(
-          "Votre publication a été soumise et est en attente de validation par un super administrateur."
-        );
+        setSuccess("Votre publication a été soumise et est en attente de validation par un super administrateur.");
       }
-      navigate("/admin/publications");
-    } catch (error) {
+      
+      // Redirection après un court délai
+      setTimeout(() => {
+        navigate("/admin/publications");
+      }, 2000);
+    } catch (error: any) {
       console.error("Error creating publication:", error);
-      alert("Une erreur est survenue lors de la création de la publication.");
+      setError(error.response?.data?.message || "Une erreur est survenue lors de la création de la publication.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -182,6 +204,19 @@ export default function CreatePublication() {
           {previewMode ? "Éditer" : "Prévisualiser"}
         </button>
       </div>
+      
+      {error && (
+        <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 flex items-start">
+          <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-2" />
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      
+      {success && (
+        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4">
+          <p className="text-green-700">{success}</p>
+        </div>
+      )}
 
       {previewMode ? (
         <div className="bg-white rounded-lg shadow-lg p-6">
@@ -242,7 +277,6 @@ export default function CreatePublication() {
                     value={publication.authorName}
                     onChange={handleInputChange}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
-                    required
                   />
                   <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </div>
@@ -262,10 +296,11 @@ export default function CreatePublication() {
                     value={publication.authorEmail}
                     onChange={handleInputChange}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
-                    required
+                    readOnly
                   />
                   <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </div>
+                <p className="mt-1 text-xs text-gray-500">L'email est automatiquement défini par votre compte</p>
               </div>
             </div>
 
@@ -376,6 +411,7 @@ export default function CreatePublication() {
                     type="button"
                     className="p-2 hover:bg-gray-200 rounded"
                     title="Aligner à gauche"
+                    onClick={() => handleFormat("align-left")}
                   >
                     <AlignLeft className="w-5 h-5" />
                   </button>
@@ -383,6 +419,7 @@ export default function CreatePublication() {
                     type="button"
                     className="p-2 hover:bg-gray-200 rounded"
                     title="Centrer"
+                    onClick={() => handleFormat("align-center")}
                   >
                     <AlignCenter className="w-5 h-5" />
                   </button>
@@ -390,6 +427,7 @@ export default function CreatePublication() {
                     type="button"
                     className="p-2 hover:bg-gray-200 rounded"
                     title="Aligner à droite"
+                    onClick={() => handleFormat("align-right")}
                   >
                     <AlignRight className="w-5 h-5" />
                   </button>
@@ -506,10 +544,23 @@ export default function CreatePublication() {
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors"
+                disabled={isLoading}
+                className="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                <Send className="h-5 w-5 mr-2" />
-                Publier
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Publication en cours...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-5 w-5 mr-2" />
+                    Publier
+                  </>
+                )}
               </button>
             </div>
           </div>

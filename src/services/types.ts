@@ -14,6 +14,19 @@ export interface LoginResponse {
 }
 
 // Publication
+// Utilisateur
+export interface User {
+  id: string;
+  email: string;
+  role: "ADMIN" | "SUPERADMIN";
+  createdAt: Date;
+  lastLogin?: Date;
+  status: "ACTIVE" | "INACTIVE";
+  // Ajout optionnel pour le nom d'affichage
+  displayName?: string;
+}
+
+// Modification de PublicationRequest si nécessaire
 export interface PublicationRequest {
   title: string;
   content: string;
@@ -22,8 +35,11 @@ export interface PublicationRequest {
   validTo: Date;
   category: string;
   sendNewsletter?: boolean;
+  // Ajout du nom d'affichage
+  authorDisplayName?: string;
 }
 
+// Modification de PublicationResponse
 export interface PublicationResponse {
   id: string;
   title: string;
@@ -35,6 +51,8 @@ export interface PublicationResponse {
   category: string;
   status: "pending" | "published";
   author: User;
+  // Ajout du nom d'affichage de l'auteur
+  authorDisplayName?: string;
   comments: Comment[];
   likes: number;
 }
@@ -68,7 +86,7 @@ export interface NewsletterSubscriber {
   lastSentAt?: Date;
 }
 
-// Utilisateur
+/* Utilisateur
 export interface User {
   id: string;
   email: string;
@@ -76,7 +94,7 @@ export interface User {
   createdAt: Date;
   lastLogin?: Date;
   status: "ACTIVE" | "INACTIVE";
-}
+}*/
 
 // Réponse API générique
 export interface ApiResponse<T> {

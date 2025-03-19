@@ -59,8 +59,7 @@ class PublicationService {
    */
   public async getActivePublications(): Promise<Post[]> {
     try {
-      // Utilisez la méthode spécifique si elle existe dans votre API
-      const response = await api.getPublicPublications(); // ou api.getActivePublications()
+      const response = await api.getPublicPublications();
       return response.data.data;
     } catch (error) {
       console.error("Error fetching active publications:", error);
@@ -77,7 +76,6 @@ class PublicationService {
     category: string
   ): Promise<Post[]> {
     try {
-      // Utilisez la méthode spécifique si elle existe dans votre API
       const response = await api.getPublicationsByCategory(category);
       return response.data.data;
     } catch (error) {
@@ -90,17 +88,19 @@ class PublicationService {
    * Get pending publications (super admin only)
    * @returns List of pending publications
    */
-  public async getPendingPublications(): Promise<Post[]> {
-    try {
-      const response = await api.getPublications(); // Remplacez par la méthode spécifique
-      return response.data.data.filter(
-        (pub: Post) => pub.status.toLowerCase() === "pending"
-      );
-    } catch (error) {
-      console.error("Error fetching pending publications:", error);
-      throw error;
-    }
+ // Dans publication.service.ts
+ public async getPendingPublications(): Promise<Post[]> {
+  try {
+    const response = await api.getPendingPublications();
+    return response.data.data;
+  } catch (error) {
+    // Si l'endpoint spécifique échoue, essayez la méthode de filtrage
+    console.warn("Endpoint spécifique non disponible, filtrage manuel des publications...");
+    return this.getAllPublications().then(publications => 
+      publications.filter(pub => pub.status.toLowerCase() === "pending")
+    );
   }
+}
 
   /**
    * Get publication by ID (public for published publications)
@@ -126,6 +126,14 @@ class PublicationService {
     publicationData: CreatePublicationRequest
   ): Promise<Post> {
     try {
+      // Vérification de l'existence des champs requis
+      if (!publicationData.title) throw new Error("Le titre est requis");
+      if (!publicationData.content) throw new Error("Le contenu est requis");
+      if (!publicationData.validFrom) throw new Error("La date de début est requise");
+      if (!publicationData.validTo) throw new Error("La date de fin est requise");
+      if (!publicationData.category) throw new Error("La catégorie est requise");
+
+      console.log("Creating publication with data:", publicationData);
       const response = await api.createPublication(publicationData);
       return response.data.data;
     } catch (error) {
@@ -201,7 +209,6 @@ class PublicationService {
    */
   public async likePublication(id: string): Promise<Post> {
     try {
-      // Si vous avez une méthode likePublication dans votre API, utilisez-la
       const response = await api.likePublication(id);
       return response.data.data;
     } catch (error) {

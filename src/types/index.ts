@@ -1,4 +1,6 @@
 export interface Post {
+  author: any;
+  authorDisplayName: any;
   id: string;
   title: string;
   content: string;
@@ -23,6 +25,7 @@ export interface Comment {
 }
 
 export interface User {
+  username: string;
   id: string;
   email: string;
   password: string;
@@ -37,4 +40,14 @@ export interface MailchimpResponse {
   email_address: string;
   status: string;
   [key: string]: any;
+}
+
+export interface CreatePublicationRequest {
+  title: string;
+  content: string;
+  imageUrl: string;
+  validFrom: string;
+  validTo: string;
+  category: string;
+  sendNewsletter?: boolean;
 }
