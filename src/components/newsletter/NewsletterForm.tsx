@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Send } from "lucide-react";
-import api from "../../services/newsletter.service";
+import newsletterService from "../../services/newsletter.service";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -17,16 +17,19 @@ export default function NewsletterForm() {
     setSuccess(null);
 
     try {
-      console.log("Subscribing to newsletter:", { email, firstName, lastName });
-      await api.subscribeNewsletter({ email, firstName, lastName });
-      console.log("Successfully subscribed to newsletter");
-      setSuccess("Thank you for subscribing to our newsletter!");
+      console.log("Inscription à la newsletter :", { email, firstName, lastName });
+      await newsletterService.subscribe({ email, firstName, lastName });
+      console.log("Inscription à la newsletter réussie");
+      setSuccess("Merci de vous être abonné à notre newsletter !");
       setEmail("");
       setFirstName("");
       setLastName("");
-    } catch (err) {
-      console.error("Newsletter subscription error:", err);
-      setError("Failed to subscribe. Please try again.");
+    } catch (err: any) {
+      console.error("Erreur d'inscription à la newsletter :", err);
+      setError(
+        err.response?.data?.message || 
+        "Échec de l'inscription. Veuillez réessayer."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +45,7 @@ export default function NewsletterForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your email address"
+          placeholder="Votre adresse e-mail"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           required
         />
@@ -53,14 +56,14 @@ export default function NewsletterForm() {
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First name"
+          placeholder="Prénom"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
         />
         <input
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last name"
+          placeholder="Nom de famille"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>
@@ -92,12 +95,12 @@ export default function NewsletterForm() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Subscribing...
+            Inscription en cours...
           </>
         ) : (
           <>
             <Send className="h-5 w-5 mr-2" />
-            Subscribe
+            S'abonner
           </>
         )}
       </button>

@@ -1,34 +1,62 @@
 import React from 'react';
 import { Mail, Linkedin } from 'lucide-react';
 
-const teamMembers = [
+// Importation dynamique des images
+import jouyImage from '/src/images/jouy.jpg';
+import stevenImage from '/src/images/Steven.jpg';
+import wendyImage from '/src/images/Wendy.jpg';
+import pepijnImage from '/src/images/Pepijn.jpg';
+import magalieImage from '/src/images/Magalie.jpg';
+
+interface TeamMember {
+  id: string;
+  name: string;
+  position: string;
+  email: string;
+  imageUrl: string;
+  linkedinUrl?: string;
+}
+
+const teamMembers: TeamMember[] = [
   {
     id: '1',
-    name: 'JOUY Thibault',
+    name: 'Thibault JOUY',
     position: 'Directeur Général',
     email: 'thibault.jouy@avolta.be',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d'
+    imageUrl: jouyImage,
+    linkedinUrl: '#' // Ajouter l'URL LinkedIn réelle
   },
   {
     id: '2',
-    name: 'Eddy GRYMONPREZ',
-    position: 'Directeur Commercial',
-    email: 'eddy.grymonprez@avolta.be',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e'
+    name: 'Steven CORNEILLIE',
+    position: 'Directeur Marketing',
+    email: 'steven.corneillie@autogrill.net',
+    imageUrl: stevenImage,
+    linkedinUrl: '#'
   },
   {
     id: '3',
     name: 'Wendy SWINNEN',
-    position: 'Directrice Marketing',
+    position: 'Responsable Production',
     email: 'wendy.swinnen@avolta.be',
-    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2'
+    imageUrl: wendyImage,
+    linkedinUrl: '#'
   },
   {
     id: '4',
-    name: 'PEPIJN Vertoghen',
-    position: 'Directeur Technique',
+    name: 'Pepijn VERTOGHEN',
+    position: 'Responsable Développement',
     email: 'pepijn.vertoghen@avolta.be',
-    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7'
+    imageUrl: pepijnImage,
+    linkedinUrl: '#'
+  },
+  {
+    id: '5',
+    name: 'Magalie VERTOGHEN',
+    position: 'Responsable Communication',
+    email: 'magalie@avolta.be',
+    imageUrl: magalieImage,
+    linkedinUrl: '#'
   }
 ];
 
@@ -42,39 +70,53 @@ export default function TeamGrid() {
           </div>
           <h2 className="text-4xl font-bold text-night mb-4">Notre Équipe de Direction</h2>
           <p className="text-night/60 max-w-2xl mx-auto">
-            Une équipe passionnée qui façonne l'avenir de l'aviation.
+            Une équipe passionnée qui façonne l'avenir de Avolta et de l'Aeroport de Bruxelles.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {teamMembers.map((member) => (
-            <div key={member.id} className="group relative overflow-hidden rounded-2xl bg-sand">
-              <div className="aspect-w-3 aspect-h-4">
+            <div 
+              key={member.id} 
+              className="group relative overflow-hidden rounded-2xl bg-sand shadow-lg hover:shadow-xl transition-shadow duration-300"
+            >
+              <div className="aspect-w-3 aspect-h-4 overflow-hidden">
                 <img
                   src={member.imageUrl}
                   alt={member.name}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg'; // Chemin vers une image de remplacement
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-night/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-night/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               
-              <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-6 group-hover:translate-y-0 transition-transform duration-300">
-                <h3 className="text-xl font-bold text-day mb-1">{member.name}</h3>
-                <p className="text-primary font-medium mb-4">{member.position}</p>
+              <div className="absolute bottom-1 left-0 right-0 p-6 translate-y-6 group-hover:translate-y-0 transition-transform duration-300">
+                <h3 className="text-xl font-bold text-day mb-2">{member.name}</h3>
+                <p className="text-primary font-medium mb-1">{member.position}</p>
                 
                 <div className="flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  
                   <a
                     href={`mailto:${member.email}`}
                     className="p-2 bg-day/10 backdrop-blur-sm rounded-full hover:bg-day/20 transition-colors"
+                    aria-label={`Envoyer un email à ${member.name}`}
                   >
                     <Mail className="w-5 h-5 text-day" />
                   </a>
-                  <a
-                    href="#"
-                    className="p-2 bg-day/10 backdrop-blur-sm rounded-full hover:bg-day/20 transition-colors"
-                  >
-                    <Linkedin className="w-5 h-5 text-day" />
-                  </a>
+                  {member.linkedinUrl && (
+                    <a
+                      href={member.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 bg-day/10 backdrop-blur-sm rounded-full hover:bg-day/20 transition-colors"
+                      aria-label={`Profil LinkedIn de ${member.name}`}
+                    >
+                      <Linkedin className="w-5 h-5 text-day" />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

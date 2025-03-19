@@ -1,34 +1,39 @@
-/**
- * Super Admin Route Component
- * 
- * This component restricts access to routes based on user role.
- * It redirects non-super-admin users to the admin dashboard.
- * 
- * @module components/auth/SuperAdminRoute
- */
-
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import authService from '../../services/auth.service';
 
 /**
  * Super admin route props
  */
 interface SuperAdminRouteProps {
   children: React.ReactNode;
+  onUnauthorized?: () => void;
 }
 
 /**
  * Super admin route component
  * 
- * Renders children only if user is a super admin, otherwise redirects to admin dashboard
+ * Renders children only if user is a super admin, 
+ * otherwise handles unauthorized access
  */
-export default function SuperAdminRoute({ children }: SuperAdminRouteProps) {
-  const { isSuperAdmin } = useAuth();
+export default function SuperAdminRoute({ 
+  children, 
+  onUnauthorized 
+}: SuperAdminRouteProps) {
+  const isAuthenticated = authService.isAuthenticated();
+  const isSuperAdmin = authService.isSuperAdmin();
 
-  if (!isSuperAdmin) {
-    return <Navigate to="/admin" replace />;
+  // Check if user is authenticated and is a super admin
+  if (!isAuthenticated || !isSuperAdmin) {
+    // Call unauthorized callback if provided
+    if (onUnauthorized) {
+      onUnauthorized();
+    } else {
+      // Default behavior: redirect to admin dashboard
+      window.location.href = "/admin";
+    }
+    return null;
   }
 
+  // If authenticated and is super admin, render children
   return <>{children}</>;
 }

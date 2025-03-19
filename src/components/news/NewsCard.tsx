@@ -1,6 +1,6 @@
-import React from 'react';
-import { Calendar, Heart, MessageCircle, Share2, Tag, User, Mail } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Calendar, Heart, MessageCircle, Share2, Tag, User } from 'lucide-react';
+import publicationService from '../../services/publication.service';
 import { Post } from '../../types';
 import { LazyImage } from '../../utils/lazyLoad';
 
@@ -9,18 +9,60 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({ post }: NewsCardProps) {
+  const [likes, setLikes] = useState(post.likes || 0);
+  const [isLiked, setIsLiked] = useState(false);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      if (!isLiked) {
+        await publicationService.likePublication(post.id);
+        setLikes(likes + 1);
+        setIsLiked(true);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du like :', error);
+    }
+  };
+
+  const handlePostClick = () => {
+    // Navigation simulée vers les détails de la publication
+    window.location.href = `/news/${post.id}`;
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/news/${post.id}`;
+    
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        alert('Lien copié dans le presse-papiers');
+      })
+      .catch(err => {
+        console.error('Erreur de copie du lien :', err);
+        alert('Impossible de copier le lien');
+      });
+  };
+
   return (
-    <Link 
-      to={`/news/${post.id}`}
-      className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+    <div 
+      onClick={handlePostClick}
+      className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
     >
       <div className="relative">
-        <LazyImage
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-48"
-          aspectRatio="16/9"
-        />
+        
+        {post.imageUrl ? (
+          <LazyImage
+            src={post.imageUrl}
+            alt={post.title}
+            className="w-full h-48 object-cover"
+            aspectRatio="16/9"
+          />
+        ) : (
+          <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+            Pas d'image
+          </div>
+        )}
         <div className="absolute top-4 right-4">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-[#6A0DAD] shadow">
             <Tag className="w-4 h-4 mr-1" />
@@ -45,29 +87,35 @@ export default function NewsCard({ post }: NewsCardProps) {
           <div className="flex items-center space-x-4">
             <div className="flex items-center text-sm">
               <User className="w-4 h-4 mr-1" />
-              {post.authorName}
-            </div>
-            <div className="flex items-center text-sm">
-              <Mail className="w-4 h-4 mr-1" />
-              {post.authorEmail}
+              {/* Utilisation du nom d'affichage ou de l'email */}
+              {/* @ts-ignore */}
+              {post.authorDisplayName || post.author?.email || 'Auteur inconnu'}
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center hover:text-[#6A0DAD] transition-colors">
+            <button 
+              onClick={handleLike}
+              className={`flex items-center hover:text-[#6A0DAD] transition-colors ${
+                isLiked ? 'text-[#6A0DAD]' : ''
+              }`}
+            >
               <Heart className="w-5 h-5 mr-1" />
-              {post.likes}
-            </div>
+              {likes}
+            </button>
             <div className="flex items-center hover:text-[#6A0DAD] transition-colors">
               <MessageCircle className="w-5 h-5 mr-1" />
-              {post.comments.length}
+              {post.comments?.length || 0}
             </div>
-            <div className="flex items-center hover:text-[#6A0DAD] transition-colors">
+            <button 
+              onClick={handleShare}
+              className="flex items-center hover:text-[#6A0DAD] transition-colors"
+            >
               <Share2 className="w-5 h-5 mr-1" />
               Partager
-            </div>
+            </button>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

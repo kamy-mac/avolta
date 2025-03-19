@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Image as ImageIcon, Send, Type } from "lucide-react";
-import api from "../../services/publication.service";
+import publicationService from "../../services/publication.service";
+import authService from "../../services/auth.service";
 
 interface PublicationForm {
   title: string;
@@ -19,13 +20,22 @@ export default function CreatePublication() {
     title: "",
     content: "",
     imageUrl: "",
-    validFrom: "",
-    validTo: "",
+    validFrom: new Date().toISOString().split('T')[0], // Default to today
+    validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
     category: "news",
     sendNewsletter: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect to login if not authenticated
+  React.useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      navigate("/login", { 
+        state: { from: "/admin/publications/create" } 
+      });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +43,29 @@ export default function CreatePublication() {
     setError(null);
 
     try {
+      // Validate dates
+      const fromDate = new Date(publication.validFrom);
+      const toDate = new Date(publication.validTo);
+      
+      if (fromDate > toDate) {
+        throw new Error("Valid from date must be before valid to date");
+      }
+
       console.log("Creating publication:", publication);
-      const response = await api.createPublication(publication);
-      console.log("Publication created:", response);
+      const createdPublication = await publicationService.createPublication({
+        ...publication,
+        validFrom: new Date(publication.validFrom).toISOString(),
+        validTo: new Date(publication.validTo).toISOString(),
+      });
+      
+      console.log("Publication created:", createdPublication);
       navigate("/admin/publications");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating publication:", err);
-      setError("Failed to create publication. Please try again.");
+      setError(
+        err.response?.data?.message || 
+        "Failed to create publication. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -72,6 +98,7 @@ export default function CreatePublication() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Title Field */}
         <div>
           <label
             htmlFor="title"
@@ -91,12 +118,145 @@ export default function CreatePublication() {
               onChange={handleInputChange}
               className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
               required
+              placeholder="Enter publication title"
             />
           </div>
         </div>
 
-        {/* Rest of the form fields... */}
+        {/* Content Field */}
+        <div>
+          <label
+            htmlFor="content"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Content
+          </label>
+          <textarea
+            name="content"
+            id="content"
+            rows={6}
+            value={publication.content}
+            onChange={handleInputChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            placeholder="Write your publication content here"
+            required
+          />
+        </div>
 
+        {/* Image URL Field */}
+        <div>
+          <label
+            htmlFor="imageUrl"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Image URL (Optional)
+          </label>
+          <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <ImageIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="url"
+              name="imageUrl"
+              id="imageUrl"
+              value={publication.imageUrl}
+              onChange={handleInputChange}
+              className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+        </div>
+
+        {/* Date Range Fields */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label
+              htmlFor="validFrom"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Valid From
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Calendar className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="date"
+                name="validFrom"
+                id="validFrom"
+                value={publication.validFrom}
+                onChange={handleInputChange}
+                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="validTo"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Valid To
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Calendar className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="date"
+                name="validTo"
+                id="validTo"
+                value={publication.validTo}
+                onChange={handleInputChange}
+                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Category Field */}
+        <div>
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Category
+          </label>
+          <select
+            name="category"
+            id="category"
+            value={publication.category}
+            onChange={handleInputChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            required
+          >
+            <option value="news">News</option>
+            <option value="blog">Blog</option>
+            <option value="event">Event</option>
+            <option value="announcement">Announcement</option>
+          </select>
+        </div>
+
+        {/* Newsletter Checkbox */}
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="sendNewsletter"
+            id="sendNewsletter"
+            checked={publication.sendNewsletter}
+            onChange={handleCheckboxChange}
+            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
+          <label 
+            htmlFor="sendNewsletter" 
+            className="ml-2 block text-sm text-gray-900"
+          >
+            Send Newsletter
+          </label>
+        </div>
+
+        {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"

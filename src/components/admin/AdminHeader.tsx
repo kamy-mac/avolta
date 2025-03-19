@@ -1,16 +1,23 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Plus, List, Mail, Bell, BarChart, Settings, Clock, Home, Users } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Plus, List, Mail, Bell, BarChart, Settings, Clock, Home, Users, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminHeader() {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout, isSuperAdmin } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname.includes(path);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+  console.log('User role:', user?.role);
+  console.log('isSuperAdmin:', isSuperAdmin);
   return (
     <nav className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,7 +66,7 @@ export default function AdminHeader() {
               Publications
             </Link>
 
-            {user?.role === 'superadmin' && (
+            {isSuperAdmin && (
               <>
                 <Link
                   to="/admin/pending"
@@ -111,6 +118,14 @@ export default function AdminHeader() {
               
               <button className="p-2 rounded-md text-gray-400 hover:text-[#6A0DAD]">
                 <Settings className="h-6 w-6" />
+              </button>
+              
+              <button 
+                onClick={handleLogout}
+                className="p-2 rounded-md text-gray-400 hover:text-[#6A0DAD]"
+                title="Se déconnecter"
+              >
+                <LogOut className="h-6 w-6" />
               </button>
             </div>
           </div>

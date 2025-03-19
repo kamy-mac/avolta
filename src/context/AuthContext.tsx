@@ -1,74 +1,66 @@
-/**
- * Authentication Context
- * 
- * This module provides a React context for managing authentication state
- * throughout the application. It handles user authentication, session management,
- * and role-based access control.
- * 
- * @module context/AuthContext
- */
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 import authService from '../services/auth.service';
 
-/**
- * Authentication context interface
- */
 interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
+  isLoading: boolean; // Ajout de l'état de chargement au contexte
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-// Create context with default values
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Authentication provider props
- */
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-/**
- * Authentication provider component
- * 
- * Provides authentication state and methods to the application
- */
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize user from token on mount
   useEffect(() => {
     const initializeAuth = () => {
       try {
         const currentUser = authService.getCurrentUser();
-        setUser(currentUser);
+        
+        // Vérifier si l'utilisateur est valide
+        if (currentUser && currentUser.id && currentUser.email) {
+          setUser(currentUser);
+          console.log("Current user from localStorage:", currentUser);
+        } else {
+          console.log("No valid user found in localStorage");
+          // S'assurer que user est null si on n'a pas trouvé d'utilisateur valide
+          setUser(null);
+        }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        // En cas d'erreur, s'assurer que user est null
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     initializeAuth();
   }, []);
 
-  /**
-   * Login handler
-   */
   const login = async (email: string, password: string) => {
     try {
+      setIsLoading(true); // Indiquer que le chargement est en cours
       const response = await authService.login({ email, password });
+      
+      if (!response || !response.user) {
+        throw new Error("Invalid response format from server");
+      }
+      
       setUser(response.user);
+      // No need to return the response as the function should return void
+      return;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
+    } finally {
+      setIsLoading(false); // Fin du chargement, quelle que soit l'issue
     }
   };
 
@@ -76,41 +68,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Logout handler
    */
   const logout = () => {
+    setIsLoading(true); // Indiquer que le chargement est en cours
     authService.logout();
     setUser(null);
+    setIsLoading(false);
   };
 
-  // Compute authentication state
-  const isAuthenticated = !!user;
-  const isSuperAdmin = user?.role === 'superadmin';
+  // Calculer si l'utilisateur est super admin avec gestion null-safe
+  const isSuperAdmin = !!user && user.role.toLowerCase() === 'superadmin';
 
-  // Show loading state
-  if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6A0DAD]"></div>
-    </div>;
+  // Valeurs à exporter dans le contexte
+  const contextValue: AuthContextType = {
+    user,
+    setUser,
+    isAuthenticated: !!user,
+    isSuperAdmin,
+    isLoading,
+    login,
+    logout
+  };
+
+  // Journaliser pour le débogage (en développement uniquement)
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Auth context - user:", user);
+    console.log("Auth context - isSuperAdmin:", isSuperAdmin);
+    console.log("Auth context - isLoading:", isLoading);
   }
 
+  // Retourner le provider avec tous les enfants, même pendant le chargement
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      setUser, 
-      isAuthenticated, 
-      isSuperAdmin,
-      login,
-      logout
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-/**
- * Hook for using the authentication context
- * 
- * @returns Authentication context
- * @throws Error if used outside of AuthProvider
- */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

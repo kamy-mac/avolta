@@ -1,21 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { getPublishedPublications } from '../../lib/storage';
+import { ArrowRight } from 'lucide-react';
+
+import publicationService from '../../services/publication.service';
 import { Post } from '../../types';
 import NewsCard from '../news/NewsCard';
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 export default function NewsSection() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadPosts = async () => {
-      const data = await getPublishedPublications();
-      const newsOnly = data
-        .filter(post => post.category === 'news')
-        .slice(0, 3);
-      setPosts(newsOnly);
+      try {
+        setIsLoading(true);
+        // Fetch active publications and filter for news category
+        const fetchedPosts = await publicationService.getActivePublicationsByCategory('news');
+        
+        // Limit to 3 posts
+        const newsOnly = fetchedPosts.slice(0, 3);
+        setPosts(newsOnly);
+      } catch (err) {
+        console.error('Error fetching news publications:', err);
+        setError('Failed to load news. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadPosts();
 
@@ -40,6 +51,11 @@ export default function NewsSection() {
     };
   }, []);
 
+  const handleNewsClick = () => {
+    // Redirect to news page (simulated)
+    window.location.href = "/news";
+  };
+
   return (
     <section id="news-section" className="py-24 bg-sand relative overflow-hidden">
       {/* Decorative Elements */}
@@ -58,27 +74,46 @@ export default function NewsSection() {
               </div>
               <h2 className="style-raffine text-night">Restez informé</h2>
             </div>
-            <Link
-              to="/news"
+            <button
+              onClick={handleNewsClick}
               className="group flex items-center px-6 py-3 bg-night text-day rounded-full hover:bg-night/90 transition-colors"
             >
               <span className="mr-2">Toutes les actualités</span>
               <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post, index) => (
-              <div
-                key={post.id}
-                className={`transform transition-all duration-1000 delay-${index * 200} ${
-                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`}
-              >
-                <NewsCard post={post} />
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((_, index) => (
+                <div 
+                  key={index} 
+                  className="bg-gray-100 animate-pulse h-72 rounded-lg"
+                />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-600 py-8">
+              {error}
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              Aucune actualité disponible pour le moment
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post, index) => (
+                <div
+                  key={post.id}
+                  className={`transform transition-all duration-1000 delay-${index * 200} ${
+                    isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                  }`}
+                >
+                  <NewsCard post={post} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
