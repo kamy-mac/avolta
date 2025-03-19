@@ -46,15 +46,15 @@ class AuthService {
    */
   public async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      console.log("Tentative de connexion avec:", credentials);
+      console.log("Attempting login with:", credentials);
       const response = await api.login(credentials.email, credentials.password);
-      console.log("Réponse complète:", response);
+      console.log("Complete login response:", response);
 
-      // Correction: accès au bon chemin dans la structure de réponse
-      // La structure est: { success, message, data: { token, user }, timestamp }
+      // Access the correct path in the response structure
+      // Structure is: { success, message, data: { token, user }, timestamp }
       const { token, user } = response.data.data;
 
-      // Store token
+      // Store token and user in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("currentUser", JSON.stringify(user));
 
@@ -81,7 +81,9 @@ class AuthService {
    */
   public async register(userData: RegisterRequest): Promise<User> {
     try {
+      console.log("Registering new user:", userData);
       const response = await api.register(userData);
+      console.log("Register response:", response);
       return response.data.data;
     } catch (error) {
       console.error("Registration error:", error);
@@ -99,6 +101,7 @@ class AuthService {
       try {
         return JSON.parse(userStr);
       } catch (e) {
+        console.error("Error parsing current user data:", e);
         return null;
       }
     }
@@ -117,7 +120,10 @@ class AuthService {
    */
   public hasRole(role: string): boolean {
     const user = this.getCurrentUser();
-    return user?.role === role.toLowerCase();
+    if (!user) return false;
+    
+    // Handle case-insensitive role comparison
+    return user.role.toLowerCase() === role.toLowerCase();
   }
 
   /**

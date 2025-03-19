@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { User } from '../types';
 import authService from '../services/auth.service';
 
@@ -7,7 +7,7 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
-  isLoading: boolean; // Ajout de l'état de chargement au contexte
+  isLoading: boolean; // Included loading state in context
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -17,67 +17,106 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Use a ref to track if component is still mounted
+  const isMounted = useRef(true);
 
   useEffect(() => {
-    const initializeAuth = () => {
+    // Set up the mounted flag
+    isMounted.current = true;
+    
+    // Initialize auth state with proper async handling
+    const initializeAuth = async () => {
       try {
         const currentUser = authService.getCurrentUser();
         
-        // Vérifier si l'utilisateur est valide
+        // Check if user is valid
         if (currentUser && currentUser.id && currentUser.email) {
-          setUser(currentUser);
-          console.log("Current user from localStorage:", currentUser);
+          // Only set state if component is still mounted
+          if (isMounted.current) {
+            setUser(currentUser);
+            console.log("Current user from localStorage:", currentUser);
+          }
         } else {
           console.log("No valid user found in localStorage");
-          // S'assurer que user est null si on n'a pas trouvé d'utilisateur valide
-          setUser(null);
+          // Ensure user is null if no valid user was found
+          if (isMounted.current) {
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        // En cas d'erreur, s'assurer que user est null
-        setUser(null);
+        // Ensure user is null in case of error
+        if (isMounted.current) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        // Only set state if component is still mounted
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
       }
     };
   
+    // Start auth initialization
     initializeAuth();
+    
+    // Cleanup function to update mounted flag
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
+    // Use a local loading state for login process
+    if (isMounted.current) {
+      setIsLoading(true);
+    }
+    
     try {
-      setIsLoading(true); // Indiquer que le chargement est en cours
-      const response = await authService.login({ email, password });
+      // Create login request object
+      const credentials = { email, password };
+      
+      // Call auth service with proper credentials object
+      const response = await authService.login(credentials);
       
       if (!response || !response.user) {
         throw new Error("Invalid response format from server");
       }
       
-      setUser(response.user);
-      // No need to return the response as the function should return void
-      return;
+      // Only update state if component is still mounted
+      if (isMounted.current) {
+        setUser(response.user);
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
     } finally {
-      setIsLoading(false); // Fin du chargement, quelle que soit l'issue
+      // Only update state if component is still mounted
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
     }
   };
 
-  /**
-   * Logout handler
-   */
   const logout = () => {
-    setIsLoading(true); // Indiquer que le chargement est en cours
+    // Only update state if component is still mounted
+    if (isMounted.current) {
+      setIsLoading(true);
+    }
+    
     authService.logout();
-    setUser(null);
-    setIsLoading(false);
+    
+    // Only update state if component is still mounted
+    if (isMounted.current) {
+      setUser(null);
+      setIsLoading(false);
+    }
   };
 
-  // Calculer si l'utilisateur est super admin avec gestion null-safe
+  // Safely calculate if user is a super admin
   const isSuperAdmin = !!user && user.role.toLowerCase() === 'superadmin';
 
-  // Valeurs à exporter dans le contexte
+  // Values to export in the context
   const contextValue: AuthContextType = {
     user,
     setUser,
@@ -88,14 +127,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout
   };
 
-  // Journaliser pour le débogage (en développement uniquement)
+  // Logging for debugging (development only)
   if (process.env.NODE_ENV === 'development') {
     console.log("Auth context - user:", user);
     console.log("Auth context - isSuperAdmin:", isSuperAdmin);
     console.log("Auth context - isLoading:", isLoading);
   }
 
-  // Retourner le provider avec tous les enfants, même pendant le chargement
+  // Return the provider with all children, even during loading
   return (
     <AuthContext.Provider value={contextValue}>
       {children}

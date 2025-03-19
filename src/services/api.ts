@@ -1,11 +1,13 @@
 /**
- * Service API centralisé
- * Gère toutes les requêtes HTTP vers le backend
+ * Centralized API Service
+ * Manages all HTTP requests to the backend
  */
+
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 
-// Configuration de base - utilisez une variable d'environnement pour faciliter le déploiement
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8090/api";
+// Base configuration
+const API_BASE_URL = "http://localhost:8090/api";
+const REQUEST_TIMEOUT = 15000; // 15 seconds timeout
 
 class ApiService {
   private api: AxiosInstance;
@@ -17,12 +19,13 @@ class ApiService {
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: 10000, // Timeout de 10 secondes
+      timeout: REQUEST_TIMEOUT,
     });
 
-    // Intercepteur pour les requêtes
+    // Request interceptor
     this.api.interceptors.request.use(
       (config) => {
+        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
         const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -30,34 +33,43 @@ class ApiService {
         return config;
       },
       (error) => {
-        console.error("Request error:", error);
+        console.error("Request interceptor error:", error);
         return Promise.reject(error);
       }
     );
 
-    // Intercepteur pour les réponses
+    // Response interceptor
     this.api.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log(`API Response success: ${response.config.url}`);
+        return response;
+      },
       (error: AxiosError) => {
-        // Gestion centralisée des erreurs
-        if (error.response) {
-          // Le serveur a répondu avec un code d'erreur
-          console.error(`API Error ${error.response.status}:`, error.response.data);
-          
-          // Redirection en cas d'erreur d'authentification
-          if (error.response.status === 401) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("currentUser");
-            window.location.href = "/login";
-          }
-        } else if (error.request) {
-          // La requête a été faite mais aucune réponse n'a été reçue
-          console.error("No response received:", error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la requête
-          console.error("Request configuration error:", error.message);
+        console.error(`API Error for ${error.config?.url}:`, error);
+        
+        // Handle authentication errors
+        if (error.response?.status === 401) {
+          console.log("Unauthorized access, redirecting to login");
+          localStorage.removeItem("token");
+          localStorage.removeItem("currentUser");
+          window.location.href = "/login";
+          return Promise.reject(new Error("Session expired. Please log in again."));
         }
-        return Promise.reject(error);
+        
+        // Create a more informative error message
+        let errorMessage = "An unexpected error occurred";
+        
+        if ((error.response?.data as { message?: string })?.message) {
+          // Use server-side error message if available
+          errorMessage = (error.response?.data as { message?: string })?.message || errorMessage;
+        } else if (error.message) {
+          // Use axios error message
+          errorMessage = error.message;
+        }
+        
+        // Create a new error with the enhanced message
+        const enhancedError = new Error(errorMessage);
+        return Promise.reject(enhancedError);
       }
     );
   }
@@ -69,113 +81,243 @@ class ApiService {
     return ApiService.instance;
   }
 
-  // Authentification
+  // Authentication
   public async login(email: string, password: string): Promise<AxiosResponse> {
-    return this.api.post("/auth/login", { email, password });
+    try {
+      console.log("Sending login request");
+      return await this.api.post("/auth/login", { email, password });
+    } catch (error) {
+      console.error("Login request failed:", error);
+      throw error;
+    }
   }
 
   public async register(userData: any): Promise<AxiosResponse> {
-    return this.api.post("/auth/register", userData);
+    try {
+      console.log("Sending register request");
+      return await this.api.post("/auth/register", userData);
+    } catch (error) {
+      console.error("Register request failed:", error);
+      throw error;
+    }
   }
 
   // Publications
   public async getPublications(): Promise<AxiosResponse> {
-    return this.api.get("/publications");
-  }
-
-  public async getPendingPublications(): Promise<AxiosResponse> {
-    return this.api.get("/publications/pending");
+    try {
+      return await this.api.get("/publications");
+    } catch (error) {
+      console.error("Get publications request failed:", error);
+      throw error;
+    }
   }
 
   public async getPublicationById(id: string): Promise<AxiosResponse> {
-    return this.api.get(`/publications/public/${id}`);
+    try {
+      return await this.api.get(`/publications/${id}`);
+    } catch (error) {
+      console.error(`Get publication ${id} request failed:`, error);
+      throw error;
+    }
   }
 
   public async createPublication(data: any): Promise<AxiosResponse> {
-    return this.api.post("/publications", data);
+    try {
+      return await this.api.post("/publications", data);
+    } catch (error) {
+      console.error("Create publication request failed:", error);
+      throw error;
+    }
   }
 
-  public async updatePublication(id: string, data: any): Promise<AxiosResponse> {
-    return this.api.put(`/publications/${id}`, data);
+  public async updatePublication(
+    id: string,
+    data: any
+  ): Promise<AxiosResponse> {
+    try {
+      return await this.api.put(`/publications/${id}`, data);
+    } catch (error) {
+      console.error(`Update publication ${id} request failed:`, error);
+      throw error;
+    }
   }
 
   public async deletePublication(id: string): Promise<AxiosResponse> {
-    return this.api.delete(`/publications/${id}`);
+    try {
+      return await this.api.delete(`/publications/${id}`);
+    } catch (error) {
+      console.error(`Delete publication ${id} request failed:`, error);
+      throw error;
+    }
   }
 
   public async approvePublication(id: string): Promise<AxiosResponse> {
-    return this.api.put(`/publications/${id}/approve`);
+    try {
+      return await this.api.put(`/publications/${id}/approve`);
+    } catch (error) {
+      console.error(`Approve publication ${id} request failed:`, error);
+      throw error;
+    }
   }
 
   public async rejectPublication(id: string): Promise<AxiosResponse> {
-    return this.api.put(`/publications/${id}/reject`);
+    try {
+      return await this.api.put(`/publications/${id}/reject`);
+    } catch (error) {
+      console.error(`Reject publication ${id} request failed:`, error);
+      throw error;
+    }
   }
 
-  public async getPublicPublications(): Promise<AxiosResponse> {
-    return this.api.get("/publications/public/active");
-  }
-
-  public async getPublicationsByCategory(category: string): Promise<AxiosResponse> {
-    return this.api.get(`/publications/public/category/${category}`);
-  }
-
-  public async likePublication(id: string): Promise<AxiosResponse> {
-    return this.api.post(`/publications/public/${id}/like`);
-  }
-
-  // Commentaires
+  // Comments
   public async getComments(publicationId: string): Promise<AxiosResponse> {
-    return this.api.get(`/publications/${publicationId}/comments`);
+    try {
+      return await this.api.get(`/publications/${publicationId}/comments`);
+    } catch (error) {
+      console.error(`Get comments for publication ${publicationId} request failed:`, error);
+      throw error;
+    }
   }
 
-  public async addComment(publicationId: string, data: any): Promise<AxiosResponse> {
-    return this.api.post(`/publications/${publicationId}/comments`, data);
+  public async addComment(
+    publicationId: string,
+    data: any
+  ): Promise<AxiosResponse> {
+    try {
+      return await this.api.post(`/publications/${publicationId}/comments`, data);
+    } catch (error) {
+      console.error(`Add comment to publication ${publicationId} request failed:`, error);
+      throw error;
+    }
   }
 
-  public async deleteComment(publicationId: string, commentId: string): Promise<AxiosResponse> {
-    return this.api.delete(`/publications/${publicationId}/comments/${commentId}`);
+  public async deleteComment(
+    publicationId: string,
+    commentId: string
+  ): Promise<AxiosResponse> {
+    try {
+      return await this.api.delete(
+        `/publications/${publicationId}/comments/${commentId}`
+      );
+    } catch (error) {
+      console.error(`Delete comment ${commentId} request failed:`, error);
+      throw error;
+    }
   }
 
   // Newsletter
   public async getSubscribers(): Promise<AxiosResponse> {
-    return this.api.get("/newsletter/subscribers");
+    try {
+      return await this.api.get("/newsletter/subscribers");
+    } catch (error) {
+      console.error("Get newsletter subscribers request failed:", error);
+      throw error;
+    }
   }
 
   public async subscribe(data: any): Promise<AxiosResponse> {
-    return this.api.post("/newsletter/subscribe", data);
+    try {
+      return await this.api.post("/newsletter/subscribe", data);
+    } catch (error) {
+      console.error("Newsletter subscribe request failed:", error);
+      throw error;
+    }
   }
 
   public async unsubscribe(email: string): Promise<AxiosResponse> {
-    return this.api.delete(`/newsletter/unsubscribe/${email}`);
+    try {
+      return await this.api.delete(`/newsletter/unsubscribe/${email}`);
+    } catch (error) {
+      console.error(`Newsletter unsubscribe for ${email} request failed:`, error);
+      throw error;
+    }
   }
 
-  public async deleteSubscriber(id: string): Promise<AxiosResponse> {
-    return this.api.delete(`/newsletter/subscribers/${id}`);
-  }
-
-  public async sendTestEmail(email: string): Promise<AxiosResponse> {
-    return this.api.post(`/newsletter/test?email=${email}`);
-  }
-
-  // Utilisateurs
+  // Users
   public async getUsers(): Promise<AxiosResponse> {
-    return this.api.get("/users");
-  }
-
-  public async getUserById(id: string): Promise<AxiosResponse> {
-    return this.api.get(`/users/${id}`);
+    try {
+      return await this.api.get("/users");
+    } catch (error) {
+      console.error("Get users request failed:", error);
+      throw error;
+    }
   }
 
   public async updateUser(id: string, data: any): Promise<AxiosResponse> {
-    return this.api.put(`/users/${id}`, data);
-  }
-
-  public async updateUserStatus(id: string, status: "ACTIVE" | "INACTIVE"): Promise<AxiosResponse> {
-    return this.api.put(`/users/${id}/status?status=${status}`);
+    try {
+      return await this.api.put(`/users/${id}`, data);
+    } catch (error) {
+      console.error(`Update user ${id} request failed:`, error);
+      throw error;
+    }
   }
 
   public async deleteUser(id: string): Promise<AxiosResponse> {
-    return this.api.delete(`/users/${id}`);
+    try {
+      return await this.api.delete(`/users/${id}`);
+    } catch (error) {
+      console.error(`Delete user ${id} request failed:`, error);
+      throw error;
+    }
+  }
+
+  public async getPublicPublications(): Promise<AxiosResponse> {
+    try {
+      return await this.api.get("/publications/public/active");
+    } catch (error) {
+      console.error("Get public publications request failed:", error);
+      throw error;
+    }
+  }
+
+  public async getPublicationsByCategory(
+    category: string
+  ): Promise<AxiosResponse> {
+    try {
+      return await this.api.get(`/publications/public/category/${category}`);
+    } catch (error) {
+      console.error(`Get publications by category ${category} request failed:`, error);
+      throw error;
+    }
+  }
+
+  public async likePublication(id: string): Promise<AxiosResponse> {
+    try {
+      return await this.api.post(`/publications/public/${id}/like`);
+    } catch (error) {
+      console.error(`Like publication ${id} request failed:`, error);
+      throw error;
+    }
+  }
+  
+  public async sendTestEmail(email: string): Promise<AxiosResponse> {
+    try {
+      return await this.api.post(`/newsletter/test?email=${email}`);
+    } catch (error) {
+      console.error(`Send test email to ${email} request failed:`, error);
+      throw error;
+    }
+  }
+  
+  public async deleteSubscriber(id: string): Promise<AxiosResponse> {
+    try {
+      return await this.api.delete(`/newsletter/subscribers/${id}`);
+    } catch (error) {
+      console.error(`Delete subscriber ${id} request failed:`, error);
+      throw error;
+    }
+  }
+  
+  public async updateUserStatus(
+    id: string,
+    status: "ACTIVE" | "INACTIVE"
+  ): Promise<AxiosResponse> {
+    try {
+      return await this.api.put(`/users/${id}/status?status=${status}`);
+    } catch (error) {
+      console.error(`Update user ${id} status to ${status} request failed:`, error);
+      throw error;
+    }
   }
 }
 
