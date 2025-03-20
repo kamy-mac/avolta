@@ -49,8 +49,9 @@ public class PublicationController {
     }
 
     @Operation(summary = "Get pending publications", description = "Only super admins can access this endpoint")
+    // Dans PublicationController.java
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('SUPERADMIN')")
+    @PreAuthorize("hasAuthority('SUPERADMIN')")
     public ResponseEntity<ApiResponse<List<PublicationDto>>> getPendingPublications() {
         List<PublicationDto> publications = publicationService.getPendingPublications();
         return ResponseEntity.ok(ApiResponse.success(publications));
@@ -70,7 +71,8 @@ public class PublicationController {
             @Valid @RequestBody CreatePublicationRequest request,
             Authentication authentication) {
         PublicationDto createdPublication = publicationService.createPublication(request, authentication.getName());
-        return new ResponseEntity<>(ApiResponse.success("Publication created successfully", createdPublication), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success("Publication created successfully", createdPublication),
+                HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update a publication", description = "Requires authentication")
@@ -96,7 +98,8 @@ public class PublicationController {
     @PreAuthorize("hasRole('SUPERADMIN')")
     public ResponseEntity<ApiResponse<Void>> rejectPublication(@PathVariable String id) {
         publicationService.rejectPublication(id);
-        return new ResponseEntity<>(ApiResponse.success("Publication rejected successfully", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(ApiResponse.success("Publication rejected successfully", null),
+                HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Delete a publication", description = "Requires authentication")
@@ -104,7 +107,8 @@ public class PublicationController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> deletePublication(@PathVariable String id) {
         publicationService.deletePublication(id);
-        return new ResponseEntity<>(ApiResponse.success("Publication deleted successfully", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(ApiResponse.success("Publication deleted successfully", null),
+                HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Like a publication", description = "Public endpoint")

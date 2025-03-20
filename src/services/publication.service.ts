@@ -88,17 +88,16 @@ class PublicationService {
    * Get pending publications (super admin only)
    * @returns List of pending publications
    */
- // Dans publication.service.ts
- public async getPendingPublications(): Promise<Post[]> {
+  public async getPendingPublications(): Promise<Post[]> {
   try {
     const response = await api.getPendingPublications();
     return response.data.data;
   } catch (error) {
-    // Si l'endpoint spécifique échoue, essayez la méthode de filtrage
-    console.warn("Endpoint spécifique non disponible, filtrage manuel des publications...");
-    return this.getAllPublications().then(publications => 
-      publications.filter(pub => pub.status.toLowerCase() === "pending")
-    );
+    console.error("Error fetching pending publications:", error);
+    if (error instanceof Error && 'response' in error && (error as any).response) {
+      console.error("Response data:", (error as any).response.data);
+    }
+    throw error;
   }
 }
 

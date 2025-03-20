@@ -25,7 +25,9 @@ class ApiService {
     // Request interceptor
     this.api.interceptors.request.use(
       (config) => {
-        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        console.log(
+          `API Request: ${config.method?.toUpperCase()} ${config.url}`
+        );
         const token = localStorage.getItem("token");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -46,27 +48,31 @@ class ApiService {
       },
       (error: AxiosError) => {
         console.error(`API Error for ${error.config?.url}:`, error);
-        
+
         // Handle authentication errors
         if (error.response?.status === 401) {
           console.log("Unauthorized access, redirecting to login");
           localStorage.removeItem("token");
           localStorage.removeItem("currentUser");
           window.location.href = "/login";
-          return Promise.reject(new Error("Session expired. Please log in again."));
+          return Promise.reject(
+            new Error("Session expired. Please log in again.")
+          );
         }
-        
+
         // Create a more informative error message
         let errorMessage = "An unexpected error occurred";
-        
+
         if ((error.response?.data as { message?: string })?.message) {
           // Use server-side error message if available
-          errorMessage = (error.response?.data as { message?: string })?.message || errorMessage;
+          errorMessage =
+            (error.response?.data as { message?: string })?.message ||
+            errorMessage;
         } else if (error.message) {
           // Use axios error message
           errorMessage = error.message;
         }
-        
+
         // Create a new error with the enhanced message
         const enhancedError = new Error(errorMessage);
         return Promise.reject(enhancedError);
@@ -174,7 +180,10 @@ class ApiService {
     try {
       return await this.api.get(`/publications/${publicationId}/comments`);
     } catch (error) {
-      console.error(`Get comments for publication ${publicationId} request failed:`, error);
+      console.error(
+        `Get comments for publication ${publicationId} request failed:`,
+        error
+      );
       throw error;
     }
   }
@@ -184,9 +193,15 @@ class ApiService {
     data: any
   ): Promise<AxiosResponse> {
     try {
-      return await this.api.post(`/publications/${publicationId}/comments`, data);
+      return await this.api.post(
+        `/publications/${publicationId}/comments`,
+        data
+      );
     } catch (error) {
-      console.error(`Add comment to publication ${publicationId} request failed:`, error);
+      console.error(
+        `Add comment to publication ${publicationId} request failed:`,
+        error
+      );
       throw error;
     }
   }
@@ -228,12 +243,16 @@ class ApiService {
     try {
       return await this.api.delete(`/newsletter/unsubscribe/${email}`);
     } catch (error) {
-      console.error(`Newsletter unsubscribe for ${email} request failed:`, error);
+      console.error(
+        `Newsletter unsubscribe for ${email} request failed:`,
+        error
+      );
       throw error;
     }
   }
 
   // Users
+
   public async getUsers(): Promise<AxiosResponse> {
     try {
       return await this.api.get("/users");
@@ -276,7 +295,20 @@ class ApiService {
     try {
       return await this.api.get(`/publications/public/category/${category}`);
     } catch (error) {
-      console.error(`Get publications by category ${category} request failed:`, error);
+      console.error(
+        `Get publications by category ${category} request failed:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  //  User (super admin) spendid Publications
+  public async getPendingPublications(): Promise<AxiosResponse> {
+    try {
+      return await this.api.get("/publications/pending");
+    } catch (error) {
+      console.error("Get pending publications request failed:", error);
       throw error;
     }
   }
@@ -289,7 +321,7 @@ class ApiService {
       throw error;
     }
   }
-  
+
   public async sendTestEmail(email: string): Promise<AxiosResponse> {
     try {
       return await this.api.post(`/newsletter/test?email=${email}`);
@@ -298,7 +330,7 @@ class ApiService {
       throw error;
     }
   }
-  
+
   public async deleteSubscriber(id: string): Promise<AxiosResponse> {
     try {
       return await this.api.delete(`/newsletter/subscribers/${id}`);
@@ -307,7 +339,7 @@ class ApiService {
       throw error;
     }
   }
-  
+
   public async updateUserStatus(
     id: string,
     status: "ACTIVE" | "INACTIVE"
@@ -315,7 +347,10 @@ class ApiService {
     try {
       return await this.api.put(`/users/${id}/status?status=${status}`);
     } catch (error) {
-      console.error(`Update user ${id} status to ${status} request failed:`, error);
+      console.error(
+        `Update user ${id} status to ${status} request failed:`,
+        error
+      );
       throw error;
     }
   }

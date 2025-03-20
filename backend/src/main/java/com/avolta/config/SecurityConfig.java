@@ -56,15 +56,31 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .authorizeHttpRequests(auth -> auth
             // Allow preflight requests
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            
             // Public endpoints
             .requestMatchers("/api/auth/login").permitAll()
             .requestMatchers("/api/publications/public/**").permitAll()
             .requestMatchers("/api/newsletter/subscribe").permitAll()
+            .requestMatchers("/api/newsletter/unsubscribe").permitAll() // Ajouté pour cohérence
+            
             // Swagger UI
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            // Endpoints protégés
+            
+            // SUPERADMIN only endpoints
             .requestMatchers("/api/auth/register").hasAuthority("SUPERADMIN")
             .requestMatchers("/api/users/**").hasAuthority("SUPERADMIN")
+            .requestMatchers("/api/publications/pending").hasAuthority("SUPERADMIN")
+            .requestMatchers("/api/publications/*/approve").hasAuthority("SUPERADMIN")
+            .requestMatchers("/api/publications/*/reject").hasAuthority("SUPERADMIN")
+            
+            // Authenticated endpoints
+            .requestMatchers("/api/publications").authenticated()
+            .requestMatchers("/api/publications/**").authenticated()
+            .requestMatchers("/api/newsletter/subscribers").authenticated()
+            .requestMatchers("/api/newsletter/test").authenticated()
+            .requestMatchers("/api/newsletter/subscribers/**").authenticated()
+            
+            // Default rule
             .anyRequest().authenticated()
         )
         .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
