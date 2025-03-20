@@ -39,7 +39,7 @@ public class AuthController {
 
     @Operation(summary = "Register a new admin user", description = "Only super admins can create new admin users")
     @PostMapping("/register")
-    @PreAuthorize("hasRole('SUPERADMIN')")
+    @PreAuthorize("hasAuthority('SUPERADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> registerUser(@Valid @RequestBody CreateUserRequest request) {
         UserDto createdUser = userService.createUser(request);
         return new ResponseEntity<>(ApiResponse.success("User registered successfully", createdUser),

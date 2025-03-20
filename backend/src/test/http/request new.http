@@ -2,8 +2,8 @@
 
 ## Variables d'environnement
 @baseUrl = http://localhost:8090
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjE1NzQxNSwiZXhwIjoxNzQyMjQzODE1fQ.oDZ_frbIE48FlZfSfKUNZaRSYnpWFmVq42XdFodQ6dQ
-@superAdminToken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjE1NzQxNSwiZXhwIjoxNzQyMjQzODE1fQ.oDZ_frbIE48FlZfSfKUNZaRSYnpWFmVq42XdFodQ6dQ
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjQ2OTAyNSwiZXhwIjoxNzQyNTU1NDI1fQ.dqWDH0psCjFV_34JKX9lceB5jAb0I67rUPJoJhSKvBg
+@supertoken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlcmFkbWluQGF2b2x0YS5iZSIsImlhdCI6MTc0MjQ2OTAyNSwiZXhwIjoxNzQyNTU1NDI1fQ.dqWDH0psCjFV_34JKX9lceB5jAb0I67rUPJoJhSKvBg
 
 ## 1. PublicationController
 
@@ -19,71 +19,76 @@ GET {{baseUrl}}/api/publications/public/category/technologie
 
 ### Obtenir les publications en attente (superadmin uniquement)
 GET {{baseUrl}}/api/publications/pending
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{supertoken}}
 
 ### Obtenir une publication par ID (endpoint public)
-GET {{baseUrl}}/api/publications/public/123e4567-e89b-12d3-a456-426614174000
+GET {{baseUrl}}/api/publications/public/7716cc7e-e3e3-457e-979d-ba0ddba8faf8
 
-### Créer une nouvelle publication (nécessite authentification)
+
+### Créer une nouvelle publication (nécessite authentification avec un rôle de admin ou superadmin)
 POST {{baseUrl}}/api/publications
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "title": "Nouvelle Publication",
-  "content": "Contenu de la publication",
+  "title": "Nouvelle Publication3",
+  "content": "Contenu de la publication3",
   "category": "technologie",
   "tags": ["java", "spring"],
   "coverImageUrl": "https://example.com/image.jpg",
-  "status": "DRAFT"
+  "status": "DRAFT",
+  "validFrom": "2025-03-15T00:00:00Z",
+  "validTo": "2025-12-31T23:59:59Z"
 }
 
 ### Mettre à jour une publication (nécessite authentification)
-PUT {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000
+PUT {{baseUrl}}/api/publications/c43b4e4c-d4e5-4381-b88b-c77a90eb5f8f
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "title": "Publication Mise à Jour",
-  "content": "Contenu mis à jour",
-  "category": "science",
-  "tags": ["java", "spring", "hibernate"],
-  "coverImageUrl": "https://example.com/new-image.jpg",
-  "status": "DRAFT"
+  "title": "Nouvelle Publication1",
+  "content": "Contenu de la publication1",
+  "category": "technologie",
+  "tags": ["java", "spring"],
+  "coverImageUrl": "https://example.com/image.jpg",
+  "status": "DRAFT",
+  "validFrom": "2025-03-15T00:00:00Z",
+  "validTo": "2025-12-30T23:59:59Z"
 }
 
 ### Approuver une publication (superadmin uniquement)
-PUT {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/approve
-Authorization: Bearer {{superAdminToken}}
+PUT {{baseUrl}}/api/publications/fde83d0c-b6a6-442f-b1c6-e51bead0fbad/approve
+Authorization: Bearer {{supertoken}}
 
 ### Rejeter une publication (superadmin uniquement)
 DELETE {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/reject
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{token}}
 
 ### Supprimer une publication (nécessite authentification)
 DELETE {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000
 Authorization: Bearer {{token}}
 
 ### Aimer une publication (endpoint public)
-POST {{baseUrl}}/api/publications/public/123e4567-e89b-12d3-a456-426614174000/like
+POST {{baseUrl}}/api/publications/public/fde83d0c-b6a6-442f-b1c6-e51bead0fbad/like
 
 ## 2. UserController
 
 ### Obtenir tous les utilisateurs (superadmin uniquement)
 GET {{baseUrl}}/api/users
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{supertoken}}
 
 ### Obtenir un utilisateur par ID (superadmin uniquement)
 GET {{baseUrl}}/api/users/123e4567-e89b-12d3-a456-426614174000
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{token}}
 
 ### Mettre à jour le statut d'un utilisateur (superadmin uniquement)
 PUT {{baseUrl}}/api/users/123e4567-e89b-12d3-a456-426614174000/status?status=ACTIVE
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{token}}
 
 ### Supprimer un utilisateur (superadmin uniquement)
 DELETE {{baseUrl}}/api/users/123e4567-e89b-12d3-a456-426614174000
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{token}}
 
 ## 3. NewsletterController
 
@@ -116,10 +121,10 @@ Authorization: Bearer {{token}}
 ## 4. CommentController
 
 ### Obtenir tous les commentaires d'une publication (endpoint public)
-GET {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/comments
+GET {{baseUrl}}/api/publications/fd7daac5-39ef-44dc-8b0b-0000bbaca3/comments
 
 ### Créer un nouveau commentaire (nécessite authentification)
-POST {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/comments
+POST {{baseUrl}}/api/publications/fd7daac5-39ef-44dc-8b0b-0000bbaca3/comments
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -128,7 +133,7 @@ Authorization: Bearer {{token}}
 }
 
 ### Supprimer un commentaire (nécessite authentification)
-DELETE {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/comments/456e7890-e89b-12d3-a456-426614174000
+DELETE {{baseUrl}}/api/publications/fd7daac5-39ef-44dc-8b0b-0000bbaca3/comments/456e7890-e89b-12d3-a456-426614174000
 Authorization: Bearer {{token}}
 
 ## 5. AuthController
@@ -136,7 +141,7 @@ Authorization: Bearer {{token}}
 ### Enregistrer un nouvel utilisateur admin (superadmin uniquement)
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
-Authorization: Bearer {{superAdminToken}}
+Authorization: Bearer {{token}}
 
 {
   "username": "nouvel_admin",
@@ -147,11 +152,20 @@ Authorization: Bearer {{superAdminToken}}
   "role": "ADMIN"
 }
 
-### Enregistrer un nouvel utilisateur (endpoint public)
+### loger  un superadmin (endpoint public)
 POST http://localhost:8090/api/auth/login
 Content-Type: application/json
 
 {
   "email": "superadmin@avolta.be",
   "password": "superadmin123"
+}
+
+### loger  un admin (endpoint public)
+POST http://localhost:8090/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@avolta.be",
+  "password": "admin123"
 }

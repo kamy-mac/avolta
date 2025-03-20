@@ -63,8 +63,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             // Swagger UI
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             // Endpoints protégés
-            .requestMatchers("/api/auth/register").hasAuthority("ROLE_SUPERADMIN")
-            .requestMatchers("/api/users/**").hasAuthority("ROLE_SUPERADMIN")
+            .requestMatchers("/api/auth/register").hasAuthority("SUPERADMIN")
+            .requestMatchers("/api/users/**").hasAuthority("SUPERADMIN")
             .anyRequest().authenticated()
         )
         .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
