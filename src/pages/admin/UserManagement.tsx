@@ -1,39 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { UserPlus, Mail, Key, Trash2, UserCheck, UserX, Search } from 'lucide-react';
-import userService from '../../services/user.service';
-import authService from '../../services/auth.service';
-import { User } from '../../types';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  UserPlus,
+  Mail,
+  Key,
+  Trash2,
+  UserCheck,
+  UserX,
+  Search,
+} from "lucide-react";
+import userService from "../../services/user.service";
+import authService from "../../services/auth.service";
+import { User } from "../../types";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newUser, setNewUser] = useState({ email: '', password: '' });
+  const [newUser, setNewUser] = useState({ email: "", password: "" });
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Create abort controller for cleanup
     const abortController = new AbortController();
-    
+
     const init = async () => {
       // Check if user is superadmin before loading data
-      if (!currentUser || currentUser.role !== 'superadmin') {
-        navigate('/admin');
+      if (!currentUser || currentUser.role.toLowerCase() !== "superadmin") {
+        navigate("/admin");
+        console.log("User object:", currentUser);
+        console.log("JWT token:", localStorage.getItem("token"));
         return;
       }
-      
+
       if (!abortController.signal.aborted) {
         await loadUsers();
       }
     };
-    
+
     init();
-    
+
     // Cleanup function to prevent memory leaks
     return () => {
       abortController.abort();
@@ -43,38 +53,41 @@ export default function UserManagement() {
   const loadUsers = async () => {
     // Use a local variable to track if the component is still mounted
     let isMounted = true;
-    
+
     try {
       if (isMounted) setIsLoading(true);
       if (isMounted) setError(null);
-      console.log('Fetching all users...');
-      
+      console.log("Fetching all users...");
+
       // Implement a timeout to prevent hanging requests
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error("Request timeout")), 10000);
       });
-      
+
       // Use the service method with a timeout
       const dataPromise = userService.getAllUsers();
-      const data = await Promise.race([dataPromise, timeoutPromise]) as User[];
-      
-      console.log('Loaded users:', data);
-      
+      const data = (await Promise.race([
+        dataPromise,
+        timeoutPromise,
+      ])) as User[];
+
+      console.log("Loaded users:", data);
+
       // Only update state if component is still mounted
       if (isMounted) {
         setUsers(data);
       }
     } catch (error: any) {
-      console.error('Error loading users:', error);
+      console.error("Error loading users:", error);
       if (isMounted) {
-        setError(error.message || 'Error loading users. Please try again.');
+        setError(error.message || "Error loading users. Please try again.");
       }
     } finally {
       if (isMounted) {
         setIsLoading(false);
       }
     }
-    
+
     // Cleanup function
     return () => {
       isMounted = false;
@@ -90,30 +103,35 @@ export default function UserManagement() {
       await authService.register({
         email: newUser.email,
         password: newUser.password,
-        role: 'admin'
+        role: "admin",
       });
-      setNewUser({ email: '', password: '' });
+      setNewUser({ email: "", password: "" });
       setShowCreateForm(false);
       loadUsers();
     } catch (error: any) {
-      console.error('Error creating user:', error);
-      setError(error.message || 'Failed to create user. Please try again.');
+      console.error("Error creating user:", error);
+      setError(error.message || "Failed to create user. Please try again.");
     }
   };
 
-  const handleToggleStatus = async (userId: string, currentStatus: 'active' | 'inactive') => {
+  const handleToggleStatus = async (
+    userId: string,
+    currentStatus: "active" | "inactive"
+  ) => {
     try {
-      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
       await userService.updateUserStatus(userId, newStatus);
       loadUsers();
     } catch (error: any) {
-      console.error('Error updating user status:', error);
-      setError(error.message || 'Failed to update user status. Please try again.');
+      console.error("Error updating user status:", error);
+      setError(
+        error.message || "Failed to update user status. Please try again."
+      );
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
+    if (!window.confirm("Are you sure you want to delete this user?")) {
       return;
     }
 
@@ -121,12 +139,12 @@ export default function UserManagement() {
       await userService.deleteUser(userId);
       loadUsers();
     } catch (error: any) {
-      console.error('Error deleting user:', error);
-      setError(error.message || 'Failed to delete user. Please try again.');
+      console.error("Error deleting user:", error);
+      setError(error.message || "Failed to delete user. Please try again.");
     }
   };
 
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users.filter((user) =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -136,7 +154,7 @@ export default function UserManagement() {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
-            {[1, 2, 3].map(n => (
+            {[1, 2, 3].map((n) => (
               <div key={n} className="h-12 bg-gray-200 rounded"></div>
             ))}
           </div>
@@ -169,10 +187,16 @@ export default function UserManagement() {
           )}
 
           {showCreateForm && (
-            <form onSubmit={handleCreateUser} className="mb-6 bg-gray-50 p-4 rounded-lg">
+            <form
+              onSubmit={handleCreateUser}
+              className="mb-6 bg-gray-50 p-4 rounded-lg"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Email
                   </label>
                   <div className="mt-1 relative">
@@ -180,7 +204,12 @@ export default function UserManagement() {
                       type="email"
                       id="email"
                       value={newUser.email}
-                      onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) =>
+                        setNewUser((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
                       required
                     />
@@ -188,7 +217,10 @@ export default function UserManagement() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Password
                   </label>
                   <div className="mt-1 relative">
@@ -196,7 +228,12 @@ export default function UserManagement() {
                       type="password"
                       id="password"
                       value={newUser.password}
-                      onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                      onChange={(e) =>
+                        setNewUser((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
                       required
                     />
@@ -238,19 +275,34 @@ export default function UserManagement() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Email
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Role
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Registration Date
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Last Login
                 </th>
                 <th scope="col" className="relative px-6 py-3">
@@ -261,7 +313,10 @@ export default function UserManagement() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
                     No users found
                   </td>
                 </tr>
@@ -277,44 +332,57 @@ export default function UserManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === 'superadmin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {user.role === 'superadmin' ? 'Super Admin' : 'Admin'}
+                      <span
+                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.role === "superadmin"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {user.role === "superadmin" ? "Super Admin" : "Admin"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {user.status === 'active' ? 'Active' : 'Inactive'}
+                      <span
+                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {user.status === "active" ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString('fr-BE')}
+                      {new Date(user.createdAt).toLocaleDateString("fr-BE")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.lastLogin
-                        ? new Date(user.lastLogin).toLocaleDateString('fr-BE')
-                        : 'Never logged in'}
+                        ? new Date(user.lastLogin).toLocaleDateString("fr-BE")
+                        : "Never logged in"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {user.role !== 'superadmin' && (
+                      {user.role !== "superadmin" && (
                         <div className="flex items-center justify-end space-x-2">
                           <button
-                            onClick={() => handleToggleStatus(user.id, user.status as 'active' | 'inactive')}
+                            onClick={() =>
+                              handleToggleStatus(
+                                user.id,
+                                user.status as "active" | "inactive"
+                              )
+                            }
                             className={`p-2 rounded-full ${
-                              user.status === 'active'
-                                ? 'text-green-600 hover:text-green-900'
-                                : 'text-red-600 hover:text-red-900'
+                              user.status === "active"
+                                ? "text-green-600 hover:text-green-900"
+                                : "text-red-600 hover:text-red-900"
                             }`}
-                            title={user.status === 'active' ? 'Deactivate' : 'Activate'}
+                            title={
+                              user.status === "active"
+                                ? "Deactivate"
+                                : "Activate"
+                            }
                           >
-                            {user.status === 'active' ? (
+                            {user.status === "active" ? (
                               <UserCheck className="h-5 w-5" />
                             ) : (
                               <UserX className="h-5 w-5" />
@@ -327,6 +395,7 @@ export default function UserManagement() {
                           >
                             <Trash2 className="h-5 w-5" />
                           </button>
+                          
                         </div>
                       )}
                     </td>

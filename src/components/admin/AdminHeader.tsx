@@ -11,6 +11,7 @@ export default function AdminHeader() {
   const isActive = (path: string) => {
     return location.pathname.includes(path);
   };
+  // Dans AdminHeader.tsx
 
   const handleLogout = () => {
     logout();

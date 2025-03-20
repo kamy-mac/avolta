@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, X, Eye, Calendar, Search, Edit2, RefreshCw } from "lucide-react";
+import {
+  Check,
+  X,
+  Eye,
+  Calendar,
+  Search,
+  Edit2,
+  RefreshCw,
+} from "lucide-react";
 import publicationService from "../../services/publication.service";
 import { Post } from "../../types";
 import { useAuth } from "../../context/AuthContext";
@@ -13,7 +21,7 @@ export default function PendingPublications() {
   const [searchTerm, setSearchTerm] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Use ref to track component mount state
   const isMountedRef = useRef(true);
 
@@ -21,16 +29,16 @@ export default function PendingPublications() {
   const loadPublications = useCallback(async (showLoadingIndicator = true) => {
     // Return early if component unmounted
     if (!isMountedRef.current) return;
-    
+
     if (showLoadingIndicator) {
       setIsLoading(true);
     } else {
       setIsRefreshing(true);
     }
-    
+
     setError(null);
     console.log("Fetching pending publications...");
-    
+
     try {
       // Implement a timeout to prevent hanging requests
       const timeoutPromise = new Promise((_, reject) => {
@@ -39,33 +47,34 @@ export default function PendingPublications() {
         }, 10000);
         return () => clearTimeout(timeoutId);
       });
-      
+
       // Use the service method to get pending publications
       const response = await Promise.race([
         publicationService.getPendingPublications(),
-        timeoutPromise
+        timeoutPromise,
       ]);
-      
+
       // Check if component is still mounted before updating state
       if (isMountedRef.current) {
         const data = (response as any).data.data;
         console.log("Loaded pending publications:", data);
-        
+
         // Sort by creation date (newest first)
         const sortedData = [...data].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        
+
         setPublications(sortedData);
       }
     } catch (error: any) {
       console.error("Error loading pending publications:", error);
-      
+
       // Only update error state if still mounted
       if (isMountedRef.current) {
         setError(
-          error.message || 
-          "Error loading pending publications. Please try again."
+          error.message ||
+            "Error loading pending publications. Please try again."
         );
       }
     } finally {
@@ -84,15 +93,16 @@ export default function PendingPublications() {
       navigate("/login", { state: { from: "/admin/pending" } });
       return;
     }
-    
-    if (!user || user.role !== "superadmin") {
+
+    if (!user || user.role.toLowerCase() !== "superadmin") {
       navigate("/admin");
-      console.log("Current user:", user);
+      console.log("User object:", user);
+      console.log("JWT token:", localStorage.getItem("token"));
       return;
     }
     // Load data
     loadPublications();
-    
+
     // Cleanup function
     return () => {
       isMountedRef.current = false;
@@ -102,42 +112,41 @@ export default function PendingPublications() {
   // Handle publication actions with error handling
   const handlePublicationAction = async (
     id: string,
-    action: 'approve' | 'reject',
+    action: "approve" | "reject",
     confirmMessage?: string
   ) => {
     // If confirmation is required and user cancels, do nothing
     if (confirmMessage && !window.confirm(confirmMessage)) {
       return;
     }
-    
+
     setError(null);
-    
+
     try {
-      if (action === 'approve') {
+      if (action === "approve") {
         await publicationService.approvePublication(id);
       } else {
         await publicationService.rejectPublication(id);
       }
-      
+
       // Remove the publication from the list if successful
       setPublications((prev) => prev.filter((pub) => pub.id !== id));
     } catch (error: any) {
       console.error(`Error ${action}ing publication:`, error);
       setError(
-        error.message || 
-        `Error ${action}ing publication. Please try again.`
+        error.message || `Error ${action}ing publication. Please try again.`
       );
     }
   };
 
   const handleApprove = (id: string) => {
-    handlePublicationAction(id, 'approve');
+    handlePublicationAction(id, "approve");
   };
 
   const handleReject = (id: string) => {
     handlePublicationAction(
-      id, 
-      'reject', 
+      id,
+      "reject",
       "Are you sure you want to reject this publication?"
     );
   };
@@ -149,7 +158,7 @@ export default function PendingPublications() {
   const handlePreview = (id: string) => {
     navigate(`/news/${id}`);
   };
-  
+
   const handleRefresh = () => {
     loadPublications(false);
   };
@@ -190,14 +199,16 @@ export default function PendingPublications() {
                 {publications.length} pending
               </span>
             </div>
-            
+
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
               aria-label="Refresh"
             >
-              <RefreshCw className={`w-5 h-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-5 h-5 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           </div>

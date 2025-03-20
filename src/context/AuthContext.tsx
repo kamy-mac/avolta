@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Safely calculate if user is a super admin
   const isSuperAdmin = !!user && user.role.toLowerCase() === 'superadmin';
-
+  
   // Values to export in the context
   const contextValue: AuthContextType = {
     user,

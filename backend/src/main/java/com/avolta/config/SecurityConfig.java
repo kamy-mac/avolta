@@ -30,22 +30,7 @@ public class SecurityConfig {
         this.jwtTokenProvider = jwtTokenProvider;
         this.corsConfig = corsConfig;
     }
-    // @Bean
-    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    //     http
-    //         .cors().and()
-    //         .csrf().disable()
-    //         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    //         .and()
-    //         .authorizeHttpRequests(auth -> auth
-    //             .anyRequest().permitAll() // Autoriser toutes les requêtes temporairement
-    //         )
-    //         .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
-    //         .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService),
-    //                         UsernamePasswordAuthenticationFilter.class);
     
-    //     return http.build();
-    // }
     @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -89,33 +74,6 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     return http.build();
 }
-    // @Bean
-    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    //     http
-    //             .cors().and()
-    //             .csrf().disable()
-    //             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    //             .and()
-    //             .authorizeHttpRequests(auth -> auth
-    //                     // Allow preflight requests
-    //                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-    //                     // Public endpoints - notez le chemin EXACT
-    //                     .requestMatchers("/api/auth/login").permitAll()
-    //                     .requestMatchers("/api/publications/public/**").permitAll()
-    //                     .requestMatchers("/api/newsletter/subscribe").permitAll()
-    //                     // Swagger UI
-    //                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-    //                     // Protected endpoints - ajustez en fonction de comment vos rôles sont définis
-    //                     .requestMatchers("/api/auth/register").hasAuthority("ROLE_SUPERADMIN")
-    //                     .requestMatchers("/api/users/**").hasAuthority("ROLE_SUPERADMIN")
-    //                     .anyRequest().authenticated()
-    //             )
-    //             .addFilterBefore(corsConfig.corsFilter(), UsernamePasswordAuthenticationFilter.class)
-    //             .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, userService),
-    //                     UsernamePasswordAuthenticationFilter.class);
-    
-    //     return http.build();
-    // }
 
     @Autowired
     public void setUserService(@Lazy UserService userService) {
