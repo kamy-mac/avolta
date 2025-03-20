@@ -107,14 +107,14 @@ export default function Footer() {
 
   const navigationLinks = {
     about: [
-      { label: 'Notre histoire', href: '/about' },
-      { label: 'Notre équipe', href: '/team' },
-      { label: 'Carrières', href: '/careers' }
+      { label: 'Notre histoire', href: 'https://www.avoltaworld.com/en/meet-avolta' },
+      { label: 'Notre équipe', href: '/contact' },
+      { label: 'Carrières', href: 'https://www.avoltaworld.com/en/careers' }
     ],
     legal: [
-      { label: 'Confidentialité', href: '/privacy' },
-      { label: 'Conditions', href: '/terms' },
-      { label: 'Cookies', href: '/cookies' }
+      { label: ' Service Client', href: 'https://www.avoltaworld.com/en/travelers/customer-service' },
+      { label: 'Conditions', href: 'https://www.avoltaworld.com/en/terms' },
+      { label: 'Confidentialité et Cookies', href: 'https://www.avoltaworld.com/en/privacy-cookie' }
     ]
   };
 
