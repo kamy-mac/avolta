@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminHeader from '../../components/admin/AdminHeader';
+import TeamGrid from '../../components/home/TeamGrid';
 
 export default function AdminDashboard() {
   return (
@@ -9,6 +10,10 @@ export default function AdminDashboard() {
       <main className="py-10">
         <Outlet />
       </main>
+
+      <div>
+      <TeamGrid/>
+      </div>
     </div>
   );
 }

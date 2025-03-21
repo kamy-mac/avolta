@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
-// Import du service si vous avez un service de contact
-// import contactService from '../../services/contact.service';
+import TeamGrid from '../../home/TeamGrid';
+
 
 interface FeedbackFormState {
   name: string;
@@ -149,6 +149,11 @@ export default function FeedbackForm() {
           </>
         )}
       </button>
+
+      <div>
+      <TeamGrid/>
+      </div>
     </form>
+    
   );
 }

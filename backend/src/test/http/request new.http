@@ -61,6 +61,7 @@ Authorization: Bearer {{token}}
 PUT {{baseUrl}}/api/publications/fde83d0c-b6a6-442f-b1c6-e51bead0fbad/approve
 Authorization: Bearer {{supertoken}}
 
+*
 ### Rejeter une publication (superadmin uniquement)
 DELETE {{baseUrl}}/api/publications/123e4567-e89b-12d3-a456-426614174000/reject
 Authorization: Bearer {{token}}
