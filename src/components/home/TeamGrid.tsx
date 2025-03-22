@@ -1,12 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Linkedin, X, User, ChevronLeft, ChevronRight, ArrowRight, Phone, MapPin } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Mail,
+  Linkedin,
+  X,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Phone,
+  MapPin,
+} from "lucide-react";
 
 // Importation dynamique des images
-import jouyImage from '/src/images/jouy.jpg';
-import stevenImage from '/src/images/Steven.jpg';
-import wendyImage from '/src/images/Wendy.jpg';
-import pepijnImage from '/src/images/Pepijn.jpg';
-import magalieImage from '/src/images/Magalie.jpg';
+import jouyImage from "/src/images/jouy.jpg";
+import stevenImage from "/src/images/Steven.jpg";
+import wendyImage from "/src/images/Wendy.jpg";
+import pepijnImage from "/src/images/Pepijn.jpg";
+import magalieImage from "/src/images/Magalie.jpg";
 
 interface TeamMember {
   id: string;
@@ -23,71 +33,75 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    id: '1',
-    name: 'Thibault JOUY',
-    position: 'Directeur Général',
-    email: 'thibault.jouy@avolta.be',
-    phone: '+32 2 753 XX XX',
-    location: 'Bruxelles',
+    id: "1",
+    name: "Thibault JOUY",
+    position: "Directeur Général",
+    email: "thibault.jouy@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
     imageUrl: jouyImage,
-    linkedinUrl: '#',
+    linkedinUrl: "#",
     bio: "Fort de plus de 15 ans d'expérience dans le retail aéroportuaire, Thibault dirige l'ensemble des opérations d'Avolta à l'aéroport de Bruxelles avec une vision stratégique axée sur l'innovation et l'expérience client.",
-    expertise: ['Stratégie d\'entreprise', 'Retail aéroportuaire', 'Management']
+    expertise: ["Stratégie d'entreprise", "Retail aéroportuaire", "Management"],
   },
   {
-    id: '2',
-    name: 'Steven CORNEILLIE',
-    position: 'Directeur Marketing',
-    email: 'steven.corneillie@autogrill.net',
-    phone: '+32 2 753 XX XX',
-    location: 'Bruxelles',
+    id: "2",
+    name: "Steven CORNEILLIE",
+    position: "Directeur Marketing",
+    email: "steven.corneillie@autogrill.net",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
     imageUrl: stevenImage,
-    linkedinUrl: '#',
+    linkedinUrl: "#",
     bio: "Steven supervise toutes les initiatives marketing et développe des stratégies innovantes pour accroître la visibilité des marques Avolta et optimiser l'expérience client dans nos points de vente.",
-    expertise: ['Marketing stratégique', 'Expérience client', 'Retail']
+    expertise: ["Marketing stratégique", "Expérience client", "Retail"],
   },
   {
-    id: '3',
-    name: 'Wendy SWINNEN',
-    position: 'Responsable Production',
-    email: 'wendy.swinnen@avolta.be',
-    phone: '+32 2 753 XX XX',
-    location: 'Bruxelles',
+    id: "3",
+    name: "Wendy SWINNEN",
+    position: "Responsable Production",
+    email: "wendy.swinnen@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
     imageUrl: wendyImage,
-    linkedinUrl: '#',
+    linkedinUrl: "#",
     bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
-    expertise: ['Gestion de production', 'Supply chain', 'Contrôle qualité']
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
   },
   {
-    id: '4',
-    name: 'Pepijn VERTOGHEN',
-    position: 'Responsable Développement',
-    email: 'pepijn.vertoghen@avolta.be',
-    phone: '+32 2 753 XX XX',
-    location: 'Bruxelles',
+    id: "4",
+    name: "Pepijn VERTOGHEN",
+    position: "Responsable Développement",
+    email: "pepijn.vertoghen@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
     imageUrl: pepijnImage,
-    linkedinUrl: '#',
+    linkedinUrl: "#",
     bio: "Pepijn pilote les projets de développement et d'expansion d'Avolta, en identifiant de nouvelles opportunités et en veillant à l'alignement des initiatives avec la vision stratégique de l'entreprise.",
-    expertise: ['Développement commercial', 'Gestion de projets', 'Expansion']
+    expertise: ["Développement commercial", "Gestion de projets", "Expansion"],
   },
   {
-    id: '5',
-    name: 'Magalie VERTOGHEN',
-    position: 'Responsable Communication',
-    email: 'magalie@avolta.be',
-    phone: '+32 2 753 XX XX',
-    location: 'Bruxelles',
+    id: "5",
+    name: "Magalie VERTOGHEN",
+    position: "Responsable Communication",
+    email: "magalie@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
     imageUrl: magalieImage,
-    linkedinUrl: '#',
+    linkedinUrl: "#",
     bio: "Experte en communication corporate et relations médias, Magalie façonne l'image de marque d'Avolta et veille à sa cohérence à travers tous les canaux de communication internes et externes.",
-    expertise: ['Communication corporate', 'Relations presse', 'Gestion de crise']
-  }
+    expertise: [
+      "Communication corporate",
+      "Relations presse",
+      "Gestion de crise",
+    ],
+  },
 ];
 
 export default function TeamGrid() {
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [animateCards, setAnimateCards] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -100,43 +114,45 @@ export default function TeamGrid() {
   const openModal = (member: TeamMember) => {
     setSelectedMember(member);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   };
 
   const closeModal = () => {
     if (modalRef.current) {
-      modalRef.current.classList.add('animate-fadeOut');
+      modalRef.current.classList.add("animate-fadeOut");
       setTimeout(() => {
         setIsModalOpen(false);
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = "auto";
       }, 300);
     } else {
       setIsModalOpen(false);
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     }
   };
 
-  const navigateMember = (direction: 'prev' | 'next') => {
+  const navigateMember = (direction: "prev" | "next") => {
     if (!selectedMember) return;
-    
-    const currentIndex = teamMembers.findIndex(member => member.id === selectedMember.id);
+
+    const currentIndex = teamMembers.findIndex(
+      (member) => member.id === selectedMember.id
+    );
     let newIndex;
-    
-    if (direction === 'prev') {
+
+    if (direction === "prev") {
       newIndex = currentIndex === 0 ? teamMembers.length - 1 : currentIndex - 1;
     } else {
       newIndex = currentIndex === teamMembers.length - 1 ? 0 : currentIndex + 1;
     }
-    
+
     // Animation de transition
     if (modalRef.current) {
-      modalRef.current.classList.add('animate-slideOut');
+      modalRef.current.classList.add("animate-slideOut");
       setTimeout(() => {
         setSelectedMember(teamMembers[newIndex]);
-        modalRef.current?.classList.remove('animate-slideOut');
-        modalRef.current?.classList.add('animate-slideIn');
+        modalRef.current?.classList.remove("animate-slideOut");
+        modalRef.current?.classList.add("animate-slideIn");
         setTimeout(() => {
-          modalRef.current?.classList.remove('animate-slideIn');
+          modalRef.current?.classList.remove("animate-slideIn");
         }, 300);
       }, 200);
     } else {
@@ -148,23 +164,23 @@ export default function TeamGrid() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isModalOpen) return;
-      
-      if (e.key === 'Escape') {
+
+      if (e.key === "Escape") {
         closeModal();
-      } else if (e.key === 'ArrowLeft') {
-        navigateMember('prev');
-      } else if (e.key === 'ArrowRight') {
-        navigateMember('next');
+      } else if (e.key === "ArrowLeft") {
+        navigateMember("prev");
+      } else if (e.key === "ArrowRight") {
+        navigateMember("next");
       }
     };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen, selectedMember]);
 
   // Fonction de filtrage
   const getFilteredMembers = () => {
-    if (activeFilter === 'all') return teamMembers;
+    if (activeFilter === "all") return teamMembers;
     // Ici, vous pourriez implémenter une logique de filtrage par département ou autre critère
     return teamMembers;
   };
@@ -174,70 +190,72 @@ export default function TeamGrid() {
   return (
     <section className="py-8 bg-gradient-to-b from-day to-gray-50 relative">
       {/* Élément décoratif supérieur */}
-      
-      <div className="absolute top-0 left-0 right-0 h-24 overflow-hidden">
-        <svg 
-          viewBox="0 0 1440 320" 
+
+      <div className="absolute top-0 left-0 right-0 h-64 overflow-hidden">
+        <svg
+          viewBox="0 0 1440 320"
           className="absolute -top-1 left-0 w-full text-primary opacity-5"
           preserveAspectRatio="none"
         >
-          <path 
-            fill="currentColor" 
-            fillOpacity="1" 
+          <path
+            fill="currentColor"
+            fillOpacity="1"
             d="M0,192L48,181.3C96,171,192,149,288,149.3C384,149,480,171,576,186.7C672,203,768,213,864,208C960,203,1056,181,1152,176C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
           ></path>
         </svg>
-        
       </div>
-<div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full translate-x-1/2 translate-y-1/2" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center px-4 py-1 mb-6 bg-primary/10 rounded-full">
-            <span className="text-primary font-medium text-sm">L'expertise au service de votre expérience</span>
+            <span className="text-primary font-medium text-sm">
+              L'expertise au service de votre expérience
+            </span>
           </div>
           <div></div>
-          
+
           <h2 className="text-5xl font-bold text-night mb-6 relative inline-block">
             Notre Équipe de Direction
             <div className="absolute -bottom-6 left-1 transform -translate-x-1 w-60 h-1 bg-primary rounded-full"></div>
           </h2>
-          
+
           <p className="text-night/60 max-w-2xl mx-auto text-lg mt-8">
-            Une équipe passionnée qui façonne l'avenir d'Avolta et de l'Aéroport de Bruxelles
-            en combinant expertise, innovation et excellence opérationnelle.
+            Une équipe passionnée qui façonne l'avenir d'Avolta et de l'Aéroport
+            de Bruxelles en combinant expertise, innovation et excellence
+            opérationnelle.
           </p>
         </div>
 
         {/* Filtres - Pour une future implémentation */}
         <div className="flex justify-center mb-12 space-x-2 md:space-x-4">
-          <button 
+          <button
             className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              activeFilter === 'all' 
-                ? 'bg-primary text-day shadow-md' 
-                : 'bg-gray-100 text-night/70 hover:bg-gray-200'
+              activeFilter === "all"
+                ? "bg-primary text-day shadow-md"
+                : "bg-gray-100 text-night/70 hover:bg-gray-200"
             }`}
-            onClick={() => setActiveFilter('all')}
+            onClick={() => setActiveFilter("all")}
           >
             Tous
           </button>
-          <button 
+          <button
             className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              activeFilter === 'direction' 
-                ? 'bg-primary text-day shadow-md' 
-                : 'bg-gray-100 text-night/70 hover:bg-gray-200'
+              activeFilter === "direction"
+                ? "bg-primary text-day shadow-md"
+                : "bg-gray-100 text-night/70 hover:bg-gray-200"
             }`}
-            onClick={() => setActiveFilter('direction')}
+            onClick={() => setActiveFilter("direction")}
           >
             Direction
           </button>
-          <button 
+          <button
             className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-              activeFilter === 'operations' 
-                ? 'bg-primary text-day shadow-md' 
-                : 'bg-gray-100 text-night/70 hover:bg-gray-200'
+              activeFilter === "operations"
+                ? "bg-primary text-day shadow-md"
+                : "bg-gray-100 text-night/70 hover:bg-gray-200"
             }`}
-            onClick={() => setActiveFilter('operations')}
+            onClick={() => setActiveFilter("operations")}
           >
             Opérations
           </button>
@@ -245,14 +263,19 @@ export default function TeamGrid() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
           {filteredMembers.map((member, index) => (
-            <div 
-              key={member.id} 
+            <div
+              key={member.id}
               className={`group relative overflow-hidden rounded-2xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer transform ${
-                animateCards ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              } ${hoverIndex === index ? 'ring-2 ring-primary' : ''}`}
-              style={{ 
+                animateCards
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              } ${hoverIndex === index ? "ring-2 ring-primary" : ""}`}
+              style={{
                 transitionDelay: `${index * 100}ms`,
-                boxShadow: hoverIndex === index ? '0 20px 25px -5px rgba(106, 13, 173, 0.1), 0 10px 10px -5px rgba(106, 13, 173, 0.04)' : ''
+                boxShadow:
+                  hoverIndex === index
+                    ? "0 20px 25px -5px rgba(106, 13, 173, 0.1), 0 10px 10px -5px rgba(106, 13, 173, 0.04)"
+                    : "",
               }}
               onClick={() => openModal(member)}
               onMouseEnter={() => setHoverIndex(index)}
@@ -265,29 +288,31 @@ export default function TeamGrid() {
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = 'src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+                    target.src = "src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/40 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
               </div>
-              
+
               {/* Badge de position - redesigné */}
               <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                {member.position.split(' ')[0]}
+                {member.position.split(" ")[0]}
               </div>
-              
+
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/10 backdrop-blur-sm translate-y-0 transition-transform duration-300">
-                <h3 className="text-xl font-bold text-day mb-1">{member.name}</h3>
+                <h3 className="text-xl font-bold text-day mb-1">
+                  {member.name}
+                </h3>
                 <p className="text-primary font-medium text-sm mb-4">
                   {member.position}
                 </p>
-                
+
                 <div className="w-8 h-0.5 bg-primary/50 mb-4 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                
+
                 <p className="text-sm text-day/90 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 line-clamp-2 mb-4">
                   {member.bio?.substring(0, 100)}...
                 </p>
-                
+
                 <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
                   <div className="flex items-center space-x-3">
                     <a
@@ -311,8 +336,8 @@ export default function TeamGrid() {
                       </a>
                     )}
                   </div>
-                  
-                  <button 
+
+                  <button
                     className="flex items-center space-x-1 text-sm text-day/90 hover:text-primary group"
                     aria-label={`En savoir plus sur ${member.name}`}
                   >
@@ -329,106 +354,124 @@ export default function TeamGrid() {
       {/* Modal détaillé avec animation raffinée */}
       {isModalOpen && selectedMember && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-night/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div 
-            className="absolute inset-0 bg-transparent" 
+          <div
+            className="absolute inset-0 bg-transparent"
             onClick={closeModal}
           ></div>
-          
-          <div 
+
+          <div
             ref={modalRef}
             className="relative bg-white rounded-2xl overflow-hidden max-w-5xl w-full mx-auto shadow-2xl"
           >
-            <button 
+            <button
               onClick={closeModal}
               className="absolute top-6 right-6 z-10 p-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full transition-colors"
               aria-label="Fermer"
             >
               <X className="w-6 h-6 text-white" />
             </button>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2">
               {/* Partie gauche avec photo et overlay graphique */}
               <div className="relative h-full min-h-[350px] md:min-h-0">
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 via-primary/30 to-transparent mix-blend-multiply"></div>
                 <div className="absolute inset-0 bg-gradient-to-b from-night/40 to-night/80"></div>
-                
+
                 {/* Motif géométrique */}
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
                 </div>
-                
-                <img 
-                  src={selectedMember.imageUrl} 
+
+                <img
+                  src={selectedMember.imageUrl}
                   alt={selectedMember.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = 'src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+                    target.src = "src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
                   }}
                 />
-                
+
                 {/* Overlay avec informations de base */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 text-white bg-gradient-to-t from-night/80 to-transparent">
                   <div className="mb-2 inline-block px-3 py-1 bg-primary/80 backdrop-blur-sm rounded-full text-xs font-semibold">
                     {selectedMember.id}/{teamMembers.length}
                   </div>
-                  <h3 className="text-3xl font-bold mb-2">{selectedMember.name}</h3>
-                  <p className="text-primary-light font-medium text-xl">{selectedMember.position}</p>
+                  <h3 className="text-3xl font-bold mb-2">
+                    {selectedMember.name}
+                  </h3>
+                  <p className="text-primary-light font-medium text-xl">
+                    {selectedMember.position}
+                  </p>
                 </div>
               </div>
-              
+
               {/* Partie droite avec infos détaillées */}
               <div className="p-8 md:p-10 flex flex-col bg-white">
                 <div className="mb-8">
-                  <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">À propos</h4>
-                  
+                  <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
+                    À propos
+                  </h4>
+
                   <p className="text-night/80 text-base leading-relaxed mb-8">
                     {selectedMember.bio || "Aucune biographie disponible."}
                   </p>
-                  
-                  {selectedMember.expertise && selectedMember.expertise.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-3">Expertise</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedMember.expertise.map((skill, idx) => (
-                          <span 
-                            key={idx}
-                            className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
-                          >
-                            {skill}
-                          </span>
-                        ))}
+
+                  {selectedMember.expertise &&
+                    selectedMember.expertise.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-3">
+                          Expertise
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedMember.expertise.map((skill, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
-                
+
                 <div className="mt-auto">
-                  <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">Contact</h4>
-                  
+                  <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
+                    Contact
+                  </h4>
+
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center">
                       <Mail className="w-5 h-5 text-primary mr-3" />
-                      <a href={`mailto:${selectedMember.email}`} className="text-night hover:text-primary transition-colors">
+                      <a
+                        href={`mailto:${selectedMember.email}`}
+                        className="text-night hover:text-primary transition-colors"
+                      >
                         {selectedMember.email}
                       </a>
                     </div>
-                    
+
                     {selectedMember.phone && (
                       <div className="flex items-center">
                         <Phone className="w-5 h-5 text-primary mr-3" />
-                        <span className="text-night">{selectedMember.phone}</span>
+                        <span className="text-night">
+                          {selectedMember.phone}
+                        </span>
                       </div>
                     )}
-                    
+
                     {selectedMember.location && (
                       <div className="flex items-center">
                         <MapPin className="w-5 h-5 text-primary mr-3" />
-                        <span className="text-night">{selectedMember.location}</span>
+                        <span className="text-night">
+                          {selectedMember.location}
+                        </span>
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="flex space-x-3 mt-6">
                     <a
                       href={`mailto:${selectedMember.email}`}
@@ -438,7 +481,7 @@ export default function TeamGrid() {
                       <Mail className="w-5 h-5 mr-2" />
                       <span>Contacter</span>
                     </a>
-                    
+
                     {selectedMember.linkedinUrl && (
                       <a
                         href={selectedMember.linkedinUrl}
@@ -454,13 +497,13 @@ export default function TeamGrid() {
                 </div>
               </div>
             </div>
-            
+
             {/* Boutons de navigation */}
             <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-10">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigateMember('prev');
+                  navigateMember("prev");
                 }}
                 className="flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
                 aria-label="Membre précédent"
@@ -468,12 +511,12 @@ export default function TeamGrid() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigateMember('next');
+                  navigateMember("next");
                 }}
                 className="flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
                 aria-label="Membre suivant"
@@ -484,7 +527,7 @@ export default function TeamGrid() {
           </div>
         </div>
       )}
-      
+
       {/* Élément décoratif inférieur */}
       <div className="absolute bottom-0 left-0 right-0 h-24 overflow-hidden">
         <svg

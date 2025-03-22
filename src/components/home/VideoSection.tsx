@@ -76,11 +76,13 @@ export default function VideoSection() {
       className="py-10 lg:py-10 bg-gradient-to-b from-sand to-white relative overflow-hidden"
     >
       {/* Éléments décoratifs */}
-      <div className="absolute top-0 -left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+     
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute top-1/3 right-1/4 w-8 h-8 bg-primary/30 rounded-full blur-sm"></div>
       <div className="absolute bottom-1/4 left-1/3 w-6 h-6 bg-primary/20 rounded-full blur-sm"></div>
-      
+      <div className="absolute top-80 right-20 w-36 h-32 bg-primary/10 rounded-full blur-xl" />
+      <div className="absolute bottom-40 left-20 w-48 h-48 bg-primary/10 rounded-full blur-xl" />
+  
       
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div 
