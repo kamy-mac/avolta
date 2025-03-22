@@ -13,22 +13,158 @@ import publicationService from "../../services/publication.service";
 import { Post } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 
+// Référence en dehors du composant pour éviter les problèmes avec StrictMode
+const apiCallInProgress = { current: false };
+
+// Composant pour le skeleton loader
+const LoadingSkeleton = () => (
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+      <div className="space-y-3">
+        {[1, 2, 3].map((n) => (
+          <div key={n} className="h-32 bg-gray-200 rounded"></div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Composant pour un élément de publication
+const PublicationItem = ({
+  publication,
+  onPreview,
+  onEdit,
+  onApprove,
+  onReject,
+}: {
+  publication: Post;
+  onPreview: (id: string) => void;
+  onEdit: (id: string) => void;
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+}) => (
+  <div className="p-6 hover:bg-gray-50">
+    <div className="flex items-start justify-between">
+      <div className="flex-1">
+        <div className="flex items-center mb-2">
+          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+          <span className="text-sm text-gray-500">
+            {new Date(publication.createdAt).toLocaleDateString("fr-BE")}
+          </span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          {publication.title}
+        </h3>
+        <p className="text-gray-600 line-clamp-2 mb-4">{publication.content}</p>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => onPreview(publication.id)}
+            className="inline-flex items-center text-gray-600 hover:text-[#6A0DAD]"
+            aria-label="Preview"
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            Preview
+          </button>
+          <button
+            onClick={() => onEdit(publication.id)}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800"
+            aria-label="Edit"
+          >
+            <Edit2 className="w-4 h-4 mr-1" />
+            Edit
+          </button>
+          <button
+            onClick={() => onApprove(publication.id)}
+            className="inline-flex items-center text-green-600 hover:text-green-800"
+            aria-label="Approve"
+          >
+            <Check className="w-4 h-4 mr-1" />
+            Approve
+          </button>
+          <button
+            onClick={() => onReject(publication.id)}
+            className="inline-flex items-center text-red-600 hover:text-red-800"
+            aria-label="Reject"
+          >
+            <X className="w-4 h-4 mr-1" />
+            Reject
+          </button>
+        </div>
+      </div>
+      {publication.imageUrl && (
+        <img
+          src={publication.imageUrl}
+          alt={publication.title}
+          className="w-32 h-32 object-cover rounded-lg ml-4"
+          loading="lazy"
+        />
+      )}
+    </div>
+    <div className="mt-4 flex items-center text-sm text-gray-500">
+      <span>
+        Valid from {new Date(publication.validFrom).toLocaleDateString("fr-BE")}
+      </span>
+      <span className="mx-2">to</span>
+      <span>{new Date(publication.validTo).toLocaleDateString("fr-BE")}</span>
+    </div>
+  </div>
+);
+
 export default function PendingPublications() {
+  // Component state
   const [publications, setPublications] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [initialLoadAttempted, setInitialLoadAttempted] = useState(false);
+
+  // Hooks
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  // Use ref to track component mount state
   const isMountedRef = useRef(true);
 
-  // Memoize loadPublications to avoid recreating it on each render
+  // Fonction pour extraire les données de publication de la réponse API
+  const extractPublicationsData = (response: any): Post[] => {
+    // Cas 1: La réponse est directement un tableau
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    // Cas 2: La réponse est un objet avec une propriété 'data'
+    if (response && typeof response === "object" && "data" in response) {
+      const responseData = response.data as any;
+
+      // Cas 2.1: response.data est un tableau
+      if (Array.isArray(responseData)) {
+        return responseData;
+      }
+
+      // Cas 2.2: response.data est un objet avec une propriété 'data' qui est un tableau
+      if (
+        responseData &&
+        typeof responseData === "object" &&
+        "data" in responseData &&
+        Array.isArray(responseData.data)
+      ) {
+        return responseData.data;
+      }
+    }
+
+    // Si aucun format valide n'est trouvé, retourner un tableau vide
+    return [];
+  };
+
+  // Chargement des publications
   const loadPublications = useCallback(async (showLoadingIndicator = true) => {
-    // Return early if component unmounted
-    if (!isMountedRef.current) return;
+    // Éviter les appels multiples pendant le cycle StrictMode
+    if (apiCallInProgress.current) {
+      return;
+    }
+
+    // Marquer l'appel API comme en cours
+    apiCallInProgress.current = true;
 
     if (showLoadingIndicator) {
       setIsLoading(true);
@@ -37,10 +173,9 @@ export default function PendingPublications() {
     }
 
     setError(null);
-    console.log("Fetching pending publications...");
 
     try {
-      // Implement a timeout to prevent hanging requests
+      // Ajouter un timeout pour les requêtes API
       const timeoutPromise = new Promise((_, reject) => {
         const timeoutId = setTimeout(() => {
           reject(new Error("Request timeout after 10 seconds"));
@@ -48,74 +183,75 @@ export default function PendingPublications() {
         return () => clearTimeout(timeoutId);
       });
 
-      // Use the service method to get pending publications
+      // Faire la requête API avec timeout
       const response = await Promise.race([
         publicationService.getPendingPublications(),
         timeoutPromise,
       ]);
 
-      // Check if component is still mounted before updating state
-      if (isMountedRef.current) {
-        const data = (response as any).data.data;
-        console.log("Loaded pending publications:", data);
-
-        // Sort by creation date (newest first)
-        const sortedData = [...data].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      // Extraire et valider les données
+      const publicationsData = extractPublicationsData(response);
+      if (!Array.isArray(publicationsData)) {
+        throw new Error(
+          "Invalid data format: Expected an array of publications."
         );
-
-        setPublications(sortedData);
       }
+
+      // Trier les données par date de création (les plus récentes en premier)
+      const sortedData = [...publicationsData].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      // Mettre à jour l'état
+      setPublications(sortedData);
     } catch (error: any) {
-      console.error("Error loading pending publications:", error);
-
-      // Only update error state if still mounted
-      if (isMountedRef.current) {
-        setError(
-          error.message ||
-            "Error loading pending publications. Please try again."
-        );
-      }
+      setError(
+        error.message || "Error loading pending publications. Please try again."
+      );
     } finally {
-      // Only update loading state if still mounted
-      if (isMountedRef.current) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-      }
+      setIsLoading(false);
+      setIsRefreshing(false);
+      apiCallInProgress.current = false;
     }
   }, []);
 
-  // Initial load and permission check
+  // Effet pour la vérification d'authentification et le chargement des données
   useEffect(() => {
-    // Check user permissions
+    // Réinitialiser isMountedRef
+    isMountedRef.current = true;
+
+    // Vérifier l'authentification
     if (!user) {
       navigate("/login", { state: { from: "/admin/pending" } });
       return;
     }
 
-    if (!user || user.role.toLowerCase() !== "superadmin") {
+    if (user.role.toLowerCase() !== "superadmin") {
       navigate("/admin");
-      console.log("User object:", user);
-      console.log("JWT token:", localStorage.getItem("token"));
       return;
     }
-    // Load data
-    loadPublications();
+
+    // Éviter le double chargement en mode strict
+    if (!initialLoadAttempted) {
+      setInitialLoadAttempted(true);
+      loadPublications();
+    }
 
     // Cleanup function
     return () => {
       isMountedRef.current = false;
     };
-  }, [user, navigate, loadPublications]);
+  }, [user, navigate, loadPublications, initialLoadAttempted]);
 
-  // Handle publication actions with error handling
+  // Gestionnaire d'action pour les publications
   const handlePublicationAction = async (
     id: string,
     action: "approve" | "reject",
     confirmMessage?: string
   ) => {
-    // If confirmation is required and user cancels, do nothing
+    if (!isMountedRef.current) return;
+
     if (confirmMessage && !window.confirm(confirmMessage)) {
       return;
     }
@@ -129,63 +265,40 @@ export default function PendingPublications() {
         await publicationService.rejectPublication(id);
       }
 
-      // Remove the publication from the list if successful
+      // Mettre à jour l'état local pour supprimer la publication traitée
       setPublications((prev) => prev.filter((pub) => pub.id !== id));
     } catch (error: any) {
-      console.error(`Error ${action}ing publication:`, error);
       setError(
         error.message || `Error ${action}ing publication. Please try again.`
       );
     }
   };
 
-  const handleApprove = (id: string) => {
-    handlePublicationAction(id, "approve");
-  };
-
-  const handleReject = (id: string) => {
+  // Handlers pour les différentes actions
+  const handleApprove = (id: string) => handlePublicationAction(id, "approve");
+  const handleReject = (id: string) =>
     handlePublicationAction(
       id,
       "reject",
       "Are you sure you want to reject this publication?"
     );
-  };
+  const handleEdit = (id: string) => navigate(`/admin/publications/edit/${id}`);
+  const handlePreview = (id: string) => navigate(`/news/${id}`);
+  const handleRefresh = () => loadPublications(false);
 
-  const handleEdit = (id: string) => {
-    navigate(`/admin/publications/edit/${id}`);
-  };
-
-  const handlePreview = (id: string) => {
-    navigate(`/news/${id}`);
-  };
-
-  const handleRefresh = () => {
-    loadPublications(false);
-  };
-
-  // Filter publications based on search term
+  // Filtrer les publications en fonction du terme de recherche
   const filteredPublications = publications.filter(
     (pub) =>
       pub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pub.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Loading state UI
+  // Afficher le skeleton loader pendant le chargement
   if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="space-y-3">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
+  // Afficher le contenu principal
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -240,80 +353,14 @@ export default function PendingPublications() {
         ) : (
           <div className="divide-y divide-gray-200">
             {filteredPublications.map((publication) => (
-              <div key={publication.id} className="p-6 hover:bg-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center mb-2">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-500">
-                        {new Date(publication.createdAt).toLocaleDateString(
-                          "fr-BE"
-                        )}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {publication.title}
-                    </h3>
-                    <p className="text-gray-600 line-clamp-2 mb-4">
-                      {publication.content}
-                    </p>
-                    <div className="flex items-center space-x-4">
-                      <button
-                        onClick={() => handlePreview(publication.id)}
-                        className="inline-flex items-center text-gray-600 hover:text-[#6A0DAD]"
-                        aria-label="Preview"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Preview
-                      </button>
-                      <button
-                        onClick={() => handleEdit(publication.id)}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800"
-                        aria-label="Edit"
-                      >
-                        <Edit2 className="w-4 h-4 mr-1" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleApprove(publication.id)}
-                        className="inline-flex items-center text-green-600 hover:text-green-800"
-                        aria-label="Approve"
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(publication.id)}
-                        className="inline-flex items-center text-red-600 hover:text-red-800"
-                        aria-label="Reject"
-                      >
-                        <X className="w-4 h-4 mr-1" />
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                  {publication.imageUrl && (
-                    <img
-                      src={publication.imageUrl}
-                      alt={publication.title}
-                      className="w-32 h-32 object-cover rounded-lg ml-4"
-                      loading="lazy"
-                    />
-                  )}
-                </div>
-                <div className="mt-4 flex items-center text-sm text-gray-500">
-                  <span>
-                    Valid from{" "}
-                    {new Date(publication.validFrom).toLocaleDateString(
-                      "fr-BE"
-                    )}
-                  </span>
-                  <span className="mx-2">to</span>
-                  <span>
-                    {new Date(publication.validTo).toLocaleDateString("fr-BE")}
-                  </span>
-                </div>
-              </div>
+              <PublicationItem
+                key={publication.id}
+                publication={publication}
+                onPreview={handlePreview}
+                onEdit={handleEdit}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
             ))}
           </div>
         )}
