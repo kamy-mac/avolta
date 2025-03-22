@@ -120,7 +120,7 @@ export default function Hero() {
             <LazyImage
               src={img}
               alt={`Background ${index + 1}`}
-              className="w-full h-full object-cover filter contrast-[1.05] saturate-[1.15] brightness-[2.5]"
+              className="w-full h-full object-cover filter contrast-[1.05] saturate-[1.15] brightness-[0.9]"
               aspectRatio="16/9"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-night/95 via-night/80 to-night/40" />
