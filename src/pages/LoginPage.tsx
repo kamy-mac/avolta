@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, UserCheck, ShieldCheck, FileText, Bell, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -40,6 +40,12 @@ export default function LoginPage() {
     }
   };
 
+  // Données d'exemple pour les crédentiels de démonstration
+  const demoCredentials = [
+    { role: 'Administrateur', email: 'admin@avolta.be', password: 'admin123' },
+    { role: 'Super Administrateur', email: 'superadmin@avolta.be', password: 'superadmin123' }
+  ];
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -51,6 +57,9 @@ export default function LoginPage() {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Connexion Administrateur
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Accédez au tableau de bord d'administration d'Avolta
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -121,6 +130,58 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+          
+          {/* Guide d'utilisation */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Guide d'utilisation</h3>
+            
+            <div className="rounded-lg bg-gray-50 p-4 mb-4">
+              <h4 className="flex items-center text-md font-medium text-gray-800 mb-2">
+                <UserCheck className="h-5 w-5 mr-2 text-[#6A0DAD]" />
+                Administrateur
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1 pl-7 list-disc">
+                <li>Créer des publications (soumises à validation par un super administrateur)</li>
+                <li>Gérer vos propres publications</li>
+                <li>Administrer la newsletter et les abonnés</li>
+              </ul>
+            </div>
+            
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h4 className="flex items-center text-md font-medium text-gray-800 mb-2">
+                <ShieldCheck className="h-5 w-5 mr-2 text-[#6A0DAD]" />
+                Super Administrateur
+              </h4>
+              <ul className="text-sm text-gray-600 space-y-1 pl-7 list-disc">
+                <li>Toutes les fonctionnalités des administrateurs</li>
+                <li>Valider ou rejeter les publications en attente</li>
+                <li>Gérer les comptes administrateurs</li>
+                <li>Publier directement sans validation</li>
+              </ul>
+            </div>
+            
+            {/* Identifiants de démonstration */}
+           
+            
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+                <FileText className="h-6 w-6 text-[#6A0DAD] mr-2" />
+                <span className="text-xs text-gray-700">Gestion des publications</span>
+              </div>
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+                <Bell className="h-6 w-6 text-[#6A0DAD] mr-2" />
+                <span className="text-xs text-gray-700">Administration newsletter</span>
+              </div>
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+                <Users className="h-6 w-6 text-[#6A0DAD] mr-2" />
+                <span className="text-xs text-gray-700">Gestion des utilisateurs</span>
+              </div>
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+                <ShieldCheck className="h-6 w-6 text-[#6A0DAD] mr-2" />
+                <span className="text-xs text-gray-700">Validation contenu</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
