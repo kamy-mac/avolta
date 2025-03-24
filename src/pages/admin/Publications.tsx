@@ -1,15 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Trash2, Eye, Edit2, Search, Filter, Clock, AlertCircle, Check, RefreshCw } from 'lucide-react';
+import { 
+  Calendar, 
+  Trash2, 
+  Eye, 
+  Edit2, 
+  Search, 
+  Filter, 
+  Clock, 
+  AlertCircle, 
+  Check, 
+  RefreshCw,
+  HelpCircle,
+  ChevronDown,
+  Info
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Post } from '../../types';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import publicationService from '../../services/publication.service';
 
+// Component guide d'utilisation
+const PublicationGuide = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow-sm border border-purple-100">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex justify-between items-center p-4 text-left"
+      >
+        <div className="flex items-center">
+          <HelpCircle className="h-5 w-5 text-purple-600 mr-2" />
+          <h3 className="text-lg font-medium text-gray-800">Guide d'utilisation du gestionnaire de publications</h3>
+        </div>
+        <ChevronDown className={`h-5 w-5 text-purple-600 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="p-4 pt-0 text-sm text-gray-700 space-y-3">
+          <p className="flex items-start">
+            <Info className="h-4 w-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
+            <span>Ce module vous permet de gérer toutes les publications et actualités de la plateforme.</span>
+          </p>
+          
+          <div className="pl-6 space-y-2">
+            <p className="font-semibold text-purple-800">Fonctionnalités disponibles :</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><span className="font-medium">Créer une publication</span> : Ajoutez de nouvelles publications en utilisant le bouton "Créer une publication".</li>
+              <li><span className="font-medium">Rechercher</span> : Utilisez la barre de recherche pour trouver rapidement une publication par son titre ou contenu.</li>
+              <li><span className="font-medium">Filtrer</span> : Sélectionnez différentes catégories pour afficher les publications selon leur statut (actives, expirées, en attente).</li>
+              <li><span className="font-medium">Voir</span> : Visualisez une publication telle qu'elle apparaît aux utilisateurs avec le bouton <Eye className="h-4 w-4 inline text-purple-600" />.</li>
+              <li><span className="font-medium">Modifier</span> : Éditez une publication existante avec le bouton <Edit2 className="h-4 w-4 inline text-blue-600" />.</li>
+              <li><span className="font-medium">Supprimer</span> : Supprimez définitivement une publication avec le bouton <Trash2 className="h-4 w-4 inline text-red-600" /> (action irréversible).</li>
+              <li><span className="font-medium">Actualiser</span> : Mettez à jour la liste des publications avec le bouton <RefreshCw className="h-4 w-4 inline text-gray-600" />.</li>
+            </ul>
+          </div>
+          
+          <div className="pl-6 mt-3">
+            <p className="font-semibold text-purple-800">Informations importantes :</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li>Chaque publication possède une période de validité (de / à) qui détermine quand elle sera visible.</li>
+              <li>Les publications "en attente" doivent être validées par un administrateur avant d'être publiées.</li>
+              <li>Une image peut être ajoutée à chaque publication pour la rendre plus attractive.</li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Publications() {
   const [publications, setPublications] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null); // Pour suivre l'ID de la publication en cours de suppression
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'expired' | 'pending'>('all');
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +163,40 @@ export default function Publications() {
     navigate(`/admin/publications/edit/${id}`);
   };
 
+  // Obtenir la classe CSS pour le statut de la publication
+  const getStatusBadgeClass = (publication: Post) => {
+    const now = new Date();
+    const validFrom = new Date(publication.validFrom);
+    const validTo = new Date(publication.validTo);
+    
+    if (publication.status === 'pending') {
+      return 'bg-yellow-100 text-yellow-800';
+    } else if (now < validFrom) {
+      return 'bg-blue-100 text-blue-800';
+    } else if (now > validTo) {
+      return 'bg-gray-100 text-gray-800';
+    } else {
+      return 'bg-green-100 text-green-800';
+    }
+  };
+
+  // Obtenir le texte du statut de la publication
+  const getStatusText = (publication: Post) => {
+    const now = new Date();
+    const validFrom = new Date(publication.validFrom);
+    const validTo = new Date(publication.validTo);
+    
+    if (publication.status === 'pending') {
+      return 'En attente';
+    } else if (now < validFrom) {
+      return 'Programmée';
+    } else if (now > validTo) {
+      return 'Expirée';
+    } else {
+      return 'Active';
+    }
+  };
+
   // Afficher un état de chargement
   if (isLoading) {
     return (
@@ -116,6 +215,9 @@ export default function Publications() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Guide d'utilisation */}
+      <PublicationGuide />
+      
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center mb-6">
@@ -125,8 +227,9 @@ export default function Publications() {
             <div className="flex space-x-2">
               <button
                 onClick={loadPublications}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                 disabled={isLoading}
+                title="Actualiser la liste"
               >
                 <RefreshCw className={`h-5 w-5 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Actualiser
@@ -134,7 +237,7 @@ export default function Publications() {
               
               <Link
                 to="/admin/create"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91]"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] transition-colors"
               >
                 {t('admin.publications.create')}
               </Link>
@@ -176,7 +279,7 @@ export default function Publications() {
                 <option value="active">Publications actives</option>
                 <option value="expired">Publications expirées</option>
                 {user?.role === 'admin' && (
-                  <option value="pending">Mes publications en attente</option>
+                  <option value="pending">Publications en attente</option>
                 )}
               </select>
             </div>
@@ -192,7 +295,7 @@ export default function Publications() {
         ) : (
           <div className="divide-y divide-gray-200">
             {filteredPublications.map((publication) => (
-              <div key={publication.id} className="p-6 hover:bg-gray-50">
+              <div key={publication.id} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center mb-2">
@@ -200,12 +303,10 @@ export default function Publications() {
                       <span className="text-sm text-gray-500">
                         {new Date(publication.createdAt).toLocaleDateString('fr-BE')}
                       </span>
-                      {publication.status === 'pending' && (
-                        <span className="ml-2 px-2 py-1 text-xs font-medium text-yellow-800 bg-yellow-100 rounded-full flex items-center">
-                          <Clock className="w-3 h-3 mr-1" />
-                          En attente
-                        </span>
-                      )}
+                      <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full flex items-center ${getStatusBadgeClass(publication)}`}>
+                        <Clock className="w-3 h-3 mr-1" />
+                        {getStatusText(publication)}
+                      </span>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {publication.title}
@@ -216,14 +317,16 @@ export default function Publications() {
                     <div className="flex items-center space-x-4">
                       <Link
                         to={`/news/${publication.id}`}
-                        className="inline-flex items-center text-[#6A0DAD] hover:text-[#5a0b91]"
+                        className="inline-flex items-center text-[#6A0DAD] hover:text-[#5a0b91] transition-colors"
+                        title="Voir la publication"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Voir
                       </Link>
                       <button
                         onClick={() => handleEdit(publication.id)}
-                        className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                        className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                        title="Modifier la publication"
                       >
                         <Edit2 className="w-4 h-4 mr-1" />
                         {t('admin.publications.edit')}
@@ -231,7 +334,8 @@ export default function Publications() {
                       <button
                         onClick={() => handleDelete(publication.id)}
                         disabled={isDeleting === publication.id}
-                        className="inline-flex items-center text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Supprimer la publication"
                       >
                         {isDeleting === publication.id ? (
                           <>
@@ -250,12 +354,16 @@ export default function Publications() {
                       </button>
                     </div>
                   </div>
-                  {publication.imageUrl && (
+                  {publication.imageUrl ? (
                     <img
                       src={publication.imageUrl}
                       alt={publication.title}
-                      className="w-32 h-32 object-cover rounded-lg ml-4"
+                      className="w-32 h-32 object-cover rounded-lg ml-4 shadow-sm"
                     />
+                  ) : (
+                    <div className="w-32 h-32 bg-gray-100 rounded-lg ml-4 flex items-center justify-center text-gray-400">
+                      <span className="text-xs text-center px-2">Aucune image</span>
+                    </div>
                   )}
                 </div>
                 <div className="mt-4 flex items-center text-sm text-gray-500">

@@ -95,7 +95,7 @@ class NewsletterService {
    * Send test email (requires authentication)
    * @param email Email address to send test to
    */
-  public async sendTestEmail(email: string): Promise<void> {
+  public async sendTestEmail(email: string, selectedPublication: string): Promise<void> {
     try {
       await api.sendTestEmail(email);
     } catch (error) {

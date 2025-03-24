@@ -20,10 +20,73 @@ import {
   Bell,
   User,
   Mail,
-  AlertCircle
+  AlertCircle,
+  HelpCircle,
+  ChevronDown,
+  Info,
+  Save,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  FileImage,
+  Heading1,
+  Heading2,
+  Edit2
 } from "lucide-react";
 import publicationService from "../../services/publication.service";
 import { useAuth } from "../../context/AuthContext";
+
+// Guide d'utilisation pour le créateur de publication
+const CreatePublicationGuide = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow-sm border border-purple-100">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex justify-between items-center p-4 text-left"
+      >
+        <div className="flex items-center">
+          <HelpCircle className="h-5 w-5 text-purple-600 mr-2" />
+          <h3 className="text-lg font-medium text-gray-800">Guide de création d'une publication</h3>
+        </div>
+        <ChevronDown className={`h-5 w-5 text-purple-600 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="p-4 pt-0 text-sm text-gray-700 space-y-3">
+          <p className="flex items-start">
+            <Info className="h-4 w-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
+            <span>Utilisez ce formulaire pour créer des publications qui apparaîtront sur le site.</span>
+          </p>
+          
+          <div className="pl-6 space-y-2">
+            <p className="font-semibold text-purple-800">Instructions :</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><span className="font-medium">Titre et contenu</span> : Donnez un titre clair et rédigez un contenu détaillé pour votre publication.</li>
+              <li><span className="font-medium">Formatage</span> : Utilisez les outils de formatage (gras, italique, listes) pour améliorer la lisibilité.</li>
+              <li><span className="font-medium">Catégorie et tags</span> : Classifiez votre publication pour faciliter la recherche et la navigation.</li>
+              <li><span className="font-medium">Image</span> : Ajoutez une URL d'image pour rendre votre publication plus attrayante.</li>
+              <li><span className="font-medium">Dates de validité</span> : Définissez la période pendant laquelle la publication sera visible.</li>
+              <li><span className="font-medium">Newsletter</span> : Cochez l'option pour envoyer automatiquement votre publication aux abonnés.</li>
+              <li><span className="font-medium">Prévisualisation</span> : Utilisez le bouton <Eye className="h-4 w-4 inline text-purple-600" /> pour vérifier l'apparence avant publication.</li>
+            </ul>
+          </div>
+          
+          <div className="pl-6 mt-3">
+            <p className="font-semibold text-purple-800">Processus de validation :</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li>Les publications créées par les administrateurs sont soumises à validation par un super administrateur.</li>
+              <li>Les publications créées par les super administrateurs sont publiées immédiatement.</li>
+              <li>Une fois publiée, votre publication sera visible pendant la période définie.</li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface PublicationForm {
   title: string;
@@ -50,7 +113,7 @@ export default function CreatePublication() {
     category: "news",
     sendNewsletter: false,
     tags: [],
-    authorName: "",
+    authorName: user?.username || "",
     authorEmail: user?.email || "",
   });
 
@@ -60,6 +123,16 @@ export default function CreatePublication() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [contentWarning, setContentWarning] = useState<string | null>(null);
+
+  // Vérification du contenu lors de la modification
+  const checkContent = (content: string) => {
+    if (content.length > 0 && content.length < 50) {
+      setContentWarning("Le contenu est un peu court. Envisagez d'ajouter plus d'informations pour une meilleure communication.");
+    } else {
+      setContentWarning(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,9 +140,13 @@ export default function CreatePublication() {
     setIsLoading(true);
     
     try {
-      // Formatage des dates pour le backend
+      // Validation des dates
       const validFromDate = new Date(publication.validFrom);
       const validToDate = new Date(publication.validTo);
+      
+      if (validToDate <= validFromDate) {
+        throw new Error("La date de fin doit être postérieure à la date de début.");
+      }
       
       // Formatage au format ISO (YYYY-MM-DDTHH:mm:ss.sssZ) que le backend peut parser en LocalDateTime
       const formattedValidFrom = validFromDate.toISOString();
@@ -83,6 +160,8 @@ export default function CreatePublication() {
         validTo: formattedValidTo,
         category: publication.category,
         sendNewsletter: publication.sendNewsletter,
+        
+        // authorName: publication.authorName
       });
       
       setSuccess("Publication créée avec succès!");
@@ -113,6 +192,10 @@ export default function CreatePublication() {
 
     if (name === "imageUrl" && value) {
       setImagePreview(value);
+    }
+    
+    if (name === "content") {
+      checkContent(value);
     }
   };
 
@@ -152,6 +235,8 @@ export default function CreatePublication() {
   const toolbarButtons = [
     { icon: Bold, label: "Gras", format: "**" },
     { icon: Italic, label: "Italique", format: "*" },
+    { icon: Heading1, label: "Titre de niveau 1", format: "# " },
+    { icon: Heading2, label: "Titre de niveau 2", format: "## " },
     { icon: Quote, label: "Citation", format: "> " },
     { icon: List, label: "Liste à puces", format: "- " },
     { icon: ListOrdered, label: "Liste numérotée", format: "1. " },
@@ -169,8 +254,8 @@ export default function CreatePublication() {
 
     if (format === "[texte](url)") {
       formattedText = selectedText ? `[${selectedText}](url)` : format;
-    } else if (format.endsWith(" ")) {
-      // For lists
+    } else if (format.startsWith("#") || format.endsWith(" ")) {
+      // Pour les titres et listes
       formattedText = format + selectedText;
     } else {
       formattedText = `${format}${selectedText}${format}`;
@@ -181,6 +266,9 @@ export default function CreatePublication() {
       formattedText +
       textarea.value.substring(end);
     setPublication((prev) => ({ ...prev, content: newContent }));
+    
+    // Vérifier le contenu
+    checkContent(newContent);
 
     // Reset selection
     setTimeout(() => {
@@ -189,6 +277,51 @@ export default function CreatePublication() {
       textarea.setSelectionRange(newPosition, newPosition);
     }, 0);
   };
+  
+  // Fonction pour formater le contenu Markdown pour la prévisualisation
+  const formatMarkdown = (text: string) => {
+    // C'est une version simplifiée, dans un cas réel on utiliserait une bibliothèque comme marked
+    let formattedText = text;
+    
+    // Gras
+    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italique
+    formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Titres
+    formattedText = formattedText.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>');
+    formattedText = formattedText.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-bold mb-3">$1</h2>');
+    
+    // Citations
+    formattedText = formattedText.replace(/^> (.*?)$/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic my-4">$1</blockquote>');
+    
+    // Liens
+    formattedText = formattedText.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-purple-600 hover:underline">$1</a>');
+    
+    // Listes à puces
+    formattedText = formattedText.replace(/^- (.*?)$/gm, '<li class="ml-5">$1</li>');
+    
+    // Listes numérotées (simplifié)
+    formattedText = formattedText.replace(/^\d\. (.*?)$/gm, '<li class="ml-5">$1</li>');
+    
+    // Sauts de ligne
+    formattedText = formattedText.replace(/\n/g, '<br />');
+    
+    return formattedText;
+  };
+
+  const handleCancel = () => {
+    if (window.confirm("Voulez-vous vraiment annuler ? Les modifications non enregistrées seront perdues.")) {
+      navigate("/admin/publications");
+    }
+  };
+
+  const handleSaveDraft = () => {
+    // Implémentation fictive pour sauvegarder un brouillon
+    localStorage.setItem('publicationDraft', JSON.stringify(publication));
+    alert("Brouillon sauvegardé avec succès!");
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -196,14 +329,20 @@ export default function CreatePublication() {
         <h1 className="text-3xl font-bold text-gray-900">
           Créer une publication
         </h1>
-        <button
-          onClick={() => setPreviewMode(!previewMode)}
-          className="px-4 py-2 text-sm font-medium text-white bg-[#6A0DAD] rounded-md hover:bg-[#5a0b91] transition-colors flex items-center"
-        >
-          <Eye className="w-4 h-4 mr-2" />
-          {previewMode ? "Éditer" : "Prévisualiser"}
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setPreviewMode(!previewMode)}
+            className="px-4 py-2 text-sm font-medium text-white bg-[#6A0DAD] rounded-md hover:bg-[#5a0b91] transition-colors flex items-center shadow-sm"
+            title={previewMode ? "Retourner à l'édition" : "Prévisualiser la publication"}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            {previewMode ? "Éditer" : "Prévisualiser"}
+          </button>
+        </div>
       </div>
+      
+      {/* Guide d'utilisation */}
+      <CreatePublicationGuide />
       
       {error && (
         <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 flex items-start">
@@ -213,15 +352,67 @@ export default function CreatePublication() {
       )}
       
       {success && (
-        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4">
+        <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 flex items-start">
+          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-2" />
           <p className="text-green-700">{success}</p>
         </div>
       )}
 
       {previewMode ? (
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
+          <div className="mb-6 pb-6 border-b border-gray-200">
+            <div className="flex justify-between">
+              <div className="text-gray-500 text-sm flex items-center">
+                <Eye className="w-4 h-4 mr-1" /> Mode prévisualisation
+              </div>
+              <button
+                onClick={() => setPreviewMode(false)}
+                className="text-[#6A0DAD] hover:text-[#5a0b91] text-sm flex items-center"
+              >
+                <Edit2 className="w-4 h-4 mr-1" /> Modifier
+              </button>
+            </div>
+          </div>
+
+          {/* En-tête avec catégorie et infos */}
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
+                {publication.category === "news" 
+                  ? "Actualités" 
+                  : publication.category === "events" 
+                    ? "Événements" 
+                    : "Communiqués de presse"}
+              </span>
+              <div className="flex items-center text-sm text-gray-500 space-x-4">
+                <span className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  {publication.validFrom &&
+                    `Du ${formatDate(publication.validFrom)}`}
+                </span>
+                <span className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {publication.validTo && `au ${formatDate(publication.validTo)}`}
+                </span>
+                {publication.sendNewsletter && (
+                  <span className="flex items-center">
+                    <Bell className="w-4 h-4 mr-1" />
+                    Newsletter
+                  </span>
+                )}
+              </div>
+            </div>
+            {publication.authorName && (
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Publié par:</p>
+                <p className="font-medium">{publication.authorName}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Image principale */}
           {imagePreview && (
-            <div className="relative h-64 mb-6 rounded-lg overflow-hidden">
+            <div className="relative h-64 mb-6 rounded-lg overflow-hidden shadow-md">
               <img
                 src={imagePreview}
                 alt="Preview"
@@ -229,37 +420,62 @@ export default function CreatePublication() {
               />
             </div>
           )}
-          <div className="flex items-center space-x-2 mb-4">
-            {publication.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+
+          {/* Tags */}
+          {publication.tags.length > 0 && (
+            <div className="flex items-center space-x-2 mb-4">
+              {publication.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Titre et contenu */}
           <h2 className="text-2xl font-bold mb-4">
             {publication.title || "Titre de la publication"}
           </h2>
-          <div className="prose max-w-none mb-6">
-            {publication.content || "Contenu de la publication..."}
-          </div>
-          <div className="flex items-center text-sm text-gray-500 space-x-4">
-            <span className="flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
-              {publication.validFrom &&
-                `Du ${formatDate(publication.validFrom)}`}
-            </span>
-            <span className="flex items-center">
-              <Clock className="w-4 h-4 mr-1" />
-              {publication.validTo && `au ${formatDate(publication.validTo)}`}
-            </span>
+          <div 
+            className="prose max-w-none mb-6"
+            dangerouslySetInnerHTML={{ __html: formatMarkdown(publication.content) || "Contenu de la publication..." }}
+          ></div>
+
+          {/* Boutons de navigation */}
+          <div className="flex justify-between pt-6 border-t border-gray-200">
+            <button
+              onClick={() => setPreviewMode(false)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour à l'édition
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] transition-colors disabled:opacity-70"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Publier
+            </button>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-lg shadow-lg p-6">
+            {/* Nav tabs for form sections */}
+            <div className="flex border-b border-gray-200 mb-6">
+              <button
+                type="button"
+                className="px-4 py-2 border-b-2 border-[#6A0DAD] text-[#6A0DAD] font-medium"
+              >
+                Informations générales
+              </button>
+            </div>
+
             {/* Author Information Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
@@ -295,7 +511,7 @@ export default function CreatePublication() {
                     name="authorEmail"
                     value={publication.authorEmail}
                     onChange={handleInputChange}
-                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
+                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10 bg-gray-50"
                     readOnly
                   />
                   <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -310,7 +526,7 @@ export default function CreatePublication() {
                 htmlFor="title"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Titre
+                Titre <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -321,6 +537,7 @@ export default function CreatePublication() {
                   onChange={handleInputChange}
                   className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
                   required
+                  placeholder="Titre de votre publication (obligatoire)"
                 />
                 <Type className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -333,7 +550,7 @@ export default function CreatePublication() {
                   htmlFor="category"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Catégorie
+                  Catégorie <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -342,6 +559,7 @@ export default function CreatePublication() {
                     value={publication.category}
                     onChange={handleInputChange}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
+                    required
                   >
                     <option value="news">Actualités</option>
                     <option value="events">Événements</option>
@@ -352,7 +570,7 @@ export default function CreatePublication() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags
+                  Tags (facultatif)
                 </label>
                 <div className="relative">
                   <input
@@ -376,6 +594,7 @@ export default function CreatePublication() {
                         type="button"
                         onClick={() => removeTag(tag)}
                         className="ml-2 text-purple-600 hover:text-purple-900"
+                        aria-label={`Supprimer le tag ${tag}`}
                       >
                         ×
                       </button>
@@ -391,16 +610,16 @@ export default function CreatePublication() {
                 htmlFor="content"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Contenu
+                Contenu <span className="text-red-500">*</span>
               </label>
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-hidden shadow-sm">
                 <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b">
                   {toolbarButtons.map((button, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => handleFormat(button.format)}
-                      className="p-2 hover:bg-gray-200 rounded"
+                      className="p-2 hover:bg-gray-200 rounded transition-colors"
                       title={button.label}
                     >
                       <button.icon className="w-5 h-5" />
@@ -409,7 +628,7 @@ export default function CreatePublication() {
                   <div className="h-6 w-px bg-gray-300 mx-2" />
                   <button
                     type="button"
-                    className="p-2 hover:bg-gray-200 rounded"
+                    className="p-2 hover:bg-gray-200 rounded transition-colors"
                     title="Aligner à gauche"
                     onClick={() => handleFormat("align-left")}
                   >
@@ -417,7 +636,7 @@ export default function CreatePublication() {
                   </button>
                   <button
                     type="button"
-                    className="p-2 hover:bg-gray-200 rounded"
+                    className="p-2 hover:bg-gray-200 rounded transition-colors"
                     title="Centrer"
                     onClick={() => handleFormat("align-center")}
                   >
@@ -425,7 +644,7 @@ export default function CreatePublication() {
                   </button>
                   <button
                     type="button"
-                    className="p-2 hover:bg-gray-200 rounded"
+                    className="p-2 hover:bg-gray-200 rounded transition-colors"
                     title="Aligner à droite"
                     onClick={() => handleFormat("align-right")}
                   >
@@ -440,8 +659,15 @@ export default function CreatePublication() {
                   onChange={handleInputChange}
                   className="block w-full border-0 focus:ring-0 p-4"
                   required
+                  placeholder="Saisissez le contenu de votre publication..."
                 />
               </div>
+              {contentWarning && (
+                <div className="mt-2 text-amber-600 text-sm flex items-start">
+                  <AlertCircle className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0" />
+                  {contentWarning}
+                </div>
+              )}
             </div>
 
             {/* Image Section */}
@@ -450,7 +676,7 @@ export default function CreatePublication() {
                 htmlFor="imageUrl"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Image
+                Image (facultatif)
               </label>
               <div className="relative">
                 <input
@@ -464,13 +690,31 @@ export default function CreatePublication() {
                 />
                 <ImageIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
-              {imagePreview && (
-                <div className="mt-2 relative h-40 rounded-lg overflow-hidden">
+              {imagePreview ? (
+                <div className="mt-2 relative h-40 rounded-lg overflow-hidden shadow-sm">
                   <img
                     src={imagePreview}
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPublication(prev => ({ ...prev, imageUrl: "" }));
+                      setImagePreview(null);
+                    }}
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors"
+                    aria-label="Supprimer l'image"
+                  >
+                    <X className="h-4 w-4 text-gray-600" />
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <FileImage className="h-10 w-10 mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">
+                    Aucune image définie. Entrez une URL d'image ci-dessus pour l'ajouter.
+                  </p>
                 </div>
               )}
             </div>
@@ -482,7 +726,7 @@ export default function CreatePublication() {
                   htmlFor="validFrom"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Date de début
+                  Date de début <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -502,7 +746,7 @@ export default function CreatePublication() {
                   htmlFor="validTo"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Date de fin
+                  Date de fin <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -520,7 +764,7 @@ export default function CreatePublication() {
             </div>
 
             {/* Newsletter Option */}
-            <div className="flex items-center space-x-3 mb-6">
+            <div className="flex items-center space-x-3 mb-6 p-3 bg-purple-50 rounded-lg">
               <input
                 type="checkbox"
                 id="sendNewsletter"
@@ -530,38 +774,71 @@ export default function CreatePublication() {
                 className="h-4 w-4 text-[#6A0DAD] focus:ring-[#6A0DAD] border-gray-300 rounded"
               />
               <div className="flex items-center">
-                <Bell className="w-5 h-5 text-gray-400 mr-2" />
-                <label
-                  htmlFor="sendNewsletter"
-                  className="text-sm text-gray-700"
-                >
-                  Envoyer par newsletter aux abonnés
-                </label>
+                <Bell className="w-5 h-5 text-purple-600 mr-2" />
+                <div>
+                  <label
+                    htmlFor="sendNewsletter"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Envoyer par newsletter aux abonnés
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Cette option enverra automatiquement un email aux personnes inscrites à la newsletter
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Publication en cours...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-5 w-5 mr-2" />
-                    Publier
-                  </>
-                )}
-              </button>
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-4 border-t border-gray-200">
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <X className="h-5 w-5 mr-2 text-gray-500" />
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <Save className="h-5 w-5 mr-2 text-gray-500" />
+                  Sauvegarder brouillon
+                </button>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode(true)}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <Eye className="h-5 w-5 mr-2 text-gray-500" />
+                  Prévisualiser
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Publication en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5 mr-2" />
+                      Publier
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </form>

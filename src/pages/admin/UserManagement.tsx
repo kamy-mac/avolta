@@ -370,11 +370,12 @@ export default function UserManagement() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* User Guide Component */}
+      <UserGuide />
       <div className="bg-gradient-to-b from-white to-purple-50 rounded-lg shadow-lg overflow-hidden border border-purple-100">
-        {/* User Guide Component */}
-        <UserGuide />
         
-        <div className="p-6 border-b border-purple-200">
+        
+        <div className=" p-6 border-b border-purple-200">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-purple-900">
