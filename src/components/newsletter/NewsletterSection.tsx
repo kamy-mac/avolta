@@ -280,6 +280,8 @@ export default function NewsletterSection() {
             </div>
           </div>
         </div>
+
+        
       </div>
     </section>
   );

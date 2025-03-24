@@ -116,6 +116,8 @@ export default function NewsCard({ post }: NewsCardProps) {
           </div>
         </div>
       </div>
+
+      
     </div>
   );
 }

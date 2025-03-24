@@ -201,6 +201,62 @@ export default function NewsPage() {
             </div>
           </div>
         </div>
+
+      {/* <!-- Container Avolta Stratégie avec dégradé deux tons sur fond violet --> */}
+    
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex flex-col md:flex-row rounded-lg overflow-hidden shadow-md ">
+          {/* <!-- Côté gauche - Fond violet avec dégradé deux tons --> */}
+          <div className="w-full md:w-2/5 relative flex items-center">
+            {/* <!-- Premier ton de violet (plus foncé) --> */}
+            <div className="absolute inset-0 bg-primary"></div>
+            
+            {/* <!-- Deuxième ton de violet (plus clair) --> */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary-light opacity-100 "></div>
+            
+            {/* <!-- Effet de vagues ou courbes subtiles --> */}
+            <div className="absolute right-0 h-full w-2/4 bg-gradient-to-l from-[#373737] to-transparent rounded-l-[80px] "></div>
+            
+            {/* <!-- Contenu texte --> */}
+            <div className="p-8 md:p-10 relative z-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+                Notre stratégie :<br />
+                Destination 2027
+              </h2>
+              <a 
+                href="https://www.avoltaworld.com/en/meet-avolta/our-strategy" 
+                className="inline-flex items-center text-white mt-6 hover:underline"
+              >
+                En savoir plus
+                <svg className="ml-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          
+    
+          {/* <!-- Côté droit - Image --> */}
+          <div className="w-full md:w-2/6 h-72 md:h-96 relative">
+            <img
+              src="src\images\nos valeurs2.png"
+              alt="Personne au sommet d'une montagne contemplant le paysage"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="w-full md:w-2/6 h-72 md:h-96 relative">
+            <img
+              src="src\images\nosvaleur3.png"
+              alt="Personne au sommet d'une montagne contemplant le paysage"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+
+
+
+
       </div>
     </div>
   );
