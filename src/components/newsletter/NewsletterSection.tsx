@@ -149,13 +149,13 @@ export default function NewsletterSection() {
           {/* <!-- Côté gauche - Fond violet avec dégradé deux tons --> */}
           <div className="w-full md:w-2/5 relative flex items-center">
             {/* <!-- Premier ton de violet (plus foncé) --> */}
-            <div className="absolute inset-0 bg-primary rou"></div>
+            <div className="absolute inset-0 bg-primary"></div>
             
             {/* <!-- Deuxième ton de violet (plus clair) --> */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary-light opacity-90 rounded-tr-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary-light opacity-100 "></div>
             
             {/* <!-- Effet de vagues ou courbes subtiles --> */}
-            <div className="absolute right-0 h-full w-1/4 bg-gradient-to-l from-primary-light to-transparent"></div>
+            <div className="absolute right-0 h-full w-2/4 bg-gradient-to-l from-primary-light to-transparent rounded-l-[80px] "></div>
             
             {/* <!-- Contenu texte --> */}
             <div className="p-8 md:p-10 relative z-10">
@@ -174,6 +174,7 @@ export default function NewsletterSection() {
               </a>
             </div>
           </div>
+          
     
           {/* <!-- Côté droit - Image --> */}
           <div className="w-full md:w-3/5 h-72 md:h-96 relative">
