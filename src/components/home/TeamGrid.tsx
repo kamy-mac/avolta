@@ -216,7 +216,7 @@ export default function TeamGrid() {
           <div></div>
 
           <h2 className="text-5xl font-bold text-night mb-6 relative inline-block">
-            Notre Équipe de Direction
+            Notre direction
             <div className="absolute -bottom-6 left-1 transform -translate-x-1 w-60 h-1 bg-primary rounded-full"></div>
           </h2>
 

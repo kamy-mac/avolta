@@ -4,6 +4,8 @@ import newsletterService from '../../services/newsletter.service';
 
 // Importation dynamique du logo
 import logoAvolta from '/src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+import logoAutogrillByAvolta from '/src/images/Autogrill.png';
+
 
 function NewsletterForm() {
   const [email, setEmail] = useState('');
@@ -204,7 +206,15 @@ export default function Footer() {
                 <img
                   src={logoAvolta}
                   alt="Logo Avolta"
-                  className="w-25 h-10"
+                  className="w-40 h-10"
+                />
+              </a>
+
+              <a href="/" className="flex items-center">
+                <img
+                  src={logoAutogrillByAvolta}
+                  alt="LogoAutogrill By Avolta"
+                  className="w-40 h-10"
                 />
               </a>
             </div>
