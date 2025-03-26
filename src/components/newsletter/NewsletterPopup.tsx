@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Mail, Send, CheckCircle, AlertCircle, User, UserCircle } from 'lucide-react';
 import newsletterService from '../../services/newsletter.service';
 
 interface NewsletterFormProps {
@@ -50,41 +50,65 @@ function NewsletterForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="text-red-600 text-sm">{error}</div>}
-      {success && <div className="text-green-600 text-sm">{success}</div>}
+      {error && (
+        <div className="flex items-start text-red-600 text-sm bg-red-50 p-3 rounded-lg border-l-4 border-red-500">
+          <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+      
+      {success && (
+        <div className="flex items-start text-green-600 text-sm bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
+          <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <span>{success}</span>
+        </div>
+      )}
 
-      <div>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Mail className="h-5 w-5 text-gray-400" />
+        </div>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-[#6A0DAD] focus:border-[#6A0DAD] shadow-sm transition-colors"
           required
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <input
-          type="text"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="Prénom"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        <input
-          type="text"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Nom de famille"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="Prénom"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-[#6A0DAD] focus:border-[#6A0DAD] shadow-sm transition-colors"
+          />
+        </div>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <UserCircle className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Nom de famille"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-[#6A0DAD] focus:border-[#6A0DAD] shadow-sm transition-colors"
+          />
+        </div>
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+        className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] disabled:opacity-50 transition-colors"
       >
         {isLoading ? (
           <>
@@ -111,7 +135,10 @@ function NewsletterForm({
             Inscription en cours...
           </>
         ) : (
-          buttonText
+          <>
+            <Send className="h-5 w-5 mr-2" />
+            {buttonText}
+          </>
         )}
       </button>
     </form>
@@ -121,6 +148,7 @@ function NewsletterForm({
 export default function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [animated, setAnimated] = useState(false);
   
   useEffect(() => {
     // Vérifier si l'utilisateur a déjà fermé la popup ou s'est abonné
@@ -131,6 +159,8 @@ export default function NewsletterPopup() {
       // Afficher la popup après 10 secondes
       const timer = setTimeout(() => {
         setIsOpen(true);
+        // Ajouter un petit délai avant l'animation pour permettre au DOM de s'initialiser
+        setTimeout(() => setAnimated(true), 10);
       }, 10000);
       
       return () => clearTimeout(timer);
@@ -138,55 +168,73 @@ export default function NewsletterPopup() {
   }, []);
   
   const handleClose = () => {
-    setIsOpen(false);
-    // Mémoriser que l'utilisateur a fermé la popup
-    localStorage.setItem('newsletterPopupClosed', 'true');
+    setAnimated(false);
+    // Attendre la fin de l'animation avant de fermer
+    setTimeout(() => {
+      setIsOpen(false);
+      // Mémoriser que l'utilisateur a fermé la popup
+      localStorage.setItem('newsletterPopupClosed', 'true');
+    }, 300);
   };
   
   const handleSuccess = () => {
     // Fermer la popup après un abonnement réussi
     setTimeout(() => {
-      setIsOpen(false);
-      setIsSubscribed(true);
-      // Mémoriser que l'utilisateur s'est abonné
-      localStorage.setItem('newsletterSubscribed', 'true');
+      setAnimated(false);
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsSubscribed(true);
+        // Mémoriser que l'utilisateur s'est abonné
+        localStorage.setItem('newsletterSubscribed', 'true');
+      }, 300);
     }, 3000);
   };
   
   if (!isOpen) return null;
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-night/70">
-      <div className="relative bg-day rounded-2xl shadow-xl max-w-md w-full p-8 animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
+         style={{ opacity: animated ? 1 : 0 }}>
+      <div 
+        className={`relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-transform duration-300 ease-out ${
+          animated ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+        }`}
+      >
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-night"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-full transition-colors duration-200"
           aria-label="Fermer"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5" />
         </button>
         
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-day font-display text-2xl">A</span>
+        <div className="text-center mb-8">
+          <div className="w-32 h-auto mx-auto mb-6">
+            <img
+              src="/src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg"
+              alt="Logo Avolta"
+              className="w-full h-auto object-contain"
+            />
           </div>
-          <h3 className="text-2xl font-display font-semibold text-night mb-2">
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
             Restez informé
           </h3>
-          <p className="text-night/70">
+          <p className="text-gray-600">
             Abonnez-vous à notre newsletter pour recevoir les dernières actualités d'Avolta Belgique.
           </p>
         </div>
         
-        <NewsletterForm 
-          buttonText="Je m'abonne"
-          placeholder="Votre email professionnel"
-          onSuccess={handleSuccess}
-        />
+        <div className="bg-gray-50 p-5 rounded-xl mb-6">
+          <NewsletterForm 
+            buttonText="Je m'abonne"
+            placeholder="Votre email professionnel"
+            onSuccess={handleSuccess}
+          />
+        </div>
         
-        <div className="mt-4 text-center text-xs text-night/50">
+        <div className="mt-4 text-center text-xs text-gray-500">
           En vous inscrivant, vous acceptez de recevoir nos communications par email.
-          Vous pourrez vous désabonner à tout moment.
+          <br />Vous pourrez vous désabonner à tout moment.
         </div>
       </div>
     </div>

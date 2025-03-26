@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, UserCheck, ShieldCheck, FileText, Bell, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import avoltaLogo from '../images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
 
 /**
  * Login page component
@@ -40,19 +41,17 @@ export default function LoginPage() {
     }
   };
 
-  // Données d'exemple pour les crédentiels de démonstration
-  const demoCredentials = [
-    { role: 'Administrateur', email: 'admin@avolta.be', password: 'admin123' },
-    { role: 'Super Administrateur', email: 'superadmin@avolta.be', password: 'superadmin123' }
-  ];
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-[#6A0DAD] rounded-full flex items-center justify-center">
-            <span className="text-white text-xl font-bold">A</span>
-          </div>
+          {/* Logo Avolta remplace l'ancien logo */}
+          <img 
+            src={avoltaLogo} 
+            alt="Avolta Logo" 
+            className="h-16 w-auto object-contain"
+          />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Connexion Administrateur
@@ -65,7 +64,7 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded flex items-start">
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md flex items-start">
               <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -76,7 +75,7 @@ export default function LoginPage() {
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Adresse email
               </label>
-              <div className="mt-1 relative">
+              <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   id="email"
                   name="email"
@@ -86,6 +85,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
+                  placeholder="votre@email.com"
                 />
                 <Mail className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -95,7 +95,7 @@ export default function LoginPage() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Mot de passe
               </label>
-              <div className="mt-1 relative">
+              <div className="mt-1 relative rounded-md shadow-sm">
                 <input
                   id="password"
                   name="password"
@@ -105,6 +105,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
+                  placeholder="••••••••"
                 />
                 <Lock className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -114,7 +115,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -131,11 +132,11 @@ export default function LoginPage() {
             </div>
           </form>
           
-          {/* Guide d'utilisation */}
+          {/* Guide d'utilisation avec design amélioré */}
           <div className="mt-8 border-t border-gray-200 pt-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Guide d'utilisation</h3>
             
-            <div className="rounded-lg bg-gray-50 p-4 mb-4">
+            <div className="rounded-lg bg-gray-50 p-4 mb-4 hover:bg-purple-50 transition-colors duration-200">
               <h4 className="flex items-center text-md font-medium text-gray-800 mb-2">
                 <UserCheck className="h-5 w-5 mr-2 text-[#6A0DAD]" />
                 Administrateur
@@ -147,7 +148,7 @@ export default function LoginPage() {
               </ul>
             </div>
             
-            <div className="rounded-lg bg-gray-50 p-4">
+            <div className="rounded-lg bg-gray-50 p-4 hover:bg-purple-50 transition-colors duration-200">
               <h4 className="flex items-center text-md font-medium text-gray-800 mb-2">
                 <ShieldCheck className="h-5 w-5 mr-2 text-[#6A0DAD]" />
                 Super Administrateur
@@ -160,23 +161,22 @@ export default function LoginPage() {
               </ul>
             </div>
             
-            {/* Identifiants de démonstration */}
-           
+
             
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
                 <FileText className="h-6 w-6 text-[#6A0DAD] mr-2" />
                 <span className="text-xs text-gray-700">Gestion des publications</span>
               </div>
-              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
                 <Bell className="h-6 w-6 text-[#6A0DAD] mr-2" />
                 <span className="text-xs text-gray-700">Administration newsletter</span>
               </div>
-              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
                 <Users className="h-6 w-6 text-[#6A0DAD] mr-2" />
                 <span className="text-xs text-gray-700">Gestion des utilisateurs</span>
               </div>
-              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg">
+              <div className="flex items-center justify-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
                 <ShieldCheck className="h-6 w-6 text-[#6A0DAD] mr-2" />
                 <span className="text-xs text-gray-700">Validation contenu</span>
               </div>
