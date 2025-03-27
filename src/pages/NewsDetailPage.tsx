@@ -66,7 +66,7 @@ const LoadingState = () => (
 export default function NewsDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+ 
   const [post, setPost] = useState<Post | null>(null);
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);

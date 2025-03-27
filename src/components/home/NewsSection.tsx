@@ -19,7 +19,7 @@ export default function NewsSection() {
         const fetchedPosts = await publicationService.getActivePublicationsByCategory('news');
         
         // Limit to 3 posts
-        const newsOnly = fetchedPosts.slice(0, 3);
+        const newsOnly = fetchedPosts.slice(0, 6);
         setPosts(newsOnly);
       } catch (err) {
         console.error('Error fetching news publications:', err);
