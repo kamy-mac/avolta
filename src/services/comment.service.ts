@@ -9,15 +9,7 @@
 import api from "./api";
 import { Comment } from "../types";
 
-/**
- * API response wrapper interface
- */
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  timestamp: string;
-}
+// Removed unused ApiResponse interface
 
 /**
  * Comment service

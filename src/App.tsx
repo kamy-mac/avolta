@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -38,6 +38,11 @@ function App() {
           <Route path="/news/:id" element={<NewsDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/bac-airport" element={<BacAirportPage />} />
+          {/* Add more routes as needed */}
+          
+          {/* Admin Routes */}
+          {/* Protected routes for admin */}  
+          
           <Route path="/admin" element={
             <ProtectedRoute>
               <AdminDashboard />

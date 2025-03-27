@@ -97,6 +97,7 @@ class NewsletterService {
    */
   public async sendTestEmail(email: string, selectedPublication: string): Promise<void> {
     try {
+      console.log(`Sending test email for publication: ${selectedPublication}`);
       await api.sendTestEmail(email);
     } catch (error) {
       console.error(`Error sending test email to ${email}:`, error);

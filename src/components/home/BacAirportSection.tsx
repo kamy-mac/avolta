@@ -7,7 +7,7 @@
  * @module components/home/BacAirportSection
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Building2, Lock, ArrowRight, Shield, Bell, Users, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LazyImage } from '../../utils/lazyLoad';

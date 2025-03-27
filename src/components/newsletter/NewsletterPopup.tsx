@@ -147,7 +147,7 @@ function NewsletterForm({
 
 export default function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [, setIsSubscribed] = useState(false);
   const [animated, setAnimated] = useState(false);
   
   useEffect(() => {

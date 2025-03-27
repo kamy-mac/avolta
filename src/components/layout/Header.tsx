@@ -24,19 +24,12 @@ import {
   LogOut, 
   Home, 
   Calendar, 
-  MessageSquare, 
-  Building2, 
-  X, 
-  Menu, 
   Bell, 
-  ChevronDown, 
   Settings,
   HelpCircle,
   BookOpen,
   Users,
-  Handshake,
   ExternalLink,
-  Shield,
   Mail
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -293,9 +286,9 @@ export default function Header() {
    */
   const navigationLinks = [
     { path: '/news', icon: Calendar, label: t('header.news') },
-    { path: '/bac-airport', icon: Building2, label: 'BAC Airport' },
+    /*{ path: '/bac-airport', icon: Building2, label: 'BAC Airport' },*/
     { path: '/contact', icon: Home, label: t('header.contact') },
-    { path: '/job', icon: Handshake, label: 'Job' },
+    /*{ path: '/job', icon: Handshake, label: 'Job' },*/
   ];
 
   return (

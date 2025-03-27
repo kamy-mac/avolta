@@ -38,11 +38,13 @@ export function lazyLoad<T extends ComponentType<any>>(
   const LazyComponent = lazy(importFunc);
   const { fallback = <DefaultLoading /> } = options;
 
-  return (props: React.ComponentProps<T>) => (
+  const WrappedComponent: React.FC<React.ComponentProps<T>> = (props) => (
     <Suspense fallback={fallback}>
       <LazyComponent {...props} />
     </Suspense>
-  ) as unknown as LazyExoticComponent<T>;
+  );
+
+  return WrappedComponent as unknown as LazyExoticComponent<T>;
 }
 
 /**

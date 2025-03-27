@@ -33,7 +33,6 @@ import {
   FileText,
   Info
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Post } from "../types";
 import NewsCard from "../components/news/NewsCard";
 import publicationService from "../services/publication.service";
@@ -197,7 +196,7 @@ export default function BacAirportPage() {
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("news"); // news, directory, events, resources
-  const [sessionTimer, setSessionTimer] = useState<number | null>(null);
+  // Removed unused sessionTimer state
   const [timeRemaining, setTimeRemaining] = useState(SESSION_TIMEOUT * 60);
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const [expandedPerson, setExpandedPerson] = useState<string | null>(null);
@@ -205,7 +204,6 @@ export default function BacAirportPage() {
   // Refs
   const accessFormRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filter staff by search query

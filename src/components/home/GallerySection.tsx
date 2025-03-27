@@ -6,7 +6,6 @@
  * @module components/home/GallerySection
  */
 
-import React from "react";
 import {
   ArrowRight,
   Smartphone,
@@ -14,7 +13,6 @@ import {
   Bell,
   MessageSquare,
 } from "lucide-react";
-import { LazyImage } from "../../utils/lazyLoad";
 
 export default function GallerySection() {
   return (

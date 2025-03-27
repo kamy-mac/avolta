@@ -2,7 +2,7 @@ export interface Post {
   slug: any;
   description: any;
   publishedAt: string | number | Date;
-  excerpt: ReactI18NextChildren | Iterable<ReactI18NextChildren>;
+  excerpt: React.ReactNode | Iterable<React.ReactNode>;
   coverImage: string;
   author: any;
   authorDisplayName: any;

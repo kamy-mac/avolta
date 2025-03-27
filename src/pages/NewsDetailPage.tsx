@@ -19,7 +19,7 @@ import {
   Linkedin,
   CheckCircle,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+// Removed unused useTranslation import
 import { Post, Comment } from "../types";
 import publicationService from "../services/publication.service";
 import commentService from "../services/comment.service";

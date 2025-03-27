@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ChevronRight, ArrowUpRight, Star, ShieldCheck, Zap, Globe, Play, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LazyImage } from '../../utils/lazyLoad';

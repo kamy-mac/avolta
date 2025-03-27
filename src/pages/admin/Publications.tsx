@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Calendar, 
   Trash2, 
   Eye, 
   Edit2, 
   Search, 
-  Filter, 
   Clock, 
   AlertCircle, 
   Check, 

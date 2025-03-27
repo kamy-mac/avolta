@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Plus, 
-  List, 
   Mail, 
   Bell, 
-  BarChart, 
   Settings, 
   Clock, 
   Home, 
@@ -18,9 +16,7 @@ import {
   X,
   Activity,
   LayoutDashboard,
-  HelpCircle,
-  ExternalLink
-} from 'lucide-react';
+  HelpCircle} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminHeader() {

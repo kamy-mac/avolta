@@ -1,4 +1,3 @@
-import React from 'react';
 import { ContactSection, AboutSection, FAQSection, LegalSection } from './FooterLinks';
 import FeedbackForm from './FeedbackForm';
 import FooterSocial from './FooterSocial';

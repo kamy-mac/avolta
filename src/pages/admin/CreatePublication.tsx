@@ -27,7 +27,6 @@ import {
   Save,
   X,
   ArrowLeft,
-  ArrowRight,
   CheckCircle,
   FileImage,
   Heading1,

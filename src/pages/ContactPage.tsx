@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send, Mail, Phone, MapPin } from 'lucide-react';
 import TeamGrid from '../components/home/TeamGrid';
 

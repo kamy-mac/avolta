@@ -86,7 +86,7 @@ export default function UserManagement() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newUser, setNewUser] = useState({ email: "", password: "", confirmPassword: "" });
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof User; direction: 'ascending' | 'descending' } | null>(null);
+  const [sortConfig] = useState<{ key: keyof User; direction: 'ascending' | 'descending' } | null>(null);
   const [isMounted, setIsMounted] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { user: currentUser } = useAuth();
@@ -269,15 +269,6 @@ export default function UserManagement() {
   };
   
   // Sorting functionality
-  const requestSort = (key: keyof User) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    
-    setSortConfig({ key, direction });
-  };
   
   const getSortedUsers = () => {
     // First filter users based on search term
@@ -287,7 +278,7 @@ export default function UserManagement() {
     
     // Then sort if sortConfig is set
     if (sortConfig !== null) {
-      filteredResults.sort((a, b) => {
+      filteredResults.sort(() => {
         
         return 0;
       });
@@ -296,12 +287,6 @@ export default function UserManagement() {
     return filteredResults;
   };
   
-  const getSortIndicator = (key: keyof User) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return null;
-    }
-    return sortConfig.direction === 'ascending' ? ' ↑' : ' ↓';
-  };
 
   // UI for displaying loading skeletons
   const renderSkeletons = () => {

@@ -10,8 +10,12 @@ const API_BASE_URL = "http://localhost:8090/api";
 const REQUEST_TIMEOUT = 15000; // 15 seconds timeout
 
 class ApiService {
+  
+  
   private api: AxiosInstance;
   private static instance: ApiService;
+  post: any; // Replace 'Mock<any, any, any>' with 'any' or define/import 'Mock' if needed
+  setToken: any;
 
   private constructor() {
     this.api = axios.create({

@@ -26,7 +26,7 @@ jest.mock('react-i18next', () => ({
 
 // Mock the Lucide React icons
 jest.mock('lucide-react', () => {
-  const icons = {};
+  const icons: Record<string, any> = {};
   const handler = {
     get: function(target: any, prop: string) {
       if (prop in target) {

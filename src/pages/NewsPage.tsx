@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+
 import publicationService from "../services/publication.service";
 import NewsCard from "../components/news/NewsCard";
 import { Post } from "../types";
-import { Calendar, AlertCircle, Filter, Search, Bookmark, TrendingUp, Clock } from "lucide-react";
+import { Calendar, AlertCircle, Search, Bookmark, TrendingUp } from "lucide-react";
 
 export default function NewsPage() {
-  const { t } = useTranslation();
+  
   const [posts, setPosts] = useState<Post[]>([]);
   const [activeCategory, setActiveCategory] = useState<"news" | "events">("news");
   const [isLoading, setIsLoading] = useState(true);
