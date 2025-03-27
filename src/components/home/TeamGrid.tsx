@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 // Importation dynamique des images
-import jouyImage from "/src/images/jouy.jpg";
+import jouyImage from "/src/images/Jouy.jpg";
 import stevenImage from "/src/images/Steven.jpg";
 import wendyImage from "/src/images/Wendy.jpg";
 import pepijnImage from "/src/images/Pepijn.jpg";
