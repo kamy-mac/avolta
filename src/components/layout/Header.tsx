@@ -308,7 +308,7 @@ export default function Header() {
               aria-label="Accueil Avolta"
             >
               <img
-                src="/src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg"
+                src="/public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg"
                 alt="Logo Avolta"
                 className="w-auto h-11 object-contain"
               />

@@ -179,7 +179,7 @@ export default function NewsletterSection() {
           {/* <!-- Côté droit - Image --> */}
           <div className="w-full md:w-3/5 h-72 md:h-96 relative">
             <img
-              src="src/images/Destination 2027_composant .jpeg"
+              src="public/images/Destination 2027_composant .jpeg"
               alt="Personne au sommet d'une montagne contemplant le paysage"
               className="w-full h-full object-cover"
             />
@@ -250,7 +250,7 @@ export default function NewsletterSection() {
 
             <div className="hidden lg:block lg:col-span-5 relative">
               <img
-                src="/src/images/newsletter1.png"
+                src="/public/images/newsletter1.png"
                 alt="Newsletter Avolta"
                 className="absolute inset-0 w-full h-full object-cover"
               />

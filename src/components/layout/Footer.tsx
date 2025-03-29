@@ -3,8 +3,8 @@ import { Mail, Phone, MapPin, Facebook, Linkedin, Twitter } from 'lucide-react';
 import newsletterService from '../../services/newsletter.service';
 
 // Importation dynamique du logo
-import logoAvolta from '/src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
-import logoAutogrillByAvolta from '/src/images/Autogrill.png';
+import logoAvolta from '/public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+import logoAutogrillByAvolta from '/public/images/Autogrill.png';
 
 
 function NewsletterForm() {

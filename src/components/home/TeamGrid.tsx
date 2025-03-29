@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 
 // Importation dynamique des images
-import jouyImage from "/src/images/Jouy.jpg";
-import stevenImage from "/src/images/Steven.jpg";
-import wendyImage from "/src/images/Wendy.jpg";
-import pepijnImage from "/src/images/Pepijn.jpg";
-import magalieImage from "/src/images/Magalie.jpg";
+import jouyImage from "/public/images/Jouy.jpg";
+import stevenImage from "/public/images/Steven.jpg";
+import wendyImage from "/public/images/Wendy.jpg";
+import pepijnImage from "/public/images/Pepijn.jpg";
+import magalieImage from "/public/images/Magalie.jpg";
 
 interface TeamMember {
   id: string;
@@ -287,7 +287,7 @@ export default function TeamGrid() {
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = "src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
+                    target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/40 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
@@ -387,7 +387,7 @@ export default function TeamGrid() {
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = "src/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
+                    target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
                   }}
                 />
 

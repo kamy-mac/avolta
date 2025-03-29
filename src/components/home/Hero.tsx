@@ -4,16 +4,16 @@ import { Link } from 'react-router-dom';
 import { LazyImage } from '../../utils/lazyLoad';
 
 // Import local images
-import banner1 from '/src/images/barner 4.jpg';
-import banner2 from '/src/images/barner 6.jpg';
-import banner3 from '/src/images/barner5.jpg';
-import banner4 from '/src/images/barner2.jpg';
-import motion1 from '/src/images/brave.png';
-import motion2 from '/src/images/passionate.png';
-import motion3 from '/src/images/collaborative.png';
-import motion4 from '/src/images/inclusive.png';
+import banner1 from '/public/images/barner 4.jpg';
+import banner2 from '/public/images/barner 6.jpg';
+import banner3 from '/public/images/barner5.jpg';
+import banner4 from '/public/images/barner2.jpg';
+import motion1 from '/public/images/brave.png';
+import motion2 from '/public/images/passionate.png';
+import motion3 from '/public/images/collaborative.png';
+import motion4 from '/public/images/inclusive.png';
 // Import video path
-const videoPath = '/src/images/Basel ident Footage (2).mp4';
+const videoPath = '/public/images/Basel ident Footage (2).mp4';
 
 // Données statistiques
 const stats = [
