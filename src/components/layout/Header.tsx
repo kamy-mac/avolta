@@ -410,11 +410,11 @@ export default function Header() {
                         <User className="w-5 h-5 text-[#6A0DAD]" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{user?.username || user?.email?.split('@')[0] || 'Utilisateur'}</p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
-                        <span className="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium bg-[#6A0DAD]/10 text-[#6A0DAD]">
-                          {user?.role === 'superadmin' ? 'Super Admin' : 'Admin'}
-                        </span>
+                      <a href="/admin" className="text-xs text-gray-500 truncate"><p className="text-sm font-medium text-gray-900">{user?.username || user?.email?.split('@')[0] || 'Utilisateur'}</p></a>
+                        <a href="/admin" className="text-xs text-gray-500 truncate"><p className="text-xs text-gray-500 truncate">{user?.email || ''} </p></a>
+                        <a href="/admin" className="text-xs text-gray-500 truncate"><span className="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium bg-[#6A0DAD]/10 text-[#6A0DAD]">
+                          {user?.role === 'superadmin' ? 'Super Admin' : ' Admin'}
+                        </span></a>
                       </div>
                     </div>
                   </div>

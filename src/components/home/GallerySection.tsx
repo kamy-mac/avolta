@@ -161,7 +161,7 @@ export default function GallerySection() {
 
             <div className="bg-white p-4 rounded-lg shadow-md mb-6">
               <img
-                src="/public/images/c894c1ff-00ab-4dab-b1fc-b96a991b8aaa.png"
+                src="/public/images/Avolta-QR.png"
                 alt="QR Code Beekeeper"
                 className="w-64 h-64 object-contain"
               />

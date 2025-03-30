@@ -10,7 +10,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, UserCheck, ShieldCheck, FileText, Bell, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import avoltaLogo from '../images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+import avoltaLogo from '@/public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg';
+
 
 /**
  * Login page component

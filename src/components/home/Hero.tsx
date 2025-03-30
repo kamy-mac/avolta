@@ -49,28 +49,28 @@ const features = [
     title: 'Courageux',
     description: 'Nous repoussons les limites pour offrir une expérience exceptionnelle aux voyageurs du monde entier',
     image: motion1,
-    link: '/innovation',
+    link: 'https://www.avoltaworld.com/en/meet-avolta',
     color: 'from-amber-600/90 to-amber-700/30'
   },
   {
     title: 'Passionné',
     description: 'Nous transformons chaque voyage en une aventure aussi enrichissante que la destination elle-même',
     image: motion2,
-    link: '/sustainability',
+    link: 'https://www.avoltaworld.com/en/meet-avolta',
     color: 'from-emerald-600/90 to-emerald-700/30'
   },
   {
     title: 'Collaboratif',
     description: 'Ensemble, nous réinventons l\'expérience de voyage selon vos besoins et aspirations',
     image: motion3,
-    link: '/excellence',
+    link: 'https://www.avoltaworld.com/en/meet-avolta',
     color: 'from-sky-600/90 to-sky-700/30'
   },
   {
     title: 'Inclusif',
     description: 'Nous élargissons les horizons de l\'expérience de voyage pour accueillir chaque voyageur',
     image: motion4,
-    link: '/diversity',
+    link: 'https://www.avoltaworld.com/en/meet-avolta',
     color: 'from-violet-600/90 to-violet-700/30'
   }
 ];
@@ -185,7 +185,7 @@ export default function Hero() {
               </Link>
               
               <Link
-                to="/about"
+                to="https://www.avoltaworld.com/en/meet-avolta"
                 className="inline-flex items-center px-8 py-4 bg-day/5 hover:bg-day/15 text-day font-medium rounded-full backdrop-blur-md transition-all duration-300 border border-day/20 hover:border-day/30 group"
               >
                 <span>En savoir plus</span>
