@@ -72,7 +72,7 @@ public class PublicationService {
         publication.setValidTo(request.getValidTo());
         publication.setCategory(request.getCategory());
         publication.setAuthor(author);
-        
+
         // If author is SUPERADMIN, publish immediately, otherwise set as PENDING
         if (author.getRole() == User.Role.SUPERADMIN) {
             publication.setStatus(Publication.Status.PUBLISHED);
@@ -81,12 +81,22 @@ public class PublicationService {
         }
 
         Publication savedPublication = publicationRepository.save(publication);
-        
+
+        // Si l'URL de l'image est relative, la convertir en URL absolue pour le
+        // frontend
+        String imageUrl = request.getImageUrl();
+        if (imageUrl != null && imageUrl.startsWith("/api/uploads/")) {
+            // L'URL est déjà relative, pas besoin de la modifier
+            publication.setImageUrl(imageUrl);
+        } else {
+            publication.setImageUrl(imageUrl); // URL externe
+        }
+
         // If publication is published and sendNewsletter is true, send newsletter
         if (publication.getStatus() == Publication.Status.PUBLISHED && request.isSendNewsletter()) {
             newsletterService.sendNewsletter(savedPublication);
         }
-        
+
         return PublicationDto.fromEntity(savedPublication);
     }
 
@@ -122,7 +132,7 @@ public class PublicationService {
     public PublicationDto approvePublication(String id) {
         Publication publication = publicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Publication not found with id: " + id));
-        
+
         publication.setStatus(Publication.Status.PUBLISHED);
         Publication approvedPublication = publicationRepository.save(publication);
         return PublicationDto.fromEntity(approvedPublication);
@@ -148,7 +158,7 @@ public class PublicationService {
     public PublicationDto likePublication(String id) {
         Publication publication = publicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Publication not found with id: " + id));
-        
+
         publication.setLikes(publication.getLikes() + 1);
         Publication updatedPublication = publicationRepository.save(publication);
         return PublicationDto.fromEntity(updatedPublication);

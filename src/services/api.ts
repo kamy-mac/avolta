@@ -358,6 +358,42 @@ class ApiService {
       throw error;
     }
   }
+
+/**
+ * Upload an image file
+ * @param file Image file to upload
+ * @returns Response with the uploaded file URL
+ */
+public async uploadImage(file: File): Promise<AxiosResponse> {
+  try {
+    console.log("Sending upload file request");
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    return await this.api.post("/upload/image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  } catch (error) {
+    console.error("Image upload failed:", error);
+    throw error;
+  }
 }
+// Dans src/services/api.ts
+public async uploadFile(formData: FormData): Promise<AxiosResponse> {
+  try {
+    return await this.api.post("/upload/image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  } catch (error) {
+    console.error("File upload request failed:", error);
+    throw error;
+  }
+}
+}
+
 
 export default ApiService.getInstance();

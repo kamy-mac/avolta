@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -28,13 +28,14 @@ import {
   X,
   ArrowLeft,
   CheckCircle,
-  FileImage,
   Heading1,
   Heading2,
-  Edit2
+  Edit2,
+  Upload
 } from "lucide-react";
 import publicationService from "../../services/publication.service";
 import { useAuth } from "../../context/AuthContext";
+import fileUploadService from "../../services/fileUpload.service";
 
 // Guide d'utilisation pour le créateur de publication
 const CreatePublicationGuide = () => {
@@ -116,6 +117,14 @@ export default function CreatePublication() {
     authorEmail: user?.email || "",
   });
 
+  // States for image upload
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
   const [previewMode, setPreviewMode] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -123,6 +132,139 @@ export default function CreatePublication() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [contentWarning, setContentWarning] = useState<string | null>(null);
+
+  // References
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+   // Effect to redirect if not authenticated
+   React.useEffect(() => {
+    if (!user) {
+      navigate("/login", {
+        state: { from: "/admin/publications/create" },
+      });
+    }
+  }, [user, navigate]);
+
+  // Handle image file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      
+      // Prévisualisation de l'image
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          setImagePreview(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    const file = files[0];
+     
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError("Le type de fichier n'est pas supporté. Utilisez JPEG, PNG, GIF ou WEBP.");
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setUploadError("Le fichier est trop volumineux. La taille maximale est de 5MB.");
+      return;
+    }
+
+    // Reset errors and set the selected file
+    setUploadError(null);
+    setSelectedFile(file);
+    
+    // Create a preview URL
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    
+    // Reset old image URL if there was one
+    setPublication(prev => ({
+      ...prev,
+      imageUrl: ""
+    }));
+    
+    // Reset upload states
+    setUploadProgress(0);
+    setUploadSuccess(false);
+   return () => {
+      // Free memory when component unmounts
+      URL.revokeObjectURL(objectUrl);
+    };
+  };
+
+  // Handle upload button click
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Remove selected image
+  const handleRemoveImage = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setImagePreview(null);
+    setUploadProgress(0);
+    setUploadSuccess(false);
+    setUploadError(null);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  
+  // Réinitialiser l'URL de l'image
+  setPublication(prev => ({
+    ...prev,
+    imageUrl: ""
+  }));
+  };
+  
+
+
+  // Upload image to server
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedFile) return null;
+    
+    try {
+      setIsUploading(true);
+      setUploadProgress(10);
+      
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 300);
+      
+      // Upload the file using the file upload service
+      const imageUrl = await fileUploadService.uploadFile(selectedFile);
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setUploadSuccess(true);
+      
+      return imageUrl;
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      setUploadError("Erreur lors du téléchargement de l'image. Veuillez réessayer.");
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
 
   // Vérification du contenu lors de la modification
   const checkContent = (content: string) => {
@@ -137,6 +279,7 @@ export default function CreatePublication() {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    setSuccess(null);
     
     try {
       // Validation des dates
@@ -147,14 +290,31 @@ export default function CreatePublication() {
         throw new Error("La date de fin doit être postérieure à la date de début.");
       }
       
+
+
       // Formatage au format ISO (YYYY-MM-DDTHH:mm:ss.sssZ) que le backend peut parser en LocalDateTime
       const formattedValidFrom = validFromDate.toISOString();
       const formattedValidTo = validToDate.toISOString();
+
+      // D'abord télécharger l'image s'il y en a une sélectionnée
+    let finalImageUrl = publication.imageUrl;
+    
+    if (selectedFile && !uploadSuccess) {
+      const uploadedImageUrl = await uploadImage();
+      if (uploadedImageUrl) {
+        finalImageUrl = uploadedImageUrl;
+      } else if (!publication.imageUrl) {
+        // Si le téléchargement a échoué et qu'il n'y a pas d'URL de secours, afficher une erreur
+        throw new Error("Le téléchargement de l'image a échoué. Veuillez réessayer.");
+      }
+    }
+
+      console.log("Creating publication with image:", finalImageUrl);
       
-      await publicationService.createPublication({
+      const createdPublication = await publicationService.createPublication({
         title: publication.title,
         content: publication.content,
-        imageUrl: publication.imageUrl,
+        imageUrl: publication.imageUrl || finalImageUrl,
         validFrom: formattedValidFrom,
         validTo: formattedValidTo,
         category: publication.category,
@@ -164,7 +324,8 @@ export default function CreatePublication() {
       });
       
       setSuccess("Publication créée avec succès!");
-      
+      console.log("Publication created:", createdPublication);
+
       if (user?.role === "admin") {
         setSuccess("Votre publication a été soumise et est en attente de validation par un super administrateur.");
       }
@@ -202,6 +363,29 @@ export default function CreatePublication() {
     const { name, checked } = e.target;
     setPublication((prev) => ({ ...prev, [name]: checked }));
   };
+
+  // URL input change handler
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setPublication(prev => ({
+      ...prev,
+      imageUrl: value
+    }));
+     
+    // Reset file selection if URL is provided
+    if (value && selectedFile) {
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setUploadProgress(0);
+      setUploadSuccess(false);
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && newTag.trim()) {
@@ -413,7 +597,7 @@ export default function CreatePublication() {
           {imagePreview && (
             <div className="relative h-64 mb-6 rounded-lg overflow-hidden shadow-md">
               <img
-                src={imagePreview}
+                src={imagePreview || previewUrl || ""}
                 alt="Preview"
                 className="w-full h-full object-cover"
               />
@@ -669,54 +853,123 @@ export default function CreatePublication() {
               )}
             </div>
 
-            {/* Image Section */}
-            <div className="mb-6">
-              <label
-                htmlFor="imageUrl"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Image (facultatif)
-              </label>
-              <div className="relative">
-                <input
-                  type="url"
-                  id="imageUrl"
-                  name="imageUrl"
-                  value={publication.imageUrl}
-                  onChange={handleInputChange}
-                  placeholder="URL de l'image"
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#6A0DAD] focus:border-[#6A0DAD] pl-10"
-                />
-                <ImageIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-              {imagePreview ? (
-                <div className="mt-2 relative h-40 rounded-lg overflow-hidden shadow-sm">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
+           {/* Image Section with Upload and URL options */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Image
+            </label>
+            
+            <div className="mt-1 mb-4 flex justify-between">
+              <div className="w-1/2 pr-2">
+                <p className="text-sm font-medium text-gray-700 mb-1">Option 1: Télécharger une image</p>
+                <div className="flex items-center">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      setPublication(prev => ({ ...prev, imageUrl: "" }));
-                      setImagePreview(null);
-                    }}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors"
-                    aria-label="Supprimer l'image"
+                    onClick={handleUploadClick}
+                    disabled={isUploading}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] disabled:opacity-50"
                   >
-                    <X className="h-4 w-4 text-gray-600" />
+                    <Upload className="h-5 w-5 mr-2" />
+                    Sélectionner une image
                   </button>
                 </div>
-              ) : (
-                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <FileImage className="h-10 w-10 mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-500">
-                    Aucune image définie. Entrez une URL d'image ci-dessus pour l'ajouter.
-                  </p>
+              </div>
+              
+              <div className="w-1/2 pl-2">
+                <p className="text-sm font-medium text-gray-700 mb-1">Option 2: URL d'image</p>
+                <div className="relative rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <ImageIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="url"
+                    name="imageUrl"
+                    id="imageUrl"
+                    value={publication.imageUrl}
+                    onChange={handleUrlChange}
+                    className="focus:ring-[#6A0DAD] focus:border-[#6A0DAD] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                    placeholder="https://example.com/image.jpg"
+                    disabled={!!selectedFile}
+                  />
                 </div>
-              )}
+              </div>
             </div>
+            
+            {uploadError && (
+              <div className="mt-2 text-sm text-red-600 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {uploadError}
+              </div>
+            )}
+            
+            {/* Image Preview */}
+            {(previewUrl || imagePreview) && (
+              <div className="mt-4 relative">
+                <div className="relative border border-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    src={previewUrl || imagePreview || ""}
+                    alt="Aperçu"
+                    className="max-h-64 w-auto mx-auto"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="h-5 w-5 text-gray-700" />
+                  </button>
+                </div>
+                
+                {isUploading && (
+                  <div className="mt-2">
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#6A0DAD] transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 text-center">
+                      Téléchargement en cours... {uploadProgress}%
+                    </p>
+                  </div>
+                )}
+                
+                {uploadSuccess && (
+                  <div className="mt-2 text-sm text-green-600 flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Image téléchargée avec succès
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* External image preview */}
+            {!previewUrl  && !imagePreview  && publication.imageUrl && (
+              <div className="mt-4 relative">
+                <div className="relative border border-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    src={publication.imageUrl}
+                    alt="Aperçu"
+                    className="max-h-64 w-auto mx-auto"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://via.placeholder.com/400x200?text=Image+non+disponible";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+  
+        
+            
 
             {/* Date Range Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -819,7 +1072,7 @@ export default function CreatePublication() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isUploading}
                   className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A0DAD] hover:bg-[#5a0b91] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (

@@ -31,6 +31,7 @@ public class SecurityConfig {
         this.corsConfig = corsConfig;
     }
     
+    @SuppressWarnings("removal")
     @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -64,6 +65,11 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/api/newsletter/subscribers").authenticated()
             .requestMatchers("/api/newsletter/test").authenticated()
             .requestMatchers("/api/newsletter/subscribers/**").authenticated()
+
+            //Regles pour upload d'images
+            .requestMatchers("/api/upload/**").authenticated() // Permet aux utilisateurs authentifiés de télécharger
+            .requestMatchers("/api/uploads/**").permitAll() // Permet à tous d'accéder aux fichiers téléchargés
+            // ... 
             
             // Default rule
             .anyRequest().authenticated()
