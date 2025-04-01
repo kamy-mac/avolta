@@ -9,6 +9,8 @@ import com.avolta.models.User;
 import com.avolta.repositories.PublicationRepository;
 import com.avolta.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ public class PublicationService {
     private final PublicationRepository publicationRepository;
     private final UserRepository userRepository;
     private final NewsletterService newsletterService;
+    @Value("${app.api-base-url}")
+    private String apiBaseUrl;
 
     @Transactional(readOnly = true)
     public List<PublicationDto> getAllPublications() {
@@ -85,11 +89,25 @@ public class PublicationService {
         // Si l'URL de l'image est relative, la convertir en URL absolue pour le
         // frontend
         String imageUrl = request.getImageUrl();
-        if (imageUrl != null && imageUrl.startsWith("/api/uploads/")) {
-            // L'URL est déjà relative, pas besoin de la modifier
-            publication.setImageUrl(imageUrl);
+        // if (imageUrl != null && imageUrl.startsWith("/api/uploads/")) {
+        //     // Convertir l'URL relative en URL absolue
+        //     if (!imageUrl.startsWith("http")) {
+        //         publication.setImageUrl(apiBaseUrl + imageUrl);
+        //         System.out.println("URL de l'image convertie en absolu: " + publication.getImageUrl());
+        //     } else {
+        //         publication.setImageUrl(imageUrl);
+        //     }
+        // } else
+        if (imageUrl != null && imageUrl.startsWith("/api/")) {
+            // Convertir l'URL relative en URL absolue
+            if (!imageUrl.startsWith("http")) {
+                publication.setImageUrl(apiBaseUrl + imageUrl);
+                System.out.println("URL de l'image convertie en absolu: " + publication.getImageUrl());
+            } else {
+                publication.setImageUrl(imageUrl);
+            }
         } else {
-            publication.setImageUrl(imageUrl); // URL externe
+            publication.setImageUrl(imageUrl);
         }
 
         // If publication is published and sendNewsletter is true, send newsletter

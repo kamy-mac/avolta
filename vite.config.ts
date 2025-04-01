@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { splitVendorChunkPlugin } from 'vite';
 import compression from 'vite-plugin-compression';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const plugins = [
@@ -17,6 +18,7 @@ export default defineConfig(({ mode }) => {
       ext: '.br',
     }),
   ];
+  
 
   // Add visualizer plugin in analyze mode
   if (mode === 'analyze') {
@@ -61,6 +63,12 @@ export default defineConfig(({ mode }) => {
           drop_debugger: true
         }
       }
+    },
+  resolve: {
+    alias: {
+      '/fonts': path.resolve(__dirname, 'public/fonts')
     }
+  },
+  publicDir: 'public',
   };
 });

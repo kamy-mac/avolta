@@ -40,7 +40,6 @@ public class FileUploadController {
 
             // Générer un nom de fichier unique
             String originalFilename = file.getOriginalFilename();
-            @SuppressWarnings("null")
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFilename = UUID.randomUUID().toString() + extension;
             
@@ -57,13 +56,15 @@ public class FileUploadController {
             response.put("fileUrl", fileUrl);
             
             return ResponseEntity.ok(response);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors du téléchargement du fichier: " + e.getMessage());
-        }
+    } catch (IOException e) {
+        System.err.println("Erreur lors du téléchargement: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erreur lors du téléchargement du fichier: " + e.getMessage());
+    }
     }
 
-    @GetMapping("/uploads/{filename}")
+    /*@GetMapping("/uploads/{filename}")
     public ResponseEntity<?> getFile(@PathVariable String filename) {
         try {
             Path filePath = Paths.get(uploadDir, filename);
@@ -81,5 +82,5 @@ public class FileUploadController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erreur lors de la lecture du fichier: " + e.getMessage());
         }
-    }
+    }*/
 }

@@ -16,8 +16,8 @@ export default {
         night: '#373737'
       },
       fontFamily: {
-        sans: ['Saans', 'sans-serif'],
-        display: ['Avolta Display', 'serif']
+        'display': ['"Avolta Display"', 'sans-serif'],
+        'sans': ['"Saans"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'display': ['3.5rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],

@@ -55,8 +55,12 @@ export default function NewsCard({ post }: NewsCardProps) {
           <LazyImage
             src={post.imageUrl}
             alt={post.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-48 object-cover object-center"
             aspectRatio="16/9"
+            onError={(e) => {
+              console.error("Erreur de chargement d'image:", post.imageUrl);
+              e.currentTarget.src = '../../../../public/images/FA_AVOLTA_NAV_CORE_RGB.jpg'; // Une image par défaut
+            }}
           />
         ) : (
           <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">

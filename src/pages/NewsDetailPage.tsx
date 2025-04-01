@@ -209,7 +209,7 @@ export default function NewsDetailPage() {
               <img
                 src={post.imageUrl}
                 alt={post.title}
-                className="w-full h-full object-cover brightness-105 contrast-105"
+                className="w-full h-full object-cover object-center brightness-105 contrast-105"
                 loading="eager"
               />
             )}

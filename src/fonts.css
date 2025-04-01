@@ -1,9 +1,10 @@
 /* Avolta Display Font */
+/* Dans fonts.css */
 @font-face {
   font-family: 'Avolta Display';
-  src: url('./fonts/AvoltaDisplay-SemiBold.woff2') format('woff2'),
-       url('./fonts/AvoltaDisplay-SemiBold.otf') format('opentype'),
-       url('./fonts/AvoltaDisplay-SemiBold.ttf') format('truetype');
+  src: url('/fonts/AvoltaDisplay-SemiBold.woff2') format('woff2'),
+       url('/fonts/AvoltaDisplay-SemiBold.otf') format('opentype'),
+       url('/fonts/AvoltaDisplay-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;

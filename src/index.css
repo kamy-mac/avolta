@@ -13,6 +13,14 @@
     --night: #373737;
   }
 
+  body {
+    font-family: 'Saans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  }
+  
+  h1, h2, h3 {
+    font-family: 'Avolta Display', Georgia, serif;
+  }
+
   /* Typography Hierarchy */
   h1, .h1 {
     @apply text-h1 font-semibold text-night font-display;
