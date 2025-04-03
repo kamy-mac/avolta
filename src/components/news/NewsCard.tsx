@@ -13,6 +13,7 @@ export default function NewsCard({ post }: NewsCardProps) {
   const [isLiked, setIsLiked] = useState(false);
 
   const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Empêcher la navigation
     e.stopPropagation();
     try {
       if (!isLiked) {
@@ -31,7 +32,8 @@ export default function NewsCard({ post }: NewsCardProps) {
   };
 
   const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.preventDefault(); // Empêcher la navigation
+    e.stopPropagation(); // Empêcher la propagation de l'événement
     const shareUrl = `${window.location.origin}/news/${post.id}`;
     
     navigator.clipboard.writeText(shareUrl)

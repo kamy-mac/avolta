@@ -101,21 +101,24 @@ class PublicationService {
   }
 }
 
-  /**
-   * Get publication by ID (public for published publications)
-   * @param id Publication ID
-   * @returns Publication details
-   */
-  public async getPublicationById(id: string): Promise<Post> {
-    try {
-      const response = await api.getPublicationById(id);
-      return response.data.data;
-    } catch (error) {
-      console.error(`Error fetching publication with ID ${id}:`, error);
-      throw error;
-    }
+/**
+ * Get publication by ID (public for published publications)
+ * @param id Publication ID
+ * @returns Publication details with response structure
+ */
+public async getPublicationById(id: string): Promise<any> {
+  try {
+    console.log(`Fetching publication with ID ${id}`);
+    const response = await api.getPublicationById(id);
+    
+    // Retourner la réponse complète pour permettre au composant de décider
+    // comment extraire les données
+    return response;
+  } catch (error) {
+    console.error(`Error fetching publication with ID ${id}:`, error);
+    throw error;
   }
-
+}
   /**
    * Create a new publication (requires authentication)
    * @param publicationData Publication data

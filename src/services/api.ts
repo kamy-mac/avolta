@@ -122,15 +122,19 @@ class ApiService {
     }
   }
 
-  public async getPublicationById(id: string): Promise<AxiosResponse> {
-    try {
-      // Utilisez l'endpoint public pour récupérer les détails de la publication
-    return await this.api.get(`/publications/public/${id}`);
+  // Cette fonction utilise la bonne route pour récupérer les détails d'une publication
+public async getPublicationById(id: string): Promise<AxiosResponse> {
+  try {
+    console.log(`API Request: GET /publications/${id}`);
+    // Ajouter des logs supplémentaires pour le débogage
+    const response = await this.api.get(`/publications/${id}`);
+    console.log("API getPublicationById raw response:", response);
+    return response;
   } catch (error) {
     console.error(`Get publication ${id} request failed:`, error);
     throw error;
   }
-  }
+}
 
   public async createPublication(data: any): Promise<AxiosResponse> {
     try {

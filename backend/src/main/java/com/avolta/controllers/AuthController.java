@@ -56,6 +56,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtTokenProvider.generateToken(authentication);
 
+        @SuppressWarnings("unused")
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         UserDto userDto = userService.getUserByEmail(loginRequest.getEmail());
 

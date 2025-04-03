@@ -48,6 +48,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/api/publications/public/**").permitAll()
             .requestMatchers("/api/newsletter/subscribe").permitAll()
             .requestMatchers("/api/newsletter/unsubscribe").permitAll() // Ajouté pour cohérence
+            .requestMatchers("/api/publications/{id}").permitAll() // Permettre l'accès public aux détails des publications
+                
             
             // Swagger UI
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

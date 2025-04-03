@@ -57,12 +57,28 @@ public class PublicationController {
         return ResponseEntity.ok(ApiResponse.success(publications));
     }
 
-    @Operation(summary = "Get publication by ID", description = "Public endpoint for published publications")
-    @GetMapping("/public/{id}")
+    // @Operation(summary = "Get publication by ID", description = "Public endpoint for published publications")
+    // @GetMapping("/public/{id}")
+    // public ResponseEntity<ApiResponse<PublicationDto>> getPublicationById(@PathVariable String id) {
+    //     PublicationDto publication = publicationService.getPublicationById(id);
+    //     return ResponseEntity.ok(ApiResponse.success(publication));
+    // }
+
+    @Operation(summary = "Get publication by ID", description = "Public endpoint for all publications")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PublicationDto>> getPublicationById(@PathVariable String id) {
         PublicationDto publication = publicationService.getPublicationById(id);
         return ResponseEntity.ok(ApiResponse.success(publication));
     }
+
+    @Operation(summary = "Get publication by ID", description = "Public endpoint for published publications (legacy endpoint)")
+    @GetMapping("/public/{id}")
+    public ResponseEntity<ApiResponse<PublicationDto>> getPublicPublicationById(@PathVariable String id) {
+        PublicationDto publication = publicationService.getPublicationById(id);
+        return ResponseEntity.ok(ApiResponse.success(publication));
+    }
+
+
 
     @Operation(summary = "Create a new publication", description = "Requires authentication")
     @PostMapping

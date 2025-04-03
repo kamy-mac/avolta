@@ -1,4 +1,6 @@
 export interface Post {
+  data: any;
+  data: Post;
   slug: any;
   description: any;
   publishedAt: string | number | Date;

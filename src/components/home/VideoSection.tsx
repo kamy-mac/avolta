@@ -42,7 +42,7 @@ export default function VideoSection() {
   // États pour la vidéo
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [, setIsFullscreen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   
@@ -296,6 +296,7 @@ export default function VideoSection() {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" aria-hidden="true"></div>
       <div className="absolute top-1/3 right-1/4 w-8 h-8 bg-primary/30 rounded-full blur-sm" aria-hidden="true"></div>
       <div className="absolute bottom-1/4 left-1/3 w-6 h-6 bg-primary/20 rounded-full blur-sm" aria-hidden="true"></div>
+      
       <div className="absolute top-80 right-20 w-36 h-32 bg-primary/10 rounded-full blur-xl" aria-hidden="true" />
       <div className="absolute bottom-40 left-20 w-48 h-48 bg-primary/10 rounded-full blur-xl" aria-hidden="true" />
   
@@ -422,6 +423,7 @@ export default function VideoSection() {
           <div className="text-center mt-4 text-night/40 text-sm">
             © 2023 Avolta World - Tous droits réservés
           </div>
+          
         </div>
         
       </div>
@@ -435,6 +437,7 @@ export default function VideoSection() {
         {/* Éléments décoratifs pour la section réservation */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" aria-hidden="true"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" aria-hidden="true"></div>
+        
         <div className="absolute top-1/3 left-1/4 w-12 h-12 bg-white/10 rounded-full blur-md" aria-hidden="true"></div>
         <div className="absolute bottom-1/3 right-1/4 w-16 h-16 bg-white/10 rounded-full blur-md" aria-hidden="true"></div>
 

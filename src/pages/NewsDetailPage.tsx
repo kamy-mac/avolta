@@ -81,15 +81,36 @@ export default function NewsDetailPage() {
       if (!id) return;
       
       try {
-        const posts = await publicationService.getAllPublications();
-        const foundPost = posts.find((p) => p.id === id);
-        if (foundPost) {
-          setPost(foundPost);
+        setIsLoading(true);
+        // Appeler directement getPublicationById pour récupérer une publication spécifique
+        const response = await publicationService.getPublicationById(id);
+        console.log("API response:", response);
+        
+        // Si response existe et a une propriété data
+        if (response && response.data) {
+          // La réponse de l'API est l'objet de publication directement
+          // Vérifier si response.data a un champ id (c'est une publication)
+          if (response.data.id) {
+            console.log("Publication trouvée:", response.data);
+            setPost(response.data);
+          } 
+          // Si response.data a un champ data (format ApiResponse)
+          else if (response.data.data && response.data.data.id) {
+            console.log("Publication trouvée (format ApiResponse):", response.data.data);
+            setPost(response.data.data);
+          }
+          // Format non reconnu
+          else {
+            console.error("Format de réponse inattendu:", response.data);
+            navigate("/news");
+          }
         } else {
+          console.error("Réponse vide ou non valide:", response);
           navigate("/news");
         }
       } catch (error) {
         console.error("Error fetching post:", error);
+        navigate("/news");
       } finally {
         setIsLoading(false);
       }

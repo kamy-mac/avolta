@@ -2,7 +2,6 @@ package com.avolta.config;
 
 import com.avolta.models.User;
 import com.avolta.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ public class DataInitializer implements CommandLineRunner {
      * @param userRepository
      * @param passwordEncoder
      */
-    @Autowired
+   
     public DataInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

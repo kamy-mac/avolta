@@ -5,6 +5,7 @@ import GallerySection from '../components/home/GallerySection';
 import TeamGrid from '../components/home/TeamGrid';
 import NewsletterSection from '../components/newsletter/NewsletterSection';
 import BacAirportSection from '../components/home/BacAirportSection';
+import BrandCarousel from '../components/home/BrandCarousel';
 
 
 export default function HomePage() {
@@ -14,6 +15,7 @@ export default function HomePage() {
       <div className="relative">
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-night to-transparent" />
         <NewsSection />
+        <BrandCarousel />
         <BacAirportSection />
         <VideoSection />
         <TeamGrid />

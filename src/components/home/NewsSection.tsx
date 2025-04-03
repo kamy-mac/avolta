@@ -269,9 +269,10 @@ export default function NewsSection() {
   return (
     <section id="news-section" className="py-10 bg-gradient-to-br from-sand to-sand/80 relative overflow-hidden">
       {/* Éléments décoratifs améliorés */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse-slow" />
+      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full -translate-x-1/3 -translate-y-1/3 animate-pulse-slow" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full translate-x-1/2 translate-y-1/2" />
       <div className="absolute bottom-40 left-20 w-48 h-48 bg-primary/10 rounded-full blur-xl" />
+      <div className="absolute top-60 right-10 w-48 h-48 bg-primary/10 rounded-full blur-xl" />
       <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-primary/15 rounded-full blur-lg" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
