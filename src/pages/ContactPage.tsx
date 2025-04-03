@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, Mail, Phone, MapPin } from 'lucide-react';
+import { Send, Mail, Phone, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 import TeamGrid from '../components/home/TeamGrid';
 
 export default function ContactContainer() {
@@ -21,22 +21,36 @@ export default function ContactContainer() {
     }));
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // Simulation d'envoi de formulaire - à remplacer par votre appel API réel
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Préparer les données pour Formspree
+      const formData = new FormData(e.target as HTMLFormElement);
       
-      // Succès simulé
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
+      // Envoyer le formulaire via Formspree
+      const response = await fetch('https://formspree.io/f/xvojrwzl', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
       });
+      
+      if (response.ok) {
+        // Succès
+        setSubmitStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        // Erreur
+        setSubmitStatus('error');
+      }
     } catch (error) {
       setSubmitStatus('error');
     } finally {
@@ -66,7 +80,7 @@ export default function ContactContainer() {
               </div>
               <div>
                 <h3 className="font-medium">Email</h3>
-                <p className="text-white mt-1">contact@example.com</p>
+                <p className="text-white mt-1">reception-airport@autogrill.net</p>
               </div>
             </div>
             
@@ -76,7 +90,7 @@ export default function ContactContainer() {
               </div>
               <div>
                 <h3 className="font-medium">Téléphone</h3>
-                <p className="text-white mt-1">+33 1 23 45 67 89</p>
+                <p className="text-white mt-1">+32 499 393 695</p>
               </div>
             </div>
             
@@ -86,7 +100,7 @@ export default function ContactContainer() {
               </div>
               <div>
                 <h3 className="font-medium">Adresse</h3>
-                <p className="text-white mt-1">123 Rue de l'Exemple, 75000 Paris, France</p>
+                <p className="text-white mt-1"> Autogrill Belgie,<br/> Luchthaven Brussel Nationaal 1M, Compass Building 1930 Zaventem</p>
               </div>
             </div>
           </div>
@@ -119,23 +133,30 @@ export default function ContactContainer() {
           
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6 flex items-center">
-              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Votre message a été envoyé avec succès.
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Votre message a été envoyé avec succès à kamyteukam@yahoo.com
             </div>
           )}
           
           {submitStatus === 'error' && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6 flex items-center">
-              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              Une erreur s'est produite. Veuillez réessayer.
+              <AlertCircle className="h-5 w-5 mr-2" />
+              Une erreur s'est produite. Veuillez réessayer ou nous contacter directement par email ou par télephone .
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Formulaire Formspree */}
+          <form 
+            action="https://formspree.io/f/xvojrwzl" 
+            method="POST"
+            onSubmit={handleSubmit} 
+            className="space-y-6"
+          >
+            {/* Champs cachés pour Formspree */}
+            <input type="hidden" name="_subject" value="Nouveau message du site Avolta" />
+            <input type="hidden" name="_replyto" value={formData.email} />
+            <input type="hidden" name="_cc" value="reception-airport@autogrill.net" />
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -250,8 +271,8 @@ export default function ContactContainer() {
                   enrichissante que la destination.
                 </p>
               </div>
-              <a
-                href="https://www.avoltaworld.com/en/meet-avolta"
+              
+               <a href="https://www.avoltaworld.com/en/meet-avolta"
                 className="inline-flex items-center px-6 py-2 border border-primary rounded-full text-sm font-medium text-white bg-[#8F53F0] hover:bg-black hover:bg-opacity-75 transition-colors duration-200"
               >
                 Découvrez notre histoire

@@ -187,9 +187,9 @@ export default function VideoSection() {
           ...formData,
           message: ''
         });
-      }, 3000);
+      }, 8000);
     } catch (error) {
-      console.error('Erreur de réservation:', error);
+      console.error('Erreur de réservation: veillez contacté directement notre FINE DINING pour faire votre réservation', error);
       setFormStatus('error');
     }
   };
@@ -205,8 +205,8 @@ export default function VideoSection() {
 
   // Coordonnées de contact d'Avolta
   const contactInfo = {
-    email: "reservations@avolta.be",
-    phone: "+32 2 753 XX XX",
+    email: "reception-airport@autogrill.net",
+    phone: "+32 499706836",
     address: "Brussels Airport, Zaventem, Belgium"
   };
 

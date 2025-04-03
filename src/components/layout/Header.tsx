@@ -290,7 +290,7 @@ export default function Header() {
     { path: '/news', icon: Calendar, label: t('header.news') },
     { path: '/bac-airport', icon: Building2, label: 'BAC Airport' },
     { path: '/contact', icon: Home, label: t('header.contact') },
-    { path: '/jobs', icon: Handshake, label: 'Job' },
+    // { path: '/jobs', icon: Handshake, label: 'Job' }, // Uncomment if needed
   ];
 
   return (

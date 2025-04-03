@@ -103,6 +103,31 @@
   }
 }
 
+/* Custom Tailwind classes */ 
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px; /* Épaisseur de la scrollbar horizontale */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Couleur de fond */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #8F53F0; /* Couleur primaire/violette */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6A0DAD; /* Couleur au survol */
+}
+
+/* Pour Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #8F53F0 #f1f1f1;
+}
+
 @layer components {
   .btn-primary {
     @apply bg-primary text-day px-6 py-3 rounded-full font-medium hover:bg-primary-dark transition-colors;
