@@ -155,7 +155,7 @@ export default function AdminHeader() {
               className="inline-flex items-center px-3 py-2 border border-transparent text-gray-600 hover:text-[#6A0DAD] text-sm font-medium rounded-md transition-colors duration-200 hover:bg-gray-50"
             >
               <Home className="h-5 w-5 mr-1.5" />
-              Accueil
+              Home
             </Link>
 
             <Link

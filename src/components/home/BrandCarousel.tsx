@@ -2,73 +2,54 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Liste des marques/logos
-const brands = [
-  {
-    name: "Java Coffee",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/javakeyline_cmyk.jpg?itok=M7Og7wfX",
-    alt: "Java Coffee Brussels Airport",
-  },
-  {
-    name: "Starbucks",
-    logo: "https://s.yimg.com/fz/api/res/1.2/vSzBUgjEuxzcf57I4S_rAA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpdDtoPTEyMDtxPTgwO3c9MTE5/https://s.yimg.com/zb/imgv1/54ed3502-992d-3841-a701-b66bc76f9ae7/t_500x300",
-    alt: "Starbucks at Brussels Airport",
-  },
-  {
-    name: "Autogrill",
-    logo: "https://www.autogrill.com/themes/autogrill_theme/images/logo_2.jpg",
-    alt: "Autogrill Brussels Airport",
-  },
-  {
-    name: "Pain Quotidien",
-    logo: "https://tse1.mm.bing.net/th?id=OIP.JN3vgBaj5NfzJ-hG1SK-WAHaHa&pid=Api&P=0&h=180",
-    alt: "Pain Quotidien Italian Food",
-  },
-  {
-    name: "Quick",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/quick.jpg?itok=h7CPaqE5",
-    alt: "Quick Brussels Airport",
-  },
-  {
-    name: "Belle&Belle",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/belle_and_belge.jpg?itok=312hCtxw1-a701-b66bc76f9ae7/t_500x300",
-    alt: "Belle&Belle at Brussels Airport",
-  },
-  {
-    name: "Amo",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/brands/4ee1e82b-5f40-4f37-b16a-3298b03ea08a.jpg?itok=G30qhkZ2",
-    alt: " Amo Brussels Airport",
-  },
-  {
-    name: "Hi Brussels",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/brands/568e3f80-fd78-4216-8544-3103b03ea08a.jpg?itok=dLGwfe31",
-    alt: "HI Brussels Italian Food",
-  },
-  {
-    name: "Burger King",
-    logo: "https://tse4.mm.bing.net/th?id=OIP.sALR_WfsFv1WwmggILsLeQHaHe&pid=Api&P=0&h=180",
-    alt: "Burger King at Brussels Airport",
-  },
-  {
-    name: "Panos",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/panos.jpg?itok=Ffh--epW",
-    alt: "Panos at Brussels Airport",
-  },
-  {
-    name: "Exkki",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/brands/56dfd764-39c0-4a72-9cd4-31dab03ea08a.jpg?itok=j-scmREd",
-    alt: "Exkki at Brussels Airport",
-  },
-  {
-    name: "Belgorama",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/brands/54cb8e21-9084-472f-ad1d-6915b03ea08a.jpg?itok=6guP3Y2Q",
-    alt: "Belgorama at Brussels Airport",
-  },
-  {
-    name: "Grab and Fly",
-    logo: "http://jobs.autogrill.be/sites/jobs.autogrill.be/files/styles/logo_thumbnail/public/grabandfly.jpg?itok=DUqXI-GC",
-    alt: "Grab and Fly at Brussels Airport",
-  },
-];
+
+  const brands = [
+    {
+      name: "Java Coffee",
+      logo: "/images/logo_Java.jpg",
+      alt: "Java Coffee Brussels Airport",
+    },
+    {
+      name: "Starbucks",
+      logo: "/images/logo_Starbucks.jpeg",
+      alt: "Starbucks at Brussels Airport",
+    },
+    {
+      name: "Quick",
+      logo: "/images/logo_Quick.jpeg",
+      alt: "Quick Brussels Airport",
+    },
+    {
+      name: "Belle&Belge",
+      logo: "/images/Logo_belle_and_belge.jpg",
+      alt: "Belle&Belge at Brussels Airport",
+    },
+    {
+      name: "HI Brussels",
+      logo: "/images/Logo_HI_Brussels.jpg",
+      alt: "HI Brussels Italian Food",
+    },
+    {
+      name: "Burger King",
+      logo: "/images/Logo_burger_king.jpeg",
+      alt: "Burger King at Brussels Airport",
+    },
+    {
+      name: "Panos",
+      logo: "/images/logo_Panos.jpeg",
+      alt: "Panos at Brussels Airport",
+    },
+    {
+      name: "Exki",
+      logo: "/images/Logo_Exki.jpeg",
+      alt: "Exkki at Brussels Airport",
+    },
+    {
+      name: "Grab and Fly",
+      logo: "/images/Logo_grabandfly.jpg",
+      alt: "Grab and Fly at Brussels Airport",
+    },
+  ];
 
 const BrandCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

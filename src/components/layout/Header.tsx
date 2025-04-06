@@ -1,21 +1,3 @@
-/**
- * Enhanced Header Component
- * 
- * This component displays the main navigation header of the application with improved UX,
- * animations, performance optimizations, and additional features.
- * 
- * Features:
- * - Responsive design with mobile optimization
- * - Smooth animations and transitions
- * - Context-aware navigation highlighting
- * - Optimized rendering with memoization
- * - Improved accessibility
- * - Enhanced user menu with role-based options
- * - Dynamic search functionality
- * - Internationalization support
- * 
- * @module components/layout/Header
- */
 
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { 
@@ -32,6 +14,11 @@ import {
   ExternalLink,
   Mail,
   Building2,
+  
+  MessageSquare,
+
+  HandPlatter,
+  Megaphone,
   Handshake
 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -45,14 +32,45 @@ const NavLink = memo(({
   icon: Icon, 
   label, 
   isActive, 
-  isMobile = false 
+  isMobile = false,
+  isHashLink = false,
+  onClick
 }: { 
   to: string; 
   icon: React.ElementType; 
   label: string; 
   isActive: boolean;
   isMobile?: boolean;
+  isHashLink?: boolean;
+  onClick?: () => void;
 }) => {
+  // For hash links (section navigation), we use regular anchors with smooth scroll behavior
+  if (isHashLink) {
+    return isMobile ? (
+      <a 
+        href={to} 
+        className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200
+          text-gray-700 hover:bg-[#6A0DAD]/5 hover:text-[#6A0DAD]`}
+        onClick={onClick}
+      >
+        <div className="bg-[#6A0DAD]/10 rounded-full p-2 mr-4">
+          <Icon className="w-5 h-5 text-[#6A0DAD]" />
+        </div>
+        <span className="font-medium">{label}</span>
+      </a>
+    ) : (
+      <a 
+        href={to} 
+        className="flex items-center font-medium relative group py-2 text-gray-700 hover:text-[#6A0DAD]"
+        onClick={onClick}
+      >
+        <Icon className="w-5 h-5 mr-2 transition-transform duration-300 group-hover:scale-110 text-[#6A0DAD] opacity-80" />
+        <span>{label}</span>
+        <span className="absolute bottom-0 left-0 h-0.5 bg-[#6A0DAD] transition-all duration-300 w-0 group-hover:w-full"></span>
+      </a>
+    );
+  }
+
   if (isMobile) {
     return (
       <Link 
@@ -284,13 +302,50 @@ export default function Header() {
   }, [searchOpen, userMenuOpen]);
 
   /**
+   * Handle smooth scroll to section
+   */
+  const handleSectionClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    
+    // Check if we're on the home page
+    if (location.pathname !== '/') {
+      // If not, navigate to home page with hash
+      navigate(`/#${sectionId}`);
+      return;
+    }
+    
+    // If we're already on the home page, scroll to the section
+    const section = document.getElementById(sectionId);
+    if (section) {
+      window.scrollTo({
+        top: section.offsetTop - 200, // Adjust offset for header height
+        behavior: 'smooth'
+      });
+    }
+    
+    // Close mobile menu if open
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  /**
    * Main navigation links for desktop and mobile
    */
   const navigationLinks = [
+    { path: '/', icon: Home, label: 'Home' },
     { path: '/news', icon: Calendar, label: t('header.news') },
-    { path: '/bac-airport', icon: Building2, label: 'BAC Airport' },
-    { path: '/contact', icon: Home, label: t('header.contact') },
-    // { path: '/jobs', icon: Handshake, label: 'Job' }, // Uncomment if needed
+    // { path: '/bac-airport', icon: Building2, label: 'BAC Airport' },
+    { path: '/contact', icon: Mail, label: t('header.contact') },
+  ];
+
+  /**
+   * Section navigation links for the homepage
+   */
+  const sectionLinks = [
+    { path: '/#video-section', icon: Handshake, label: 'Partenaires', sectionId: 'video-section' },
+    { path: '/#newsletter-section', icon: HandPlatter, label: 'Reservation', sectionId: 'newsletter-section' },
+    { path: '/#gallery-section', icon: Megaphone, label: 'Strategies', sectionId: 'gallery-section' },
   ];
 
   return (
@@ -318,7 +373,8 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8" aria-label="Navigation principale">
+          <nav className="hidden md:flex items-center space-x-6" aria-label="Navigation principale">
+            {/* Primary navigation links */}
             {navigationLinks.map((link) => (
               <NavLink
                 key={link.path}
@@ -328,6 +384,23 @@ export default function Header() {
                 isActive={isActive(link.path)}
               />
             ))}
+            
+            {/* Section navigation links - only visible when on home page */}
+            {location.pathname === '/' && (
+              <div className="flex items-center space-x-6 ml-4 pl-4 border-l border-gray-200">
+                {sectionLinks.map((link) => (
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
+                    icon={link.icon}
+                    label={link.label}
+                    isActive={false}
+                    isHashLink={true}
+                    onClick={() => handleSectionClick(event as unknown as React.MouseEvent<HTMLAnchorElement>, link.sectionId)}
+                  />
+                ))}
+              </div>
+            )}
           </nav>
 
           {/* Actions with hover effects */}
@@ -575,6 +648,27 @@ export default function Header() {
               />
             ))}
             
+            {/* Section navigation links for mobile */}
+            <div className="my-2 pt-2 border-t border-gray-100">
+              <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Sections de la page d'accueil
+              </div>
+              
+              {sectionLinks.map((link) => (
+                <a
+                  key={link.path}
+                  href={link.path}
+                  className="flex items-center px-4 py-3 rounded-lg transition-all duration-200 text-gray-700 hover:bg-[#6A0DAD]/5 hover:text-[#6A0DAD]"
+                  onClick={(e) => handleSectionClick(e, link.sectionId)}
+                >
+                  <div className="rounded-full p-2 mr-4 bg-[#6A0DAD]/10">
+                    <link.icon className="w-5 h-5 text-[#6A0DAD]" />
+                  </div>
+                  <span className="font-medium">{link.label}</span>
+                </a>
+              ))}
+            </div>
+            
             {/* Admin links for authenticated users */}
             {isAuthenticated && (
               <>
@@ -662,8 +756,8 @@ export default function Header() {
                     to="/admin/newsletter" 
                     className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
                       isActive('/admin/newsletter') 
-                        ? 'bg-[#6A0DAD]/10 text-[#6A0DAD]' 
-                        : 'text-gray-700 hover:bg-[#6A0DAD]/5 hover:text-[#6A0DAD]'
+                            ? 'bg-[#6A0DAD]/10 text-[#6A0DAD]' 
+                            : 'text-gray-700 hover:bg-[#6A0DAD]/5 hover:text-[#6A0DAD]'
                     }`}
                   >
                     <div className={`rounded-full p-2 mr-4 ${
@@ -724,4 +818,4 @@ export default function Header() {
       </div>
     </header>
   );
-}
+};
