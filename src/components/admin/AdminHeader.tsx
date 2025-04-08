@@ -122,10 +122,11 @@ export default function AdminHeader() {
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold text-[#6A0DAD] text-lg leading-none">
-                    Admin
-                  </span>
-                  <span className="text-xs text-gray-500 leading-none">
-                    Panel
+                    <h1 className="text-2xl font-bold text-gray-800">
+                      {user?.username ||
+                        user?.email?.split("@")[0] ||
+                        "Administrateur"}
+                    </h1>
                   </span>
                 </div>
               </Link>
@@ -155,7 +156,6 @@ export default function AdminHeader() {
               className="inline-flex items-center px-3 py-2 border border-transparent text-gray-600 hover:text-[#6A0DAD] text-sm font-medium rounded-md transition-colors duration-200 hover:bg-gray-50"
             >
               <Home className="h-5 w-5 mr-1.5" />
-              Home
             </Link>
 
             <Link
@@ -178,7 +178,7 @@ export default function AdminHeader() {
                   : "border-transparent text-gray-600 hover:text-[#6A0DAD] hover:bg-gray-50"
               } text-sm font-medium rounded-md transition-colors duration-200`}
             >
-              <Plus className="h-5 w-5 mr-1.5" />
+              <Plus className=" h-5 w-5 mr-1.5" />
               Nouvelle publication
             </Link>
 

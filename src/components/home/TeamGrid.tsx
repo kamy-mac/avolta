@@ -17,6 +17,11 @@ import stevenImage from "/public/images/Steven.jpg";
 import wendyImage from "/public/images/Wendy.jpg";
 import pepijnImage from "/public/images/Pepijn.jpg";
 import magalieImage from "/public/images/Magalie.jpg";
+import robImage from "/public/images/Rob.jpg";
+import eddyImage from "/public/images/Eddy.jpg";
+import marleeImage from "/public/images/Marlee.jpg";
+import peggyImage from "/public/images/Peggy.jpg";
+
 
 // Types
 interface TeamMember {
@@ -75,6 +80,8 @@ const teamMembers: TeamMember[] = [
     bio: "Steven supervise toutes les initiatives marketing et développe des stratégies innovantes pour accroître la visibilité des marques Avolta et optimiser l'expérience client dans nos points de vente.",
     expertise: ["Marketing stratégique", "Expérience client", "Retail"],
   },
+
+  
   {
     id: "3",
     name: "Wendy SWINNEN",
@@ -117,6 +124,58 @@ const teamMembers: TeamMember[] = [
       "Relations presse",
       "Gestion de crise",
     ],
+  },
+  {
+    id: "6",
+    name: "Rob KRUGER",
+    position: "Financial Director",
+    department: "direction", // Ajouté pour le filtrage
+    email: "rob@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
+    imageUrl: robImage, // Remplacez par l'image appropriée
+    linkedinUrl: "#",
+    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
+  },
+  {
+    id: "7",
+    name: "Eddy GRYMONPREZ",
+    position: "Head of operations",
+    department: "direction", // Ajouté pour le filtrage
+    email: "ddy@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
+    imageUrl: eddyImage, // Remplacez par l'image appropriée
+    linkedinUrl: "#",
+    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
+  },
+  {
+    id: "8",
+    name: "Marlee JACOBS",
+    position: "HR & Quality Director",
+    department: "direction", // Ajouté pour le filtrage
+    email: "marleen@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
+    imageUrl: marleeImage, // Remplacez par l'image appropriée
+    linkedinUrl: "#",
+    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
+  },
+  {
+    id: "9",
+    name: "Peggy LIEVENS",
+    position: "Procurement & Data Mgt Director",
+    department: "direction", // Ajouté pour le filtrage
+    email: "peggyb@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
+    imageUrl: peggyImage, // Remplacez par l'image appropriée
+    linkedinUrl: "#",
+    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
   },
 ];
 
