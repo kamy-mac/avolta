@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ public class PublicationDto {
     private String title;
     private String content;
     private String imageUrl;
+    private List<PublicationImageDto> images = new ArrayList<>();
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
     private LocalDateTime createdAt;
@@ -47,6 +49,12 @@ public class PublicationDto {
         if (publication.getComments() != null) {
             dto.setComments(publication.getComments().stream()
                     .map(CommentDto::fromEntity)
+                    .collect(Collectors.toList()));
+        }
+        
+        if (publication.getImages() != null) {
+            dto.setImages(publication.getImages().stream()
+                    .map(PublicationImageDto::fromEntity)
                     .collect(Collectors.toList()));
         }
         

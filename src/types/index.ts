@@ -1,5 +1,5 @@
 export interface Post {
-  data: any;
+ 
   data: Post;
   slug: any;
   description: any;
@@ -12,6 +12,7 @@ export interface Post {
   title: string;
   content: string;
   imageUrl: string;
+  images: PublicationImage[];
   validFrom: Date;
   validTo: Date;
   createdAt: Date;
@@ -22,6 +23,13 @@ export interface Post {
   authorId: string;
   authorName: string;
   authorEmail: string;
+}
+
+export interface PublicationImage {
+  id?: string;
+  imageUrl: string;
+  displayOrder: number;
+  caption?: string;
 }
 
 export interface Comment {
@@ -53,6 +61,7 @@ export interface CreatePublicationRequest {
   title: string;
   content: string;
   imageUrl: string;
+  images?: PublicationImage[];
   validFrom: string;
   validTo: string;
   category: string;

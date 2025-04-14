@@ -7,6 +7,8 @@ C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\Newslett
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\UserDto.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\repositories\NewsletterSubscriberRepository.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\exceptions\GlobalExceptionHandler.java
+C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\models\PublicationImage.java
+C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\repositories\PublicationImageRepository.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\services\NewsletterService.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\controllers\FileUploadController.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\security\JwtAuthorizationFilter.java
@@ -15,6 +17,7 @@ C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\repositories
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\config\FileStorageInitializer.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\config\OpenApiConfig.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\requests\LoginRequest.java
+C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\requests\PublicationImageRequest.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\Application.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\config\CorsConfig.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\controllers\UserController.java
@@ -36,6 +39,7 @@ C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\models\User.
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\models\NewsletterSubscriber.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\config\DataInitializer.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\PublicationDto.java
+C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\PublicationImageDto.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\requests\CreatePublicationRequest.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\requests\NewsletterSubscriptionRequest.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\requests\UpdatePublicationRequest.java

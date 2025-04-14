@@ -64,23 +64,65 @@ public class FileUploadController {
     }
     }
 
-    /*@GetMapping("/uploads/{filename}")
-    public ResponseEntity<?> getFile(@PathVariable String filename) {
+    @PostMapping("/drive")
+    public ResponseEntity<?> uploadFromDrive(@RequestBody Map<String, String> request) {
         try {
-            Path filePath = Paths.get(uploadDir, filename);
-            if (!Files.exists(filePath)) {
-                return ResponseEntity.notFound().build();
+            // Vérifier que le paramètre driveUrl est présent
+            if (!request.containsKey("driveUrl")) {
+                return ResponseEntity.badRequest().body("Le paramètre driveUrl est requis");
             }
             
-            byte[] fileContent = Files.readAllBytes(filePath);
-            String contentType = Files.probeContentType(filePath);
+            String driveUrl = request.get("driveUrl");
             
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .body(fileContent);
-        } catch (IOException e) {
+            // Valider l'URL Google Drive
+            if (!driveUrl.contains("drive.google.com")) {
+                return ResponseEntity.badRequest().body("L'URL doit être une URL Google Drive valide");
+            }
+            
+            // Extraire l'ID du fichier à partir de l'URL
+            String fileId = extractGoogleDriveFileId(driveUrl);
+            
+            if (fileId == null) {
+                return ResponseEntity.badRequest().body("Impossible d'extraire l'ID du fichier à partir de l'URL");
+            }
+            
+            // Générer l'URL d'accès direct à l'image
+            String directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("fileUrl", directUrl);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur lors de la lecture du fichier: " + e.getMessage());
+                    .body("Erreur lors du traitement de l'URL du Drive: " + e.getMessage());
         }
-    }*/
+    }
+    
+    private String extractGoogleDriveFileId(String url) {
+        String fileId = null;
+        
+        // Format standard de partage
+        if (url.contains("/d/")) {
+            int startIndex = url.indexOf("/d/") + 3;
+            int endIndex = url.indexOf("/", startIndex);
+            if (endIndex == -1) {
+                endIndex = url.length();
+            }
+            fileId = url.substring(startIndex, endIndex);
+        } 
+        // Format pour les liens ouverts
+        else if (url.contains("id=")) {
+            int startIndex = url.indexOf("id=") + 3;
+            int endIndex = url.indexOf("&", startIndex);
+            if (endIndex == -1) {
+                endIndex = url.length();
+            }
+            fileId = url.substring(startIndex, endIndex);
+        }
+        
+        return fileId;
+    }
+
+
 }

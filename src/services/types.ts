@@ -31,6 +31,7 @@ export interface PublicationRequest {
   title: string;
   content: string;
   imageUrl?: string;
+  
   validFrom: Date;
   validTo: Date;
   category: string;

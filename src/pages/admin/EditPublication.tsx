@@ -9,11 +9,13 @@ import {
   Italic,
   Underline,
   ArrowLeft,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import publicationService from "../../services/publication.service";
 import { useTranslation } from "react-i18next";
 import { Post } from "../../types";
+import ImageManager from "../../components/admin/ImageManager";
+import { PublicationImage } from "../../types";
 
 export default function EditPublication() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +27,7 @@ export default function EditPublication() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [publicationImages, setPublicationImages] = useState<PublicationImage[]>([]);
 
   // Charger la publication à partir de l'ID
   useEffect(() => {
@@ -37,39 +40,56 @@ export default function EditPublication() {
       setIsLoading(true);
       setError(null);
 
+      
+
       try {
         const pub = await publicationService.getPublicationById(id);
-        
+
         // Assurez-vous que les dates sont des objets Date
         const formattedPub = {
           ...pub,
-          validFrom: pub.validFrom instanceof Date ? pub.validFrom : new Date(pub.validFrom),
-          validTo: pub.validTo instanceof Date ? pub.validTo : new Date(pub.validTo)
+          validFrom:
+            pub.validFrom instanceof Date
+              ? pub.validFrom
+              : new Date(pub.validFrom),
+          validTo:
+            pub.validTo instanceof Date ? pub.validTo : new Date(pub.validTo),
         };
-        
+
         setPublication(formattedPub);
-        
+
         // Définir l'aperçu de l'image si disponible
         if (formattedPub.imageUrl) {
           setImagePreview(formattedPub.imageUrl);
         }
       } catch (error: any) {
         console.error("Error loading publication:", error);
-        
+
         // Gestion améliorée des erreurs
         if (error.response) {
           const status = error.response.status;
           if (status === 404) {
             setError("Publication non trouvée.");
           } else {
-            setError(error.response?.data?.message || `Erreur ${status}: Impossible de charger la publication`);
+            setError(
+              error.response?.data?.message ||
+                `Erreur ${status}: Impossible de charger la publication`
+            );
           }
         } else if (error.request) {
-          setError("Pas de réponse du serveur. Vérifiez votre connexion internet.");
+          setError(
+            "Pas de réponse du serveur. Vérifiez votre connexion internet."
+          );
         } else {
-          setError("Une erreur s'est produite lors du chargement de la publication.");
+          setError(
+            "Une erreur s'est produite lors du chargement de la publication."
+          );
         }
-        
+
+        if (publication && publication.images) {
+          setPublicationImages(publication.images);
+        }
+
         setTimeout(() => navigate("/admin/publications"), 3000);
       } finally {
         setIsLoading(false);
@@ -89,46 +109,58 @@ export default function EditPublication() {
 
     try {
       // Formatage des dates pour le backend
-      const validFromDate = publication.validFrom instanceof Date ? 
-        publication.validFrom : new Date(publication.validFrom);
-      const validToDate = publication.validTo instanceof Date ? 
-        publication.validTo : new Date(publication.validTo);
-      
+      const validFromDate =
+        publication.validFrom instanceof Date
+          ? publication.validFrom
+          : new Date(publication.validFrom);
+      const validToDate =
+        publication.validTo instanceof Date
+          ? publication.validTo
+          : new Date(publication.validTo);
+
       // Format ISO pour le backend
       const formattedValidFrom = validFromDate.toISOString();
       const formattedValidTo = validToDate.toISOString();
-      
+
       await publicationService.updatePublication(id, {
         title: publication.title,
         content: publication.content,
         imageUrl: publication.imageUrl,
+        images: publicationImages,
         validFrom: formattedValidFrom,
         validTo: formattedValidTo,
         category: publication.category,
       });
-      
+
       setSuccess("Publication mise à jour avec succès!");
-      
+
       // Rediriger après un court délai
       setTimeout(() => {
         navigate("/admin/publications");
       }, 2000);
     } catch (error: any) {
       console.error("Error updating publication:", error);
-      
+
       // Gestion améliorée des erreurs
       if (error.response) {
         const status = error.response.status;
         if (status === 401) {
           setError("Session expirée. Veuillez vous reconnecter.");
-          setTimeout(() => window.location.href = "/login", 2000);
+          setTimeout(() => (window.location.href = "/login"), 2000);
         } else if (status === 403) {
-          setError("Vous n'avez pas les permissions nécessaires pour effectuer cette action.");
+          setError(
+            "Vous n'avez pas les permissions nécessaires pour effectuer cette action."
+          );
         } else {
-          setError(error.response?.data?.message || `Erreur ${status}: Impossible de mettre à jour la publication`);
+          setError(
+            error.response?.data?.message ||
+              `Erreur ${status}: Impossible de mettre à jour la publication`
+          );
         }
       } else if (error.request) {
-        setError("Pas de réponse du serveur. Vérifiez votre connexion internet.");
+        setError(
+          "Pas de réponse du serveur. Vérifiez votre connexion internet."
+        );
       } else {
         setError("Une erreur s'est produite. Veuillez réessayer.");
       }
@@ -138,61 +170,70 @@ export default function EditPublication() {
   };
 
   const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
       const { name, value } = e.target;
-      
+
       setPublication((prev) => {
         if (!prev) return null;
-        
+
         // Si c'est l'URL de l'image, mettre à jour l'aperçu
         if (name === "imageUrl") {
           setImagePreview(value);
         }
-        
+
         return { ...prev, [name]: value };
       });
     },
     []
   );
 
-  const handleFormat = useCallback((format: string) => {
-    const textarea = document.getElementById("content") as HTMLTextAreaElement;
-    if (!textarea || !publication) return;
+  const handleFormat = useCallback(
+    (format: string) => {
+      const textarea = document.getElementById(
+        "content"
+      ) as HTMLTextAreaElement;
+      if (!textarea || !publication) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    let formattedText = "";
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      let formattedText = "";
 
-    switch (format) {
-      case "bold":
-        formattedText = `**${selectedText}**`;
-        break;
-      case "italic":
-        formattedText = `*${selectedText}*`;
-        break;
-      case "underline":
-        formattedText = `_${selectedText}_`;
-        break;
-      default:
-        return;
-    }
+      switch (format) {
+        case "bold":
+          formattedText = `**${selectedText}**`;
+          break;
+        case "italic":
+          formattedText = `*${selectedText}*`;
+          break;
+        case "underline":
+          formattedText = `_${selectedText}_`;
+          break;
+        default:
+          return;
+      }
 
-    const newContent =
-      textarea.value.substring(0, start) +
-      formattedText +
-      textarea.value.substring(end);
-    
-    setPublication((prev) => {
-      if (!prev) return null;
-      return { ...prev, content: newContent };
-    });
+      const newContent =
+        textarea.value.substring(0, start) +
+        formattedText +
+        textarea.value.substring(end);
 
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + 2, end + 2);
-    }, 0);
-  }, [publication]);
+      setPublication((prev) => {
+        if (!prev) return null;
+        return { ...prev, content: newContent };
+      });
+
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + 2, end + 2);
+      }, 0);
+    },
+    [publication]
+  );
 
   if (isLoading) {
     return (
@@ -215,7 +256,9 @@ export default function EditPublication() {
         <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
           <div className="flex items-center">
             <AlertCircle className="h-6 w-6 text-red-500 mr-2" />
-            <p className="text-red-700">Publication non trouvée ou erreur de chargement</p>
+            <p className="text-red-700">
+              Publication non trouvée ou erreur de chargement
+            </p>
           </div>
           <p className="mt-2">Redirection vers la liste des publications...</p>
         </div>
@@ -244,7 +287,7 @@ export default function EditPublication() {
           <p className="text-red-700">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4">
           <p className="text-green-700">{success}</p>
@@ -363,6 +406,16 @@ export default function EditPublication() {
               className="flex-1 block w-full rounded-none rounded-r-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
             />
           </div>
+
+          {/* Images supplémentaires */}
+          <div className="mt-8">
+            <ImageManager
+              images={publicationImages}
+              onChange={setPublicationImages}
+              maxImages={3}
+            />
+          </div>
+
           {imagePreview && (
             <div className="mt-2 relative h-40 rounded-lg overflow-hidden">
               <img
@@ -393,7 +446,9 @@ export default function EditPublication() {
                 value={
                   publication.validFrom instanceof Date
                     ? publication.validFrom.toISOString().split("T")[0]
-                    : new Date(publication.validFrom).toISOString().split("T")[0]
+                    : new Date(publication.validFrom)
+                        .toISOString()
+                        .split("T")[0]
                 }
                 onChange={handleInputChange}
                 className="flex-1 block w-full rounded-none rounded-r-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-[#6A0DAD] focus:border-[#6A0DAD]"
@@ -438,9 +493,25 @@ export default function EditPublication() {
           >
             {isSaving ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Enregistrement...
               </>

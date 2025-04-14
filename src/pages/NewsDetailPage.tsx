@@ -23,6 +23,11 @@ import {
 import { Post, Comment } from "../types";
 import publicationService from "../services/publication.service";
 import commentService from "../services/comment.service";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 // Composant mémorisé pour les commentaires individuels
 const CommentItem = memo(({ comment }: { comment: Comment }) => (
@@ -33,14 +38,12 @@ const CommentItem = memo(({ comment }: { comment: Comment }) => (
           <User className="w-5 h-5 text-white" />
         </div>
         <div>
-          <span className="font-medium text-gray-900">
-            {comment.author}
-          </span>
+          <span className="font-medium text-gray-900">{comment.author}</span>
           <div className="text-xs text-gray-500">
             {new Date(comment.createdAt).toLocaleDateString("fr-BE", {
               day: "numeric",
               month: "short",
-              year: "numeric"
+              year: "numeric",
             })}
           </div>
         </div>
@@ -66,7 +69,7 @@ const LoadingState = () => (
 export default function NewsDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
- 
+
   const [post, setPost] = useState<Post | null>(null);
   const [comment, setComment] = useState("");
   const [isLiked, setIsLiked] = useState(false);
@@ -79,13 +82,13 @@ export default function NewsDetailPage() {
   useEffect(() => {
     const fetchPost = async () => {
       if (!id) return;
-      
+
       try {
         setIsLoading(true);
         // Appeler directement getPublicationById pour récupérer une publication spécifique
         const response = await publicationService.getPublicationById(id);
         console.log("API response:", response);
-        
+
         // Si response existe et a une propriété data
         if (response && response.data) {
           // La réponse de l'API est l'objet de publication directement
@@ -93,10 +96,13 @@ export default function NewsDetailPage() {
           if (response.data.id) {
             console.log("Publication trouvée:", response.data);
             setPost(response.data);
-          } 
+          }
           // Si response.data a un champ data (format ApiResponse)
           else if (response.data.data && response.data.data.id) {
-            console.log("Publication trouvée (format ApiResponse):", response.data.data);
+            console.log(
+              "Publication trouvée (format ApiResponse):",
+              response.data.data
+            );
             setPost(response.data.data);
           }
           // Format non reconnu
@@ -115,12 +121,15 @@ export default function NewsDetailPage() {
         setIsLoading(false);
       }
     };
-    
+
     fetchPost();
 
     // Fermer les options de partage si on clique ailleurs
     const handleClickOutside = (event: MouseEvent) => {
-      if (shareOptionsRef.current && !shareOptionsRef.current.contains(event.target as Node)) {
+      if (
+        shareOptionsRef.current &&
+        !shareOptionsRef.current.contains(event.target as Node)
+      ) {
         setShowShareOptions(false);
       }
     };
@@ -210,7 +219,7 @@ export default function NewsDetailPage() {
   }
 
   // Formater les paragraphes du contenu de manière plus efficace
-  const contentParagraphs = post.content.split('\n');
+  const contentParagraphs = post.content.split("\n");
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -225,14 +234,70 @@ export default function NewsDetailPage() {
 
         <article className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Hero Image avec meilleure qualité */}
+          {/* Carrousel d'images */}
           <div className="relative h-80 sm:h-96">
-            {post.imageUrl && (
+            {post.images && post.images.length > 0 ? (
+              <Swiper
+                modules={[Navigation, Pagination]}
+                spaceBetween={0}
+                slidesPerView={1}
+                navigation
+                pagination={{ clickable: true }}
+                className="h-full w-full"
+              >
+                {/* Image principale (rétrocompatibilité) */}
+                {post.imageUrl && (
+                  <SwiperSlide>
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover object-center brightness-105 contrast-105"
+                      loading="eager"
+                    />
+                    {post.images.find((img) => img.imageUrl === post.imageUrl)
+                      ?.caption && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
+                        {
+                          post.images.find(
+                            (img) => img.imageUrl === post.imageUrl
+                          )?.caption
+                        }
+                      </div>
+                    )}
+                  </SwiperSlide>
+                )}
+
+                {/* Images supplémentaires */}
+                {post.images
+                  .filter((img) => img.imageUrl !== post.imageUrl) // Éviter les doublons
+                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                  .map((image, index) => (
+                    <SwiperSlide key={`image-${index}`}>
+                      <img
+                        src={image.imageUrl}
+                        alt={`${post.title} - Image ${index + 1}`}
+                        className="w-full h-full object-cover object-center brightness-105 contrast-105"
+                        loading={index === 0 ? "eager" : "lazy"}
+                      />
+                      {image.caption && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
+                          {image.caption}
+                        </div>
+                      )}
+                    </SwiperSlide>
+                  ))}
+              </Swiper>
+            ) : post.imageUrl ? (
               <img
                 src={post.imageUrl}
                 alt={post.title}
                 className="w-full h-full object-cover object-center brightness-105 contrast-105"
                 loading="eager"
               />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                Pas d'image
+              </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
@@ -256,7 +321,8 @@ export default function NewsDetailPage() {
                 </div>
                 <div className="flex items-center">
                   <MessageCircle className="w-4 h-4 mr-2" />
-                  {post.comments.length} commentaire{post.comments.length !== 1 ? "s" : ""}
+                  {post.comments.length} commentaire
+                  {post.comments.length !== 1 ? "s" : ""}
                 </div>
               </div>
             </div>
@@ -279,7 +345,7 @@ export default function NewsDetailPage() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Save & Share buttons - simplifiés */}
               <div className="flex items-center space-x-2">
                 <button className="p-2 rounded-full text-gray-600 hover:text-[#6A0DAD] hover:bg-purple-50 transition-all border border-gray-200">
@@ -292,31 +358,41 @@ export default function NewsDetailPage() {
                   >
                     <Share2 className="w-5 h-5" />
                   </button>
-                  
+
                   {/* Share options dropdown */}
                   {showShareOptions && (
                     <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-md bg-white ring-1 ring-black/5 z-10 py-1">
-                      <a href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`} 
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
                         <Facebook className="w-4 h-4 mr-3 text-blue-600" />
                         Facebook
                       </a>
-                      <a href={`https://twitter.com/intent/tweet?url=${window.location.href}&text=${post.title}`} 
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                      <a
+                        href={`https://twitter.com/intent/tweet?url=${window.location.href}&text=${post.title}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
                         <Twitter className="w-4 h-4 mr-3 text-blue-400" />
                         Twitter
                       </a>
-                      <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`} 
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                      <a
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
                         <Linkedin className="w-4 h-4 mr-3 text-blue-700" />
                         LinkedIn
                       </a>
-                      <button 
+                      <button
                         onClick={handleCopyLink}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left">
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                      >
                         {copied ? (
                           <>
                             <CheckCircle className="w-4 h-4 mr-3 text-green-500" />
@@ -337,9 +413,13 @@ export default function NewsDetailPage() {
 
             {/* Content */}
             <div className="prose max-w-none mb-8 text-gray-700 leading-relaxed">
-              {contentParagraphs.map((paragraph, index) => (
-                paragraph.trim() ? <p key={index} className="mb-4">{paragraph}</p> : null
-              ))}
+              {contentParagraphs.map((paragraph, index) =>
+                paragraph.trim() ? (
+                  <p key={index} className="mb-4">
+                    {paragraph}
+                  </p>
+                ) : null
+              )}
             </div>
 
             {/* Validity Dates */}
@@ -348,13 +428,18 @@ export default function NewsDetailPage() {
                 <Clock className="w-4 h-4 mr-2 text-[#6A0DAD]" />
                 <span>
                   Valide du{" "}
-                  <strong>{new Date(post.validFrom).toLocaleDateString("fr-BE")}</strong>
+                  <strong>
+                    {new Date(post.validFrom).toLocaleDateString("fr-BE")}
+                  </strong>
                 </span>
               </div>
               <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-2 text-[#6A0DAD]" />
                 <span>
-                  au <strong>{new Date(post.validTo).toLocaleDateString("fr-BE")}</strong>
+                  au{" "}
+                  <strong>
+                    {new Date(post.validTo).toLocaleDateString("fr-BE")}
+                  </strong>
                 </span>
               </div>
             </div>
@@ -372,12 +457,15 @@ export default function NewsDetailPage() {
                 <Heart
                   className={`w-5 h-5 mr-2 ${isLiked ? "fill-current" : ""}`}
                 />
-                <span>{post.likes} J'aime{post.likes !== 1 ? "s" : ""}</span>
+                <span>
+                  {post.likes} J'aime{post.likes !== 1 ? "s" : ""}
+                </span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={handleFocusComment}
-                className="flex items-center px-4 py-2 rounded-full text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50 transition-colors border border-gray-200">
+                className="flex items-center px-4 py-2 rounded-full text-gray-500 hover:text-[#6A0DAD] hover:bg-purple-50 transition-colors border border-gray-200"
+              >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 <span>Commenter</span>
               </button>
@@ -422,7 +510,9 @@ export default function NewsDetailPage() {
                   <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <MessageCircle className="w-6 h-6 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commentaire</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Aucun commentaire
+                  </h3>
                   <p className="text-gray-500 mb-4">
                     Soyez le premier à partager votre avis sur cet article !
                   </p>

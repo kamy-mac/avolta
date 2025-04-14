@@ -385,19 +385,47 @@ public async uploadImage(file: File): Promise<AxiosResponse> {
     throw error;
   }
 }
-// Dans src/services/api.ts
+// Dans src/services/api.ts  - la methode pour le dossier  images
 public async uploadFile(formData: FormData): Promise<AxiosResponse> {
   try {
-    return await this.api.post("/upload/image", formData, {
+    console.log("Sending file upload request");
+    // Ajouter un timeout plus long pour les uploads
+    const response = await this.api.post("/upload/image", formData, {
       headers: {
         "Content-Type": "multipart/form-data"
-      }
+      },
+      timeout: 30000 // 30 secondes
     });
+    
+    console.log("Upload API response:", response);
+    return response;
   } catch (error) {
     console.error("File upload request failed:", error);
-    throw error;
+    // Ajouter des détails à l'erreur
+    const enhancedError = new Error(
+      `Échec de l'upload: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+    );
+    throw enhancedError;
   }
 }
+
+// Upload from Google Drive
+public async uploadFromDrive(data: { driveUrl: string }): Promise<AxiosResponse> {
+  try {
+    console.log("Sending Drive URL processing request", data);
+    const response = await this.api.post("/upload/drive", data);
+    console.log("Drive API response:", response);
+    return response;
+  } catch (error) {
+    console.error("Drive upload request failed:", error);
+    // Ajouter des détails à l'erreur
+    const enhancedError = new Error(
+      `Échec du traitement de l'URL Drive: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+    );
+    throw enhancedError;
+  }
+}
+
 }
 
 

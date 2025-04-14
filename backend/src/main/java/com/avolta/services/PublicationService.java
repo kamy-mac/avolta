@@ -2,6 +2,7 @@ package com.avolta.services;
 
 import com.avolta.dto.PublicationDto;
 import com.avolta.dto.requests.CreatePublicationRequest;
+import com.avolta.dto.requests.PublicationImageRequest;
 import com.avolta.dto.requests.UpdatePublicationRequest;
 import com.avolta.exceptions.ResourceNotFoundException;
 import com.avolta.models.Publication;
@@ -18,6 +19,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.avolta.repositories.PublicationImageRepository;
+import com.avolta.models.PublicationImage;
+
 @Service
 @RequiredArgsConstructor
 public class PublicationService {
@@ -25,6 +29,7 @@ public class PublicationService {
     private final PublicationRepository publicationRepository;
     private final UserRepository userRepository;
     private final NewsletterService newsletterService;
+    private final PublicationImageRepository publicationImageRepository;
     @Value("${app.api-base-url}")
     private String apiBaseUrl;
 
@@ -88,8 +93,11 @@ public class PublicationService {
 
         // Si l'URL de l'image est relative, la convertir en URL absolue pour le
         // frontend
-        String imageUrl = request.getImageUrl();
-        // if (imageUrl != null && imageUrl.startsWith("/api/uploads/")) {
+
+        //***** a verifier et decomenter si besoin */
+        // String imageUrl = request.getImageUrl();
+        
+        // if (imageUrl != null && imageUrl.startsWith("/api/")) {
         //     // Convertir l'URL relative en URL absolue
         //     if (!imageUrl.startsWith("http")) {
         //         publication.setImageUrl(apiBaseUrl + imageUrl);
@@ -97,17 +105,20 @@ public class PublicationService {
         //     } else {
         //         publication.setImageUrl(imageUrl);
         //     }
-        // } else
-        if (imageUrl != null && imageUrl.startsWith("/api/")) {
-            // Convertir l'URL relative en URL absolue
-            if (!imageUrl.startsWith("http")) {
-                publication.setImageUrl(apiBaseUrl + imageUrl);
-                System.out.println("URL de l'image convertie en absolu: " + publication.getImageUrl());
-            } else {
-                publication.setImageUrl(imageUrl);
+        // } else {
+        //     publication.setImageUrl(imageUrl);
+        // }
+
+        // Ajouter les images supplémentaires
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            for (PublicationImageRequest imageRequest : request.getImages()) {
+                PublicationImage image = new PublicationImage();
+                image.setImageUrl(imageRequest.getImageUrl());
+                image.setDisplayOrder(imageRequest.getDisplayOrder());
+                image.setCaption(imageRequest.getCaption());
+                image.setPublication(savedPublication);
+                publicationImageRepository.save(image);
             }
-        } else {
-            publication.setImageUrl(imageUrl);
         }
 
         // If publication is published and sendNewsletter is true, send newsletter
@@ -140,6 +151,21 @@ public class PublicationService {
         }
         if (request.getCategory() != null) {
             publication.setCategory(request.getCategory());
+        }
+        // Mise à jour des images
+        if (request.getImages() != null) {
+            // Supprimer les anciennes images
+            publicationImageRepository.deleteByPublicationId(id);
+            
+            // Ajouter les nouvelles images
+            for (PublicationImageRequest imageRequest : request.getImages()) {
+                PublicationImage image = new PublicationImage();
+                image.setImageUrl(imageRequest.getImageUrl());
+                image.setDisplayOrder(imageRequest.getDisplayOrder());
+                image.setCaption(imageRequest.getCaption());
+                image.setPublication(publication);
+                publicationImageRepository.save(image);
+            }
         }
 
         Publication updatedPublication = publicationRepository.save(publication);

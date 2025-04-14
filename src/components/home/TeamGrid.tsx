@@ -84,19 +84,6 @@ const teamMembers: TeamMember[] = [
   
   {
     id: "3",
-    name: "Wendy SWINNEN",
-    position: "Responsable Production",
-    department: "operations", // Ajouté pour le filtrage
-    email: "wendy.swinnen@avolta.be",
-    phone: "+32 2 753 XX XX",
-    location: "Bruxelles",
-    imageUrl: wendyImage,
-    linkedinUrl: "#",
-    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
-    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
-  },
-  {
-    id: "4",
     name: "Pepijn VERTOGHEN",
     position: "Responsable Développement",
     department: "operations", // Ajouté pour le filtrage
@@ -109,7 +96,7 @@ const teamMembers: TeamMember[] = [
     expertise: ["Développement commercial", "Gestion de projets", "Expansion"],
   },
   {
-    id: "5",
+    id: "4",
     name: "Magalie VERTOGHEN",
     position: "Responsable Communication",
     department: "operations", // Ajouté pour le filtrage
@@ -126,7 +113,7 @@ const teamMembers: TeamMember[] = [
     ],
   },
   {
-    id: "6",
+    id: "5",
     name: "Rob KRUGER",
     position: "Financial Director",
     department: "direction", // Ajouté pour le filtrage
@@ -139,7 +126,7 @@ const teamMembers: TeamMember[] = [
     expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
   },
   {
-    id: "7",
+    id: "6",
     name: "Eddy GRYMONPREZ",
     position: "Head of operations",
     department: "direction", // Ajouté pour le filtrage
@@ -152,7 +139,7 @@ const teamMembers: TeamMember[] = [
     expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
   },
   {
-    id: "8",
+    id: "7",
     name: "Marlee JACOBS",
     position: "HR & Quality Director",
     department: "direction", // Ajouté pour le filtrage
@@ -165,7 +152,7 @@ const teamMembers: TeamMember[] = [
     expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
   },
   {
-    id: "9",
+    id: "8",
     name: "Peggy LIEVENS",
     position: "Procurement & Data Mgt Director",
     department: "direction", // Ajouté pour le filtrage
@@ -173,6 +160,19 @@ const teamMembers: TeamMember[] = [
     phone: "+32 2 753 XX XX",
     location: "Bruxelles",
     imageUrl: peggyImage, // Remplacez par l'image appropriée
+    linkedinUrl: "#",
+    bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
+    expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],
+  },
+  {
+    id: "9",
+    name: "Wendy SWINNEN",
+    position: "Responsable Production",
+    department: "operations", // Ajouté pour le filtrage
+    email: "wendy.swinnen@avolta.be",
+    phone: "+32 2 753 XX XX",
+    location: "Bruxelles",
+    imageUrl: wendyImage,
     linkedinUrl: "#",
     bio: "Spécialiste des opérations et de la chaîne d'approvisionnement, Wendy veille à l'efficacité des processus de production tout en maintenant les standards de qualité élevés qui font la réputation d'Avolta.",
     expertise: ["Gestion de production", "Supply chain", "Contrôle qualité"],

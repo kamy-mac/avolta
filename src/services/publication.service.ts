@@ -8,7 +8,7 @@
  */
 
 import api from "./api";
-import { Post } from "../types";
+import { Post, PublicationImage } from "../types";
 
 /**
  * Create publication request interface
@@ -17,6 +17,7 @@ interface CreatePublicationRequest {
   title: string;
   content: string;
   imageUrl: string;
+  images: PublicationImage[];
   validFrom: string;
   validTo: string;
   category: string;
@@ -30,6 +31,7 @@ interface UpdatePublicationRequest {
   title?: string;
   content?: string;
   imageUrl?: string;
+  images?: PublicationImage[];
   validFrom?: string;
   validTo?: string;
   category?: string;

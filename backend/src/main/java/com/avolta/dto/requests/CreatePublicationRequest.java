@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,6 +21,9 @@ public class CreatePublicationRequest {
     private String content;
     
     private String imageUrl;
+
+    // Nouvelle liste pour les URLs d'images
+    private List<PublicationImageRequest> images;
     
     @NotNull(message = "Valid from date is required")
     private LocalDateTime validFrom;

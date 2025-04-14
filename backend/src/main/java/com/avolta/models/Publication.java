@@ -32,6 +32,11 @@ public class Publication {
     @Column(name = "image_url")
     private String imageUrl;
 
+    // Ajouter la relation avec les images
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<PublicationImage> images = new ArrayList<>();
+
     @Column(name = "valid_from", nullable = false)
     private LocalDateTime validFrom;
 

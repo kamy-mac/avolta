@@ -31,16 +31,21 @@ import {
   Heading1,
   Heading2,
   Edit2,
-  Upload
+  Upload,
 } from "lucide-react";
+import { Navigation, Pagination } from "swiper/modules";
 import publicationService from "../../services/publication.service";
 import { useAuth } from "../../context/AuthContext";
 import fileUploadService from "../../services/fileUpload.service";
+import ImageManager from "../../components/admin/ImageManager";
+import { PublicationImage } from "../../types";
+import { Swiper } from "swiper/react";
 
+import { SwiperSlide } from "swiper/react";
 // Guide d'utilisation pour le créateur de publication
 const CreatePublicationGuide = () => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   return (
     <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow-sm border border-purple-100">
       <button
@@ -49,37 +54,84 @@ const CreatePublicationGuide = () => {
       >
         <div className="flex items-center">
           <HelpCircle className="h-5 w-5 text-purple-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-800">Guide de création d'une publication</h3>
+          <h3 className="text-lg font-medium text-gray-800">
+            Guide de création d'une publication
+          </h3>
         </div>
-        <ChevronDown className={`h-5 w-5 text-purple-600 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
+        <ChevronDown
+          className={`h-5 w-5 text-purple-600 transition-transform ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+        />
       </button>
-      
+
       {isOpen && (
         <div className="p-4 pt-0 text-sm text-gray-700 space-y-3">
           <p className="flex items-start">
             <Info className="h-4 w-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
-            <span>Utilisez ce formulaire pour créer des publications qui apparaîtront sur le site.</span>
+            <span>
+              Utilisez ce formulaire pour créer des publications qui
+              apparaîtront sur le site.
+            </span>
           </p>
-          
+
           <div className="pl-6 space-y-2">
             <p className="font-semibold text-purple-800">Instructions :</p>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li><span className="font-medium">Titre et contenu</span> : Donnez un titre clair et rédigez un contenu détaillé pour votre publication.</li>
-              <li><span className="font-medium">Formatage</span> : Utilisez les outils de formatage (gras, italique, listes) pour améliorer la lisibilité.</li>
-              <li><span className="font-medium">Catégorie et tags</span> : Classifiez votre publication pour faciliter la recherche et la navigation.</li>
-              <li><span className="font-medium">Image</span> : Ajoutez une URL d'image pour rendre votre publication plus attrayante.</li>
-              <li><span className="font-medium">Dates de validité</span> : Définissez la période pendant laquelle la publication sera visible.</li>
-              <li><span className="font-medium">Newsletter</span> : Cochez l'option pour envoyer automatiquement votre publication aux abonnés.</li>
-              <li><span className="font-medium">Prévisualisation</span> : Utilisez le bouton <Eye className="h-4 w-4 inline text-purple-600" /> pour vérifier l'apparence avant publication.</li>
+              <li>
+                <span className="font-medium">Titre et contenu</span> : Donnez
+                un titre clair et rédigez un contenu détaillé pour votre
+                publication.
+              </li>
+              <li>
+                <span className="font-medium">Formatage</span> : Utilisez les
+                outils de formatage (gras, italique, listes) pour améliorer la
+                lisibilité.
+              </li>
+              <li>
+                <span className="font-medium">Catégorie et tags</span> :
+                Classifiez votre publication pour faciliter la recherche et la
+                navigation.
+              </li>
+              <li>
+                <span className="font-medium">Image</span> : Ajoutez une URL
+                d'image pour rendre votre publication plus attrayante.
+              </li>
+              <li>
+                <span className="font-medium">Dates de validité</span> :
+                Définissez la période pendant laquelle la publication sera
+                visible.
+              </li>
+              <li>
+                <span className="font-medium">Newsletter</span> : Cochez
+                l'option pour envoyer automatiquement votre publication aux
+                abonnés.
+              </li>
+              <li>
+                <span className="font-medium">Prévisualisation</span> : Utilisez
+                le bouton <Eye className="h-4 w-4 inline text-purple-600" />{" "}
+                pour vérifier l'apparence avant publication.
+              </li>
             </ul>
           </div>
-          
+
           <div className="pl-6 mt-3">
-            <p className="font-semibold text-purple-800">Processus de validation :</p>
+            <p className="font-semibold text-purple-800">
+              Processus de validation :
+            </p>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>Les publications créées par les administrateurs sont soumises à validation par un super administrateur.</li>
-              <li>Les publications créées par les super administrateurs sont publiées immédiatement.</li>
-              <li>Une fois publiée, votre publication sera visible pendant la période définie.</li>
+              <li>
+                Les publications créées par les administrateurs sont soumises à
+                validation par un super administrateur.
+              </li>
+              <li>
+                Les publications créées par les super administrateurs sont
+                publiées immédiatement.
+              </li>
+              <li>
+                Une fois publiée, votre publication sera visible pendant la
+                période définie.
+              </li>
             </ul>
           </div>
         </div>
@@ -109,7 +161,9 @@ export default function CreatePublication() {
     content: "",
     imageUrl: "",
     validFrom: new Date().toISOString().split("T")[0], // Format YYYY-MM-DD
-    validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // Par défaut: 30 jours
+    validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0], // Par défaut: 30 jours
     category: "news",
     sendNewsletter: false,
     tags: [],
@@ -136,8 +190,19 @@ export default function CreatePublication() {
   // References
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-   // Effect to redirect if not authenticated
-   React.useEffect(() => {
+  //ajouter un état pour les images multiples
+  const [publicationImages, setPublicationImages] = useState<
+    PublicationImage[]
+  >([]);
+
+  // État pour suivre les prévisualisations d'images
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [additionalImagePreviews, setAdditionalImagePreviews] = useState<
+    Array<{ url: string; caption?: string }>
+  >([]);
+
+  // Effect to redirect if not authenticated
+  React.useEffect(() => {
     if (!user) {
       navigate("/login", {
         state: { from: "/admin/publications/create" },
@@ -145,60 +210,77 @@ export default function CreatePublication() {
     }
   }, [user, navigate]);
 
-  // Handle image file selection
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFilePreview = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      
-      // Prévisualisation de l'image
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target && event.target.result) {
-          setImagePreview(event.target.result as string);
-        }
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
     const file = files[0];
-     
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      setUploadError("Le type de fichier n'est pas supporté. Utilisez JPEG, PNG, GIF ou WEBP.");
-      return;
-    }
-    
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      setUploadError("Le fichier est trop volumineux. La taille maximale est de 5MB.");
-      return;
-    }
 
-    // Reset errors and set the selected file
-    setUploadError(null);
+    // Créer une URL de prévisualisation
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+
+    // Garder la référence au fichier pour l'upload ultérieur
     setSelectedFile(file);
-    
-    // Create a preview URL
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-    
-    // Reset old image URL if there was one
-    setPublication(prev => ({
-      ...prev,
-      imageUrl: ""
-    }));
-    
-    // Reset upload states
-    setUploadProgress(0);
-    setUploadSuccess(false);
-   return () => {
-      // Free memory when component unmounts
-      URL.revokeObjectURL(objectUrl);
+  };
+
+  // Fonction pour la prévisualisation d'URL d'image
+  const handleUrlPreview = (url: string) => {
+    if (!url) return;
+
+    // Vérifier si l'URL est valide
+    const img = new Image();
+    img.onload = () => {
+      setImagePreview(url);
+      setPublication((prev) => ({
+        ...prev,
+        imageUrl: url,
+      }));
     };
+    img.onerror = () => {
+      setError(
+        "L'URL d'image fournie n'est pas valide ou n'est pas accessible."
+      );
+    };
+    img.src = url;
+  };
+
+  // Handle image file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // D'abord afficher la prévisualisation
+    handleFilePreview(e);
+
+    try {
+      setIsUploading(true);
+      setUploadProgress(10);
+
+      // Simuler une progression
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => Math.min(prev + 10, 90));
+      }, 300);
+
+      // Upload du fichier
+      if (selectedFile) {
+        const uploadedUrl = await fileUploadService.uploadFile(selectedFile);
+
+        // Mettre à jour l'URL dans le formulaire
+        setPublication((prev) => ({
+          ...prev,
+          imageUrl: uploadedUrl,
+        }));
+
+        setUploadSuccess(true);
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+      }
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      setUploadError(
+        error.message || "Erreur lors du téléchargement de l'image"
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   // Handle upload button click
@@ -214,32 +296,30 @@ export default function CreatePublication() {
     setUploadProgress(0);
     setUploadSuccess(false);
     setUploadError(null);
-    
+
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  
-  // Réinitialiser l'URL de l'image
-  setPublication(prev => ({
-    ...prev,
-    imageUrl: ""
-  }));
-  };
-  
 
+    // Réinitialiser l'URL de l'image
+    setPublication((prev) => ({
+      ...prev,
+      imageUrl: "",
+    }));
+  };
 
   // Upload image to server
   const uploadImage = async (): Promise<string | null> => {
     if (!selectedFile) return null;
-    
+
     try {
       setIsUploading(true);
       setUploadProgress(10);
-      
+
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -247,29 +327,32 @@ export default function CreatePublication() {
           return prev + 10;
         });
       }, 300);
-      
+
       // Upload the file using the file upload service
       const imageUrl = await fileUploadService.uploadFile(selectedFile);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadSuccess(true);
-      
+
       return imageUrl;
     } catch (error: any) {
       console.error("Error uploading image:", error);
-      setUploadError("Erreur lors du téléchargement de l'image. Veuillez réessayer.");
+      setUploadError(
+        "Erreur lors du téléchargement de l'image. Veuillez réessayer."
+      );
       return null;
     } finally {
       setIsUploading(false);
     }
   };
 
-
   // Vérification du contenu lors de la modification
   const checkContent = (content: string) => {
     if (content.length > 0 && content.length < 50) {
-      setContentWarning("Le contenu est un peu court. Envisagez d'ajouter plus d'informations pour une meilleure communication.");
+      setContentWarning(
+        "Le contenu est un peu court. Envisagez d'ajouter plus d'informations pour une meilleure communication."
+      );
     } else {
       setContentWarning(null);
     }
@@ -280,63 +363,72 @@ export default function CreatePublication() {
     setError(null);
     setIsLoading(true);
     setSuccess(null);
-    
+
     try {
       // Validation des dates
       const validFromDate = new Date(publication.validFrom);
       const validToDate = new Date(publication.validTo);
-      
-      if (validToDate <= validFromDate) {
-        throw new Error("La date de fin doit être postérieure à la date de début.");
-      }
-      
 
+      if (validToDate <= validFromDate) {
+        throw new Error(
+          "La date de fin doit être postérieure à la date de début."
+        );
+      }
 
       // Formatage au format ISO (YYYY-MM-DDTHH:mm:ss.sssZ) que le backend peut parser en LocalDateTime
-      const formattedValidFrom = validFromDate.toISOString();
-      const formattedValidTo = validToDate.toISOString();
+      // const formattedValidFrom = validFromDate.toISOString();
+      // const formattedValidTo = validToDate.toISOString();
 
       // D'abord télécharger l'image s'il y en a une sélectionnée
-    let finalImageUrl = publication.imageUrl;
-    
-    if (selectedFile && !uploadSuccess) {
-      const uploadedImageUrl = await uploadImage();
-      if (uploadedImageUrl) {
-        finalImageUrl = uploadedImageUrl;
-      } else if (!publication.imageUrl) {
-        // Si le téléchargement a échoué et qu'il n'y a pas d'URL de secours, afficher une erreur
-        throw new Error("Le téléchargement de l'image a échoué. Veuillez réessayer.");
+      let finalImageUrl = publication.imageUrl;
+
+      if (selectedFile && !uploadSuccess) {
+        const uploadedImageUrl = await uploadImage();
+        if (uploadedImageUrl) {
+          finalImageUrl = uploadedImageUrl;
+        } else if (!publication.imageUrl) {
+          // Si le téléchargement a échoué et qu'il n'y a pas d'URL de secours, afficher une erreur
+          throw new Error(
+            "Le téléchargement de l'image a échoué. Veuillez réessayer."
+          );
+        }
       }
-    }
 
       console.log("Creating publication with image:", finalImageUrl);
-      
+
       const createdPublication = await publicationService.createPublication({
         title: publication.title,
         content: publication.content,
         imageUrl: publication.imageUrl || finalImageUrl,
-        validFrom: formattedValidFrom,
-        validTo: formattedValidTo,
+
+        validFrom: new Date(publication.validFrom).toISOString(),
+        validTo: new Date(publication.validTo).toISOString(),
         category: publication.category,
         sendNewsletter: publication.sendNewsletter,
-        
+        images: publicationImages,
+
         // authorName: publication.authorName
       });
-      
+
       setSuccess("Publication créée avec succès!");
       console.log("Publication created:", createdPublication);
 
       if (user?.role === "admin") {
-        setSuccess("Votre publication a été soumise et est en attente de validation par un super administrateur.");
+        setSuccess(
+          "Votre publication a été soumise et est en attente de validation par un super administrateur."
+        );
       }
-      
+
       // Redirection après un court délai
       setTimeout(() => {
         navigate("/admin/publications");
       }, 2000);
     } catch (error: any) {
       console.error("Error creating publication:", error);
-      setError(error.response?.data?.message || "Une erreur est survenue lors de la création de la publication.");
+      setError(
+        error.response?.data?.message ||
+          "Une erreur est survenue lors de la création de la publication."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -353,7 +445,7 @@ export default function CreatePublication() {
     if (name === "imageUrl" && value) {
       setImagePreview(value);
     }
-    
+
     if (name === "content") {
       checkContent(value);
     }
@@ -367,26 +459,37 @@ export default function CreatePublication() {
   // URL input change handler
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setPublication(prev => ({
+    setPublication((prev) => ({
       ...prev,
-      imageUrl: value
+      imageUrl: value,
     }));
-     
-    // Reset file selection if URL is provided
-    if (value && selectedFile) {
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      setUploadProgress(0);
-      setUploadSuccess(false);
-      
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+
+    // Prévisualiser l'image si l'URL n'est pas vide
+    if (value) {
+      // Créer une image pour tester l'URL
+      const img = new Image();
+      img.onload = () => {
+        setImagePreview(value);
+      };
+      img.onerror = () => {
+        // Ne pas effacer la prévisualisation actuelle en cas d'erreur
+        console.error("Invalid image URL:", value);
+      };
+      img.src = value;
+    } else {
+      setImagePreview(null);
     }
   };
 
-
+  /*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Handle adding a new tag when the user presses Enter.
+   *
+   * Prevents the default form submission, and adds the new tag to the publication
+   * if it's not already there.
+   * @param {React.KeyboardEvent<HTMLInputElement>} e
+   */
+  /*******  cb2cc4c1-4926-48ab-9807-92ba9ef94ae4  *******/
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && newTag.trim()) {
       e.preventDefault();
@@ -449,7 +552,7 @@ export default function CreatePublication() {
       formattedText +
       textarea.value.substring(end);
     setPublication((prev) => ({ ...prev, content: newContent }));
-    
+
     // Vérifier le contenu
     checkContent(newContent);
 
@@ -460,49 +563,74 @@ export default function CreatePublication() {
       textarea.setSelectionRange(newPosition, newPosition);
     }, 0);
   };
-  
+
   // Fonction pour formater le contenu Markdown pour la prévisualisation
   const formatMarkdown = (text: string) => {
     // C'est une version simplifiée, dans un cas réel on utiliserait une bibliothèque comme marked
     let formattedText = text;
-    
+
     // Gras
-    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
+    formattedText = formattedText.replace(
+      /\*\*(.*?)\*\*/g,
+      "<strong>$1</strong>"
+    );
+
     // Italique
-    formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
+    formattedText = formattedText.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
     // Titres
-    formattedText = formattedText.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>');
-    formattedText = formattedText.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-bold mb-3">$1</h2>');
-    
+    formattedText = formattedText.replace(
+      /^# (.*?)$/gm,
+      '<h1 class="text-3xl font-bold mb-4">$1</h1>'
+    );
+    formattedText = formattedText.replace(
+      /^## (.*?)$/gm,
+      '<h2 class="text-2xl font-bold mb-3">$1</h2>'
+    );
+
     // Citations
-    formattedText = formattedText.replace(/^> (.*?)$/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic my-4">$1</blockquote>');
-    
+    formattedText = formattedText.replace(
+      /^> (.*?)$/gm,
+      '<blockquote class="border-l-4 border-gray-300 pl-4 italic my-4">$1</blockquote>'
+    );
+
     // Liens
-    formattedText = formattedText.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-purple-600 hover:underline">$1</a>');
-    
+    formattedText = formattedText.replace(
+      /\[(.*?)\]\((.*?)\)/g,
+      '<a href="$2" class="text-purple-600 hover:underline">$1</a>'
+    );
+
     // Listes à puces
-    formattedText = formattedText.replace(/^- (.*?)$/gm, '<li class="ml-5">$1</li>');
-    
+    formattedText = formattedText.replace(
+      /^- (.*?)$/gm,
+      '<li class="ml-5">$1</li>'
+    );
+
     // Listes numérotées (simplifié)
-    formattedText = formattedText.replace(/^\d\. (.*?)$/gm, '<li class="ml-5">$1</li>');
-    
+    formattedText = formattedText.replace(
+      /^\d\. (.*?)$/gm,
+      '<li class="ml-5">$1</li>'
+    );
+
     // Sauts de ligne
-    formattedText = formattedText.replace(/\n/g, '<br />');
-    
+    formattedText = formattedText.replace(/\n/g, "<br />");
+
     return formattedText;
   };
 
   const handleCancel = () => {
-    if (window.confirm("Voulez-vous vraiment annuler ? Les modifications non enregistrées seront perdues.")) {
+    if (
+      window.confirm(
+        "Voulez-vous vraiment annuler ? Les modifications non enregistrées seront perdues."
+      )
+    ) {
       navigate("/admin/publications");
     }
   };
 
   const handleSaveDraft = () => {
     // Implémentation fictive pour sauvegarder un brouillon
-    localStorage.setItem('publicationDraft', JSON.stringify(publication));
+    localStorage.setItem("publicationDraft", JSON.stringify(publication));
     alert("Brouillon sauvegardé avec succès!");
   };
 
@@ -516,24 +644,28 @@ export default function CreatePublication() {
           <button
             onClick={() => setPreviewMode(!previewMode)}
             className="px-4 py-2 text-sm font-medium text-white bg-[#6A0DAD] rounded-md hover:bg-[#5a0b91] transition-colors flex items-center shadow-sm"
-            title={previewMode ? "Retourner à l'édition" : "Prévisualiser la publication"}
+            title={
+              previewMode
+                ? "Retourner à l'édition"
+                : "Prévisualiser la publication"
+            }
           >
             <Eye className="w-4 h-4 mr-2" />
             {previewMode ? "Éditer" : "Prévisualiser"}
           </button>
         </div>
       </div>
-      
+
       {/* Guide d'utilisation */}
       <CreatePublicationGuide />
-      
+
       {error && (
         <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 flex items-start">
           <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-2" />
           <p className="text-red-700">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 flex items-start">
           <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-2" />
@@ -561,11 +693,11 @@ export default function CreatePublication() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-2">
-                {publication.category === "news" 
-                  ? "Actualités" 
-                  : publication.category === "events" 
-                    ? "Événements" 
-                    : "Communiqués de presse"}
+                {publication.category === "news"
+                  ? "Actualités"
+                  : publication.category === "events"
+                  ? "Événements"
+                  : "Communiqués de presse"}
               </span>
               <div className="flex items-center text-sm text-gray-500 space-x-4">
                 <span className="flex items-center">
@@ -575,7 +707,8 @@ export default function CreatePublication() {
                 </span>
                 <span className="flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
-                  {publication.validTo && `au ${formatDate(publication.validTo)}`}
+                  {publication.validTo &&
+                    `au ${formatDate(publication.validTo)}`}
                 </span>
                 {publication.sendNewsletter && (
                   <span className="flex items-center">
@@ -593,17 +726,79 @@ export default function CreatePublication() {
             )}
           </div>
 
-          {/* Image principale */}
-          {imagePreview && (
-            <div className="relative h-64 mb-6 rounded-lg overflow-hidden shadow-md">
-              <img
-                src={imagePreview || previewUrl || ""}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+          {/* Carrousel d'images en prévisualisation */}
+          {/* Prévisualisation des images */}
+          <div className="relative mb-6">
+            {previewMode && (
+              <div className="flex justify-between mb-4">
+                <div className="text-gray-500 text-sm flex items-center">
+                  <Eye className="w-4 h-4 mr-1" /> Mode prévisualisation
+                </div>
+                <button
+                  onClick={() => setPreviewMode(false)}
+                  className="text-primary hover:text-primary-dark text-sm flex items-center"
+                >
+                  <Edit2 className="w-4 h-4 mr-1" /> Modifier
+                </button>
+              </div>
+            )}
 
+            {/* Image principale ou première image additionnelle comme principale */}
+            {imagePreview || publicationImages.length > 0 ? (
+              <div>
+                {publicationImages.length > 1 ? (
+                  /* Utiliser Swiper s'il y a plus d'une image */
+                  <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    className="rounded-lg overflow-hidden shadow-md h-64"
+                  >
+                    {/* Image principale d'abord */}
+                    {imagePreview && (
+                      <SwiperSlide>
+                        <img
+                          src={imagePreview}
+                          alt="Image principale"
+                          className="w-full h-full object-cover"
+                        />
+                      </SwiperSlide>
+                    )}
+
+                    {/* Images additionnelles */}
+                    {publicationImages.map((image, index) => (
+                      <SwiperSlide key={`preview-image-${index}`}>
+                        <img
+                          src={image.imageUrl}
+                          alt={`Image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {image.caption && (
+                          <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm">
+                            {image.caption}
+                          </div>
+                        )}
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                ) : (
+                  /* Afficher l'image simple s'il n'y en a qu'une */
+                  <div className="relative h-64 rounded-lg overflow-hidden shadow-md">
+                    <img
+                      src={imagePreview || publicationImages[0]?.imageUrl}
+                      alt="Aperçu"
+                      className="w-full h-full object-cover"
+                    />
+                    {publicationImages[0]?.caption && (
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 text-white text-sm">
+                        {publicationImages[0]?.caption}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
           {/* Tags */}
           {publication.tags.length > 0 && (
             <div className="flex items-center space-x-2 mb-4">
@@ -622,9 +817,13 @@ export default function CreatePublication() {
           <h2 className="text-2xl font-bold mb-4">
             {publication.title || "Titre de la publication"}
           </h2>
-          <div 
+          <div
             className="prose max-w-none mb-6"
-            dangerouslySetInnerHTML={{ __html: formatMarkdown(publication.content) || "Contenu de la publication..." }}
+            dangerouslySetInnerHTML={{
+              __html:
+                formatMarkdown(publication.content) ||
+                "Contenu de la publication...",
+            }}
           ></div>
 
           {/* Boutons de navigation */}
@@ -699,7 +898,9 @@ export default function CreatePublication() {
                   />
                   <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">L'email est automatiquement défini par votre compte</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  L'email est automatiquement défini par votre compte
+                </p>
               </div>
             </div>
 
@@ -853,123 +1054,167 @@ export default function CreatePublication() {
               )}
             </div>
 
-           {/* Image Section with Upload and URL options */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Image
-            </label>
-            
-            <div className="mt-1 mb-4 flex justify-between">
-              <div className="w-1/2 pr-2">
-                <p className="text-sm font-medium text-gray-700 mb-1">Option 1: Télécharger une image</p>
-                <div className="flex items-center">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleUploadClick}
-                    disabled={isUploading}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A0DAD] disabled:opacity-50"
-                  >
-                    <Upload className="h-5 w-5 mr-2" />
-                    Sélectionner une image
-                  </button>
-                </div>
-              </div>
-              
-              <div className="w-1/2 pl-2">
-                <p className="text-sm font-medium text-gray-700 mb-1">Option 2: URL d'image</p>
-                <div className="relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <ImageIcon className="h-5 w-5 text-gray-400" />
+            {/* Image Section with Upload and URL options */}
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <ImageIcon className="w-5 h-5 mr-2 text-primary" />
+                Images de la publication
+              </h3>
+
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <div className="mb-6">
+                  <h4 className="text-md font-medium text-gray-700 mb-2">
+                    Image principale
+                  </h4>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Cette image sera utilisée comme couverture de votre
+                    publication.
+                  </p>
+
+                  {/* Options d'upload */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Option 1: Upload direct */}
+                    <div className="bg-white p-4 rounded-md border border-gray-200 h-full">
+                      <h5 className="font-medium text-gray-700 mb-2">
+                        Option 1: Télécharger une image
+                      </h5>
+                      <div className="space-y-3">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          className="hidden"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          <Upload className="h-5 w-5 mr-2 text-gray-500" />
+                          Sélectionner un fichier
+                        </button>
+
+                        {selectedFile && (
+                          <div className="text-sm text-gray-500 flex items-center">
+                            <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+                            {selectedFile.name}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Option 2: URL */}
+                    <div className="bg-white p-4 rounded-md border border-gray-200 h-full">
+                      <h5 className="font-medium text-gray-700 mb-2">
+                        Option 2: URL d'image
+                      </h5>
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <input
+                            type="url"
+                            name="imageUrl"
+                            id="imageUrl"
+                            value={publication.imageUrl}
+                            onChange={handleUrlChange}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                            placeholder="https://example.com/image.jpg"
+                            disabled={!!selectedFile || isUploading}
+                          />
+                          <LinkIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleUrlPreview(publication.imageUrl)}
+                          disabled={!publication.imageUrl || isUploading}
+                          className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                          <Eye className="h-5 w-5 mr-2 text-gray-500" />
+                          Prévisualiser
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    id="imageUrl"
-                    value={publication.imageUrl}
-                    onChange={handleUrlChange}
-                    className="focus:ring-[#6A0DAD] focus:border-[#6A0DAD] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                    placeholder="https://example.com/image.jpg"
-                    disabled={!!selectedFile}
+
+                  {/* Affichage de la prévisualisation */}
+                  {imagePreview && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        Prévisualisation:
+                      </p>
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                        <img
+                          src={imagePreview}
+                          alt="Prévisualisation"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview(null);
+                            setSelectedFile(null);
+                            setPublication((prev) => ({
+                              ...prev,
+                              imageUrl: "",
+                            }));
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                          className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-sm hover:bg-gray-100"
+                        >
+                          <X className="h-5 w-5 text-gray-700" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Indicateurs d'état */}
+                  {uploadError && (
+                    <div className="mt-3 text-sm text-red-600 bg-red-50 p-3 rounded-md flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      {uploadError}
+                    </div>
+                  )}
+
+                  {isUploading && (
+                    <div className="mt-3">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 text-center">
+                        Téléchargement en cours... {uploadProgress}%
+                      </p>
+                    </div>
+                  )}
+
+                  {uploadSuccess && (
+                    <div className="mt-3 text-sm text-green-600 bg-green-50 p-3 rounded-md flex items-center">
+                      <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                      Image téléchargée avec succès
+                    </div>
+                  )}
+                </div>
+
+                {/* Séparateur */}
+                <div className="border-t border-gray-200 my-6"></div>
+
+                {/* Images additionnelles */}
+                <div>
+                  <ImageManager
+                    images={publicationImages}
+                    onChange={setPublicationImages}
+                    maxImages={3}
                   />
                 </div>
               </div>
             </div>
-            
-            {uploadError && (
-              <div className="mt-2 text-sm text-red-600 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {uploadError}
-              </div>
-            )}
-            
-            {/* Image Preview */}
-            {(previewUrl || imagePreview) && (
-              <div className="mt-4 relative">
-                <div className="relative border border-gray-200 rounded-lg overflow-hidden">
-                  <img
-                    src={previewUrl || imagePreview || ""}
-                    alt="Aperçu"
-                    className="max-h-64 w-auto mx-auto"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm hover:bg-gray-100 transition-colors"
-                  >
-                    <X className="h-5 w-5 text-gray-700" />
-                  </button>
-                </div>
-                
-                {isUploading && (
-                  <div className="mt-2">
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#6A0DAD] transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500 text-center">
-                      Téléchargement en cours... {uploadProgress}%
-                    </p>
-                  </div>
-                )}
-                
-                {uploadSuccess && (
-                  <div className="mt-2 text-sm text-green-600 flex items-center justify-center">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    Image téléchargée avec succès
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* External image preview */}
-            {!previewUrl  && !imagePreview  && publication.imageUrl && (
-              <div className="mt-4 relative">
-                <div className="relative border border-gray-200 rounded-lg overflow-hidden">
-                  <img
-                    src={publication.imageUrl}
-                    alt="Aperçu"
-                    className="max-h-64 w-auto mx-auto"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "https://via.placeholder.com/400x200?text=Image+non+disponible";
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-  
-        
-            
 
             {/* Date Range Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -1035,7 +1280,8 @@ export default function CreatePublication() {
                     Envoyer par newsletter aux abonnés
                   </label>
                   <p className="text-xs text-gray-500 mt-1">
-                    Cette option enverra automatiquement un email aux personnes inscrites à la newsletter
+                    Cette option enverra automatiquement un email aux personnes
+                    inscrites à la newsletter
                   </p>
                 </div>
               </div>
@@ -1077,9 +1323,25 @@ export default function CreatePublication() {
                 >
                   {isLoading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
                       </svg>
                       Publication en cours...
                     </>
