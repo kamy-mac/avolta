@@ -30,13 +30,13 @@ services:
       - mysql
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/avolta?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: avolta
-      SPRING_DATASOURCE_PASSWORD: avolta
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: avoltaBelgiqueSecretKey2025VeryLongAndSecureKeyForJwtTokenGeneration
       JWT_EXPIRATION: 86400000
     ports:
-      - "8080:8080"
+      - "8090:8090"
     networks:
       - avolta-network
 
@@ -54,7 +54,7 @@ services:
     networks:
       - avolta-network
     environment:
-      - VITE_API_URL=http://localhost:8080/api
+      - VITE_API_URL=http://localhost:8090/api
 
 networks:
   avolta-network:
