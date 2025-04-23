@@ -17,11 +17,10 @@ import stevenImage from "/public/images/Steven.jpg";
 import wendyImage from "/public/images/Wendy.jpg";
 import pepijnImage from "/public/images/Pepijn.jpg";
 import magalieImage from "/public/images/Magalie.jpg";
-import robImage from "/public/images/Rob.jpg";
+import robImage from "/public/images/rob.jpg";
 import eddyImage from "/public/images/Eddy.jpg";
 import marleeImage from "/public/images/Marlee.jpg";
 import peggyImage from "/public/images/Peggy.jpg";
-
 
 // Types
 interface TeamMember {
@@ -52,7 +51,6 @@ interface TeamCardProps {
 // Noté que le filtre se fait sur le département et non sur le nom donc tout dependra de la valeur de ce champ entrer dans département pour chaque membre
 // ##### Vous pouvez ajuster les valeurs de département selon vos besoins
 
-
 const teamMembers: TeamMember[] = [
   {
     id: "1",
@@ -81,7 +79,6 @@ const teamMembers: TeamMember[] = [
     expertise: ["Marketing stratégique", "Expérience client", "Retail"],
   },
 
-  
   {
     id: "3",
     name: "Wendy SWINNEN",
@@ -180,316 +177,314 @@ const teamMembers: TeamMember[] = [
 ];
 
 // Composant mémorisé pour la carte de membre d'équipe
-const TeamCard = memo(({
-  member,
-  index,
-  animateCards,
-  hoverIndex,
-  onClick,
-  onMouseEnter,
-  onMouseLeave
-}: TeamCardProps) => (
-  <div
-    className={`group relative overflow-hidden rounded-2xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer transform ${
-      animateCards
-        ? "opacity-100 translate-y-0"
-        : "opacity-0 translate-y-8"
-    } ${hoverIndex === index ? "ring-2 ring-primary" : ""}`}
-    style={{
-      transitionDelay: `${Math.min(index * 100, 500)}ms`, // Limite à 500ms max pour de grandes listes
-      boxShadow:
-        hoverIndex === index
-          ? "0 20px 25px -5px rgba(106, 13, 173, 0.1), 0 10px 10px -5px rgba(106, 13, 173, 0.04)"
-          : "",
-    }}
-    onClick={() => onClick(member)}
-    onMouseEnter={onMouseEnter}
-    onMouseLeave={onMouseLeave}
-    tabIndex={0}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onClick(member);
-      }
-    }}
-    role="button"
-    aria-label={`Voir le profil de ${member.name}, ${member.position}`}
-  >
-    <div className="aspect-w-3 aspect-h-4 overflow-hidden">
-      <img
-        src={member.imageUrl}
-        alt={`${member.name}, ${member.position}`}
-        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-        loading="lazy" // Charge les images quand elles entrent dans le viewport
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
-          target.alt = "Image par défaut";
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/40 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
-    </div>
+const TeamCard = memo(
+  ({
+    member,
+    index,
+    animateCards,
+    hoverIndex,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+  }: TeamCardProps) => (
+    <div
+      className={`group relative overflow-hidden rounded-2xl bg-white shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer transform ${
+        animateCards ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${hoverIndex === index ? "ring-2 ring-primary" : ""}`}
+      style={{
+        transitionDelay: `${Math.min(index * 100, 500)}ms`, // Limite à 500ms max pour de grandes listes
+        boxShadow:
+          hoverIndex === index
+            ? "0 20px 25px -5px rgba(106, 13, 173, 0.1), 0 10px 10px -5px rgba(106, 13, 173, 0.04)"
+            : "",
+      }}
+      onClick={() => onClick(member)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick(member);
+        }
+      }}
+      role="button"
+      aria-label={`Voir le profil de ${member.name}, ${member.position}`}
+    >
+      <div className="aspect-w-3 aspect-h-4 overflow-hidden">
+        <img
+          src={member.imageUrl}
+          alt={`${member.name}, ${member.position}`}
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          loading="lazy" // Charge les images quand elles entrent dans le viewport
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
+            target.alt = "Image par défaut";
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/40 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
+      </div>
 
-    {/* Badge de position - redesigné */}
-    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-      {member.position.split(" ")[0]}
-    </div>
+      {/* Badge de position - redesigné */}
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+        {member.position.split(" ")[0]}
+      </div>
 
-    <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/10 backdrop-blur-sm translate-y-0 transition-transform duration-300">
-      <h3 className="text-xl font-bold text-day mb-1">
-        {member.name}
-      </h3>
-      <p className="text-primary font-medium text-sm mb-4">
-        {member.position}
-      </p>
+      <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/10 backdrop-blur-sm translate-y-0 transition-transform duration-300">
+        <h3 className="text-xl font-bold text-day mb-1">{member.name}</h3>
+        <p className="text-primary font-medium text-sm mb-4">
+          {member.position}
+        </p>
 
-      <div className="w-8 h-0.5 bg-primary/50 mb-4 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+        <div className="w-8 h-0.5 bg-primary/50 mb-4 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
 
-      <p className="text-sm text-day/90 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 line-clamp-2 mb-4">
-        {member.bio?.substring(0, 100)}...
-      </p>
+        <p className="text-sm text-day/90 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 line-clamp-2 mb-4">
+          {member.bio?.substring(0, 100)}...
+        </p>
 
-      <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-        <div className="flex items-center space-x-3">
-          <a
-            href={`mailto:${member.email}`}
-            className="flex items-center justify-center p-2 bg-white/10 hover:bg-primary hover:text-day rounded-full transition-colors duration-300"
-            aria-label={`Envoyer un email à ${member.name}`}
-            onClick={(e) => e.stopPropagation()}
-            tabIndex={0}
-          >
-            <Mail className="w-4 h-4 text-day" />
-          </a>
-          {member.linkedinUrl && (
+        <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+          <div className="flex items-center space-x-3">
             <a
-              href={member.linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`mailto:${member.email}`}
               className="flex items-center justify-center p-2 bg-white/10 hover:bg-primary hover:text-day rounded-full transition-colors duration-300"
-              aria-label={`Profil LinkedIn de ${member.name}`}
+              aria-label={`Envoyer un email à ${member.name}`}
               onClick={(e) => e.stopPropagation()}
               tabIndex={0}
             >
-              <Linkedin className="w-4 h-4 text-day" />
+              <Mail className="w-4 h-4 text-day" />
             </a>
-          )}
-        </div>
+            {member.linkedinUrl && (
+              <a
+                href={member.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center p-2 bg-white/10 hover:bg-primary hover:text-day rounded-full transition-colors duration-300"
+                aria-label={`Profil LinkedIn de ${member.name}`}
+                onClick={(e) => e.stopPropagation()}
+                tabIndex={0}
+              >
+                <Linkedin className="w-4 h-4 text-day" />
+              </a>
+            )}
+          </div>
 
-        <button
-          className="flex items-center space-x-1 text-sm text-day/90 hover:text-primary group"
-          aria-label={`En savoir plus sur ${member.name}`}
-          tabIndex={-1} // Pas besoin de tabindex car la carte est déjà accessible
-        >
-          <span>Profil</span>
-          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-        </button>
+          <button
+            className="flex items-center space-x-1 text-sm text-day/90 hover:text-primary group"
+            aria-label={`En savoir plus sur ${member.name}`}
+            tabIndex={-1} // Pas besoin de tabindex car la carte est déjà accessible
+          >
+            <span>Profil</span>
+            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-));
+  )
+);
 
 // Modal mémorisé pour les détails du membre
-const MemberModal = memo(({ 
-  isOpen, 
-  selectedMember, 
-  teamMembers, 
-  modalRef, 
-  closeModal, 
-  navigateMember 
-}: {
-  isOpen: boolean;
-  selectedMember: TeamMember | null;
-  teamMembers: TeamMember[];
-  modalRef: React.RefObject<HTMLDivElement>;
-  closeModal: () => void;
-  navigateMember: (direction: "prev" | "next") => void;
-}) => {
-  if (!isOpen || !selectedMember) return null;
+const MemberModal = memo(
+  ({
+    isOpen,
+    selectedMember,
+    teamMembers,
+    modalRef,
+    closeModal,
+    navigateMember,
+  }: {
+    isOpen: boolean;
+    selectedMember: TeamMember | null;
+    teamMembers: TeamMember[];
+    modalRef: React.RefObject<HTMLDivElement>;
+    closeModal: () => void;
+    navigateMember: (direction: "prev" | "next") => void;
+  }) => {
+    if (!isOpen || !selectedMember) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 overflow-y-auto bg-night/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
-      aria-labelledby="modal-title"
-      role="dialog"
-      aria-modal="true"
-    >
+    return (
       <div
-        className="absolute inset-0 bg-transparent"
-        onClick={closeModal}
-      ></div>
-
-      <div
-        ref={modalRef}
-        className="relative bg-white rounded-2xl overflow-hidden max-w-5xl w-full mx-auto shadow-2xl"
-        role="document"
+        className="fixed inset-0 z-50 overflow-y-auto bg-night/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
       >
-        <button
+        <div
+          className="absolute inset-0 bg-transparent"
           onClick={closeModal}
-          className="absolute top-6 right-6 z-10 p-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full transition-colors"
-          aria-label="Fermer"
+        ></div>
+
+        <div
+          ref={modalRef}
+          className="relative bg-white rounded-2xl overflow-hidden max-w-5xl w-full mx-auto shadow-2xl"
+          role="document"
         >
-          <X className="w-6 h-6 text-white" />
-        </button>
+          <button
+            onClick={closeModal}
+            className="absolute top-6 right-6 z-10 p-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full transition-colors"
+            aria-label="Fermer"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Partie gauche avec photo et overlay graphique */}
-          <div className="relative h-full min-h-[350px] md:min-h-0">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 via-primary/30 to-transparent mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-night/40 to-night/80"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Partie gauche avec photo et overlay graphique */}
+            <div className="relative h-full min-h-[350px] md:min-h-0">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 via-primary/30 to-transparent mix-blend-multiply"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-night/40 to-night/80"></div>
 
-            {/* Motif géométrique */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
-            </div>
-
-            <img
-              src={selectedMember.imageUrl}
-              alt={`Portrait de ${selectedMember.name}`}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
-                target.alt = "Image par défaut";
-              }}
-            />
-
-            {/* Overlay avec informations de base */}
-            <div className="absolute bottom-0 left-0 right-0 p-8 text-white bg-gradient-to-t from-night/80 to-transparent">
-              <div className="mb-2 inline-block px-3 py-1 bg-primary/80 backdrop-blur-sm rounded-full text-xs font-semibold">
-                {selectedMember.id}/{teamMembers.length}
+              {/* Motif géométrique */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:20px_20px]"></div>
               </div>
-              <h3 id="modal-title" className="text-3xl font-bold mb-2">
-                {selectedMember.name}
-              </h3>
-              <p className="text-primary-light font-medium text-xl">
-                {selectedMember.position}
-              </p>
+
+              <img
+                src={selectedMember.imageUrl}
+                alt={`Portrait de ${selectedMember.name}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "public/images/LOGO_AVOLTA_FL_CORE_RGB.jpg";
+                  target.alt = "Image par défaut";
+                }}
+              />
+
+              {/* Overlay avec informations de base */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 text-white bg-gradient-to-t from-night/80 to-transparent">
+                <div className="mb-2 inline-block px-3 py-1 bg-primary/80 backdrop-blur-sm rounded-full text-xs font-semibold">
+                  {selectedMember.id}/{teamMembers.length}
+                </div>
+                <h3 id="modal-title" className="text-3xl font-bold mb-2">
+                  {selectedMember.name}
+                </h3>
+                <p className="text-primary-light font-medium text-xl">
+                  {selectedMember.position}
+                </p>
+              </div>
             </div>
-          </div>
 
-          {/* Partie droite avec infos détaillées */}
-          <div className="p-8 md:p-10 flex flex-col bg-white">
-            <div className="mb-8">
-              <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
-                À propos
-              </h4>
+            {/* Partie droite avec infos détaillées */}
+            <div className="p-8 md:p-10 flex flex-col bg-white">
+              <div className="mb-8">
+                <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
+                  À propos
+                </h4>
 
-              <p className="text-night/80 text-base leading-relaxed mb-8">
-                {selectedMember.bio || "Aucune biographie disponible."}
-              </p>
+                <p className="text-night/80 text-base leading-relaxed mb-8">
+                  {selectedMember.bio || "Aucune biographie disponible."}
+                </p>
 
-              {selectedMember.expertise &&
-                selectedMember.expertise.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-3">
-                      Expertise
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedMember.expertise.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                {selectedMember.expertise &&
+                  selectedMember.expertise.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-3">
+                        Expertise
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMember.expertise.map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
+                  )}
+              </div>
+
+              <div className="mt-auto">
+                <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
+                  Contact
+                </h4>
+
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center">
+                    <Mail className="w-5 h-5 text-primary mr-3" />
+                    <a
+                      href={`mailto:${selectedMember.email}`}
+                      className="text-night hover:text-primary transition-colors"
+                    >
+                      {selectedMember.email}
+                    </a>
                   </div>
-                )}
-            </div>
 
-            <div className="mt-auto">
-              <h4 className="text-sm uppercase tracking-wider text-night/50 font-semibold mb-4">
-                Contact
-              </h4>
+                  {selectedMember.phone && (
+                    <div className="flex items-center">
+                      <Phone className="w-5 h-5 text-primary mr-3" />
+                      <span className="text-night">{selectedMember.phone}</span>
+                    </div>
+                  )}
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center">
-                  <Mail className="w-5 h-5 text-primary mr-3" />
-                  <a
-                    href={`mailto:${selectedMember.email}`}
-                    className="text-night hover:text-primary transition-colors"
-                  >
-                    {selectedMember.email}
-                  </a>
+                  {selectedMember.location && (
+                    <div className="flex items-center">
+                      <MapPin className="w-5 h-5 text-primary mr-3" />
+                      <span className="text-night">
+                        {selectedMember.location}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {selectedMember.phone && (
-                  <div className="flex items-center">
-                    <Phone className="w-5 h-5 text-primary mr-3" />
-                    <span className="text-night">
-                      {selectedMember.phone}
-                    </span>
-                  </div>
-                )}
-
-                {selectedMember.location && (
-                  <div className="flex items-center">
-                    <MapPin className="w-5 h-5 text-primary mr-3" />
-                    <span className="text-night">
-                      {selectedMember.location}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex space-x-3 mt-6">
-                <a
-                  href={`mailto:${selectedMember.email}`}
-                  className="flex items-center justify-center h-12 px-6 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                  aria-label={`Contacter ${selectedMember.name}`}
-                >
-                  <Mail className="w-5 h-5 mr-2" />
-                  <span>Contacter</span>
-                </a>
-
-                {selectedMember.linkedinUrl && (
+                <div className="flex space-x-3 mt-6">
                   <a
-                    href={selectedMember.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center w-12 h-12 border border-gray-200 rounded-lg text-night/70 hover:border-primary hover:text-primary transition-colors"
-                    aria-label={`Profil LinkedIn de ${selectedMember.name}`}
+                    href={`mailto:${selectedMember.email}`}
+                    className="flex items-center justify-center h-12 px-6 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    aria-label={`Contacter ${selectedMember.name}`}
                   >
-                    <Linkedin className="w-5 h-5" />
+                    <Mail className="w-5 h-5 mr-2" />
+                    <span>Contacter</span>
                   </a>
-                )}
+
+                  {selectedMember.linkedinUrl && (
+                    <a
+                      href={selectedMember.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-12 h-12 border border-gray-200 rounded-lg text-night/70 hover:border-primary hover:text-primary transition-colors"
+                      aria-label={`Profil LinkedIn de ${selectedMember.name}`}
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Boutons de navigation */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateMember("prev");
+            }}
+            className="absolute top-1/2 left-4 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
+            aria-label="Membre précédent"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateMember("next");
+            }}
+            className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
+            aria-label="Membre suivant"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
-
-        {/* Boutons de navigation */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigateMember("prev");
-          }}
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
-          aria-label="Membre précédent"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigateMember("next");
-          }}
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-primary text-white rounded-full shadow-lg transition-colors"
-          aria-label="Membre suivant"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 // Fonction de filtrage de membres
 const filterMembers = (members: TeamMember[], filter: string): TeamMember[] => {
   if (filter === "all") return members;
-  return members.filter(member => member.department === filter);
+  return members.filter((member) => member.department === filter);
 };
 
 export default function TeamGrid() {
@@ -506,7 +501,7 @@ export default function TeamGrid() {
     const timer = setTimeout(() => {
       setAnimateCards(true);
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -532,35 +527,40 @@ export default function TeamGrid() {
   }, []);
 
   // Navigation entre membres avec mémorisation
-  const navigateMember = useCallback((direction: "prev" | "next") => {
-    if (!selectedMember) return;
+  const navigateMember = useCallback(
+    (direction: "prev" | "next") => {
+      if (!selectedMember) return;
 
-    const currentIndex = teamMembers.findIndex(
-      (member) => member.id === selectedMember.id
-    );
-    let newIndex;
+      const currentIndex = teamMembers.findIndex(
+        (member) => member.id === selectedMember.id
+      );
+      let newIndex;
 
-    if (direction === "prev") {
-      newIndex = currentIndex === 0 ? teamMembers.length - 1 : currentIndex - 1;
-    } else {
-      newIndex = currentIndex === teamMembers.length - 1 ? 0 : currentIndex + 1;
-    }
+      if (direction === "prev") {
+        newIndex =
+          currentIndex === 0 ? teamMembers.length - 1 : currentIndex - 1;
+      } else {
+        newIndex =
+          currentIndex === teamMembers.length - 1 ? 0 : currentIndex + 1;
+      }
 
-    // Animation de transition
-    if (modalRef.current) {
-      modalRef.current.classList.add("animate-slideOut");
-      setTimeout(() => {
-        setSelectedMember(teamMembers[newIndex]);
-        modalRef.current?.classList.remove("animate-slideOut");
-        modalRef.current?.classList.add("animate-slideIn");
+      // Animation de transition
+      if (modalRef.current) {
+        modalRef.current.classList.add("animate-slideOut");
         setTimeout(() => {
-          modalRef.current?.classList.remove("animate-slideIn");
-        }, 300);
-      }, 200);
-    } else {
-      setSelectedMember(teamMembers[newIndex]);
-    }
-  }, [selectedMember]);
+          setSelectedMember(teamMembers[newIndex]);
+          modalRef.current?.classList.remove("animate-slideOut");
+          modalRef.current?.classList.add("animate-slideIn");
+          setTimeout(() => {
+            modalRef.current?.classList.remove("animate-slideIn");
+          }, 300);
+        }, 200);
+      } else {
+        setSelectedMember(teamMembers[newIndex]);
+      }
+    },
+    [selectedMember]
+  );
 
   // Gestion des touches de clavier pour le modal
   useEffect(() => {
@@ -595,7 +595,7 @@ export default function TeamGrid() {
   return (
     <section className="py-8 bg-gradient-to-b from-day to-gray-50 relative">
       {/* Élément décoratif supérieur */}
-       <div className="absolute top-0 left-0 right-0 h-64 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-64 overflow-hidden">
         <svg
           viewBox="0 0 1440 320"
           className="absolute bottom-1 left-0 w-full text-primary opacity-5"
@@ -608,10 +608,10 @@ export default function TeamGrid() {
             d="M0,192L48,181.3C96,171,192,149,288,149.3C384,149,480,171,576,186.7C672,203,768,213,864,208C960,203,1056,181,1152,176C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
           ></path>
         </svg>
-      </div> 
+      </div>
       {/* <div className="absolute top-0 left-1 w-96 h-96 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2" aria-hidden="true" /> */}
       {/* <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full translate-x-1/2 translate-y-1/2" aria-hidden="true" /> */}
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center px-4 py-1 mb-6 bg-primary/10 rounded-full">
@@ -623,7 +623,10 @@ export default function TeamGrid() {
 
           <h2 className="text-4xl md:text-5xl font-bold text-night mb-6 relative inline-block">
             Notre direction
-            <div className="absolute -bottom-6 left-1 transform -translate-x-1 w-60 h-1 bg-primary rounded-full" aria-hidden="true"></div>
+            <div
+              className="absolute -bottom-6 left-1 transform -translate-x-1 w-60 h-1 bg-primary rounded-full"
+              aria-hidden="true"
+            ></div>
           </h2>
 
           <p className="text-night/60 max-w-2xl mx-auto text-lg mt-8">
@@ -682,10 +685,12 @@ export default function TeamGrid() {
         {/* Grille des membres */}
         {filteredMembers.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-500">Aucun membre correspondant au filtre actuel.</p>
+            <p className="text-gray-500">
+              Aucun membre correspondant au filtre actuel.
+            </p>
           </div>
         ) : (
-          <div 
+          <div
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
             role="list"
             aria-label="Membres de l'équipe"
@@ -730,9 +735,10 @@ export default function TeamGrid() {
           ></path>
         </svg>
       </div> */}
-      
+
       {/* Styles pour les animations */}
-      <style>{`
+      <style>
+        {`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
