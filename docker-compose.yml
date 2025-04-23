@@ -31,7 +31,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/avolta?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 
+      SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       JWT_SECRET: avoltaBelgiqueSecretKey2025VeryLongAndSecureKeyForJwtTokenGeneration
       JWT_EXPIRATION: 86400000
