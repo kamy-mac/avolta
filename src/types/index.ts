@@ -1,5 +1,4 @@
 export interface Post {
-  data: any;
   data: Post;
   slug: any;
   description: any;
@@ -18,7 +17,7 @@ export interface Post {
   likes: number;
   comments: Comment[];
   category: string;
-  status: 'pending' | 'published';
+  status: "pending" | "published";
   authorId: string;
   authorName: string;
   authorEmail: string;
@@ -36,10 +35,10 @@ export interface User {
   id: string;
   email: string;
   password: string;
-  role: 'superadmin' | 'admin';
+  role: "superadmin" | "admin";
   createdAt: Date;
   lastLogin?: Date;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
 }
 
 export interface MailchimpResponse {

@@ -1,11 +1,8 @@
-/* Avolta Display Font */
-/* Dans fonts.css */
-/* Avolta Display Font */
 @font-face {
   font-family: 'Avolta Display';
-  src: url('/fonts/AvoltaDisplay-SemiBold.woff2') format('woff2'),
-       url('/fonts/AvoltaDisplay-SemiBold.otf') format('opentype'),
-       url('/fonts/AvoltaDisplay-SemiBold.ttf') format('truetype');
+  src:
+    url('/fonts/AvoltaDisplay-SemiBold.otf') format('opentype'),
+    url('/fonts/AvoltaDisplay-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -14,9 +11,9 @@
 /* Saans Font */
 @font-face {
   font-family: 'Saans';
-  src: url('/fonts/Saans-Light.woff2') format('woff2'),
-       url('/fonts/Saans-Light.otf') format('opentype'),
-       url('/fonts/Saans-Light.ttf') format('truetype');
+  src:
+    url('/fonts/Saans-Light.otf') format('opentype'),
+    url('/fonts/Saans-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -24,8 +21,8 @@
 
 @font-face {
   font-family: 'Saans';
-  src: url('/fonts/Saans-Regular.woff2') format('woff2'),
-       url('/fonts/Saans-Regular.otf') format('opentype');
+  src:
+    url('/fonts/Saans-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -33,9 +30,9 @@
 
 @font-face {
   font-family: 'Saans';
-  src: url('/fonts/Saans-Medium.woff2') format('woff2'),
-       url('/fonts/Saans-Medium.otf') format('opentype'),
-       url('/fonts/Saans-Medium.ttf') format('truetype');
+  src:
+    url('/fonts/Saans-Medium.otf') format('opentype'),
+    url('/fonts/Saans-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -43,8 +40,8 @@
 
 @font-face {
   font-family: 'Saans';
-  src: url('/fonts/Saans-SemiBold.woff2') format('woff2'),
-       url('/fonts/Saans-SemiBold.otf') format('opentype');
+  src:
+    url('/fonts/Saans-SemiBold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;

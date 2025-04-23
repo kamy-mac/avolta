@@ -17,7 +17,7 @@ import {
   EyeOff,
   HelpCircle,
   ChevronDown,
-  Info
+  Info,
 } from "lucide-react";
 import userService from "../../services/user.service";
 import authService from "../../services/auth.service";
@@ -33,42 +33,89 @@ const UserGuide = () => {
 
   return (
     <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow-sm border border-purple-100">
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
+      <button
+        onClick={() => setIsOpen(!isOpen)}
         className="w-full flex justify-between items-center p-4 text-left"
       >
         <div className="flex items-center">
           <HelpCircle className="h-5 w-5 text-purple-600 mr-2" />
-          <h3 className="text-lg font-medium text-gray-800">Guide d'utilisation du gestionnaire d'administrateurs</h3>
+          <h3 className="text-lg font-medium text-gray-800">
+            Guide d'utilisation du gestionnaire d'administrateurs
+          </h3>
         </div>
-        <ChevronDown className={`h-5 w-5 text-purple-600 transition-transform ${isOpen ? 'transform rotate-180' : ''}`} />
+        <ChevronDown
+          className={`h-5 w-5 text-purple-600 transition-transform ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+        />
       </button>
-      
+
       {isOpen && (
         <div className="p-4 pt-0 text-sm text-gray-700 space-y-3">
           <p className="flex items-start">
             <Info className="h-4 w-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" />
-            <span>En tant que Super Administrateur, vous pouvez gérer tous les utilisateurs administrateurs de la plateforme.</span>
+            <span>
+              En tant que Super Administrateur, vous pouvez gérer tous les
+              utilisateurs administrateurs de la plateforme.
+            </span>
           </p>
-          
+
           <div className="pl-6 space-y-2">
-            <p className="font-semibold text-purple-800">Fonctionnalités disponibles :</p>
+            <p className="font-semibold text-purple-800">
+              Fonctionnalités disponibles :
+            </p>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li><span className="font-medium">Créer un administrateur</span> : Ajoutez de nouveaux administrateurs en utilisant le bouton "Add Administrator".</li>
-              <li><span className="font-medium">Rechercher</span> : Utilisez la barre de recherche pour trouver rapidement un administrateur par son adresse email.</li>
-              <li><span className="font-medium">Trier</span> : Cliquez sur les en-têtes de colonnes pour trier les administrateurs selon différents critères.</li>
-              <li><span className="font-medium">Activer/Désactiver</span> : Modifiez le statut d'un administrateur avec le bouton <UserCheck className="h-4 w-4 inline text-green-600" /> ou <UserX className="h-4 w-4 inline text-red-600" />.</li>
-              <li><span className="font-medium">Supprimer</span> : Supprimez définitivement un administrateur avec le bouton <Trash2 className="h-4 w-4 inline text-red-600" /> (action irréversible).</li>
-              <li><span className="font-medium">Rafraîchir</span> : Mettez à jour la liste des administrateurs avec le bouton <RefreshCw className="h-4 w-4 inline text-purple-600" />.</li>
+              <li>
+                <span className="font-medium">Créer un administrateur</span> :
+                Ajoutez de nouveaux administrateurs en utilisant le bouton "Add
+                Administrator".
+              </li>
+              <li>
+                <span className="font-medium">Rechercher</span> : Utilisez la
+                barre de recherche pour trouver rapidement un administrateur par
+                son adresse email.
+              </li>
+              <li>
+                <span className="font-medium">Trier</span> : Cliquez sur les
+                en-têtes de colonnes pour trier les administrateurs selon
+                différents critères.
+              </li>
+              <li>
+                <span className="font-medium">Activer/Désactiver</span> :
+                Modifiez le statut d'un administrateur avec le bouton{" "}
+                <UserCheck className="h-4 w-4 inline text-green-600" /> ou{" "}
+                <UserX className="h-4 w-4 inline text-red-600" />.
+              </li>
+              <li>
+                <span className="font-medium">Supprimer</span> : Supprimez
+                définitivement un administrateur avec le bouton{" "}
+                <Trash2 className="h-4 w-4 inline text-red-600" /> (action
+                irréversible).
+              </li>
+              <li>
+                <span className="font-medium">Rafraîchir</span> : Mettez à jour
+                la liste des administrateurs avec le bouton{" "}
+                <RefreshCw className="h-4 w-4 inline text-purple-600" />.
+              </li>
             </ul>
           </div>
-          
+
           <div className="pl-6 mt-3">
-            <p className="font-semibold text-purple-800">Informations importantes :</p>
+            <p className="font-semibold text-purple-800">
+              Informations importantes :
+            </p>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>Seuls les comptes "Admin" peuvent être modifiés. Les comptes "Super Admin" sont protégés.</li>
-              <li>Un mot de passe sécurisé doit contenir au minimum 8 caractères.</li>
-              <li>Les administrateurs désactivés ne pourront pas se connecter à la plateforme.</li>
+              <li>
+                Seuls les comptes "Admin" peuvent être modifiés. Les comptes
+                "Super Admin" sont protégés.
+              </li>
+              <li>
+                Un mot de passe sécurisé doit contenir au minimum 8 caractères.
+              </li>
+              <li>
+                Les administrateurs désactivés ne pourront pas se connecter à la
+                plateforme.
+              </li>
             </ul>
           </div>
         </div>
@@ -84,9 +131,16 @@ export default function UserManagement() {
   const [success, setSuccess] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newUser, setNewUser] = useState({ email: "", password: "", confirmPassword: "" });
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [sortConfig] = useState<{ key: keyof User; direction: 'ascending' | 'descending' } | null>(null);
+  const [sortConfig] = useState<{
+    key: keyof User;
+    direction: "ascending" | "descending";
+  } | null>(null);
   const [isMounted, setIsMounted] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { user: currentUser } = useAuth();
@@ -106,7 +160,7 @@ export default function UserManagement() {
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     // Create abort controller for cleanup
     const abortController = new AbortController();
 
@@ -138,10 +192,13 @@ export default function UserManagement() {
       setIsLoading(true);
       setError(null);
       setIsRefreshing(true);
-      
+
       // Implement a timeout to prevent hanging requests
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Request timeout after 10 seconds")), 10000);
+        setTimeout(
+          () => reject(new Error("Request timeout after 10 seconds")),
+          10000
+        );
       });
 
       // Use the service method with a timeout
@@ -172,18 +229,18 @@ export default function UserManagement() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    
+
     // Password validation
     if (newUser.password !== newUser.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
     if (newUser.password.length < 8) {
       setError("Password must be at least 8 characters long");
       return;
     }
-    
+
     try {
       // Use the register method from authService with uppercase "ADMIN" role
       await authService.register({
@@ -191,16 +248,16 @@ export default function UserManagement() {
         password: newUser.password,
         role: "ADMIN", // Changé de "admin" à "ADMIN" pour correspondre à l'enum du backend
       });
-      
+
       setNewUser({ email: "", password: "", confirmPassword: "" });
       setShowCreateForm(false);
       setSuccess("Administrator created successfully");
-      
+
       // Set a timeout to clear the success message
       setTimeout(() => {
         if (isMounted) setSuccess(null);
       }, 5000);
-      
+
       loadUsers();
     } catch (error: any) {
       console.error("Error creating user:", error);
@@ -216,16 +273,20 @@ export default function UserManagement() {
       setError(null);
       const newStatus = currentStatus === "active" ? "inactive" : "active";
       await userService.updateUserStatus(userId, newStatus);
-      
+
       // Optimistically update the UI
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
           user.id === userId ? { ...user, status: newStatus } : user
         )
       );
-      
-      setSuccess(`User status ${newStatus === "active" ? "activated" : "deactivated"} successfully`);
-      
+
+      setSuccess(
+        `User status ${
+          newStatus === "active" ? "activated" : "deactivated"
+        } successfully`
+      );
+
       // Set a timeout to clear the success message
       setTimeout(() => {
         if (isMounted) setSuccess(null);
@@ -235,26 +296,30 @@ export default function UserManagement() {
       setError(
         error.message || "Failed to update user status. Please try again."
       );
-      
+
       // Revert the optimistic update on error
       loadUsers();
     }
   };
 
   const handleDeleteUser = async (userId: string, userEmail: string) => {
-    if (!window.confirm(`Are you sure you want to delete the administrator "${userEmail}"?`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete the administrator "${userEmail}"?`
+      )
+    ) {
       return;
     }
 
     try {
       setError(null);
       await userService.deleteUser(userId);
-      
+
       // Optimistically update the UI
-      setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-      
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+
       setSuccess("Administrator deleted successfully");
-      
+
       // Set a timeout to clear the success message
       setTimeout(() => {
         if (isMounted) setSuccess(null);
@@ -262,31 +327,29 @@ export default function UserManagement() {
     } catch (error: any) {
       console.error("Error deleting user:", error);
       setError(error.message || "Failed to delete user. Please try again.");
-      
+
       // Revert the optimistic update on error
       loadUsers();
     }
   };
-  
+
   // Sorting functionality
-  
+
   const getSortedUsers = () => {
     // First filter users based on search term
     let filteredResults = users.filter((user) =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    
+
     // Then sort if sortConfig is set
     if (sortConfig !== null) {
       filteredResults.sort(() => {
-        
         return 0;
       });
     }
-    
+
     return filteredResults;
   };
-  
 
   // UI for displaying loading skeletons
   const renderSkeletons = () => {
@@ -295,7 +358,14 @@ export default function UserManagement() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {["Email", "Role", "Status", "Registration Date", "Last Login", "Actions"].map((header) => (
+              {[
+                "Email",
+                "Role",
+                "Status",
+                "Registration Date",
+                "Last Login",
+                "Actions",
+              ].map((header) => (
                 <th
                   key={header}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -358,8 +428,6 @@ export default function UserManagement() {
       {/* User Guide Component */}
       <UserGuide />
       <div className="bg-gradient-to-b from-white to-purple-50 rounded-lg shadow-lg overflow-hidden border border-purple-100">
-        
-        
         <div className=" p-6 border-b border-purple-200">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center">
@@ -372,11 +440,13 @@ export default function UserManagement() {
                 className="ml-3 p-1 rounded-full text-gray-500 hover:text-purple-700 hover:bg-purple-100 transition-colors"
                 title="Refresh users"
               >
-                <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
             <button
-              onClick={() => setShowCreateForm(prev => !prev)}
+              onClick={() => setShowCreateForm((prev) => !prev)}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-700 hover:bg-purple-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
             >
               {showCreateForm ? (
@@ -407,7 +477,7 @@ export default function UserManagement() {
               </button>
             </div>
           )}
-          
+
           {success && (
             <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md shadow-sm flex items-center justify-between animate-fadeIn">
               <div className="flex items-center">
@@ -498,7 +568,9 @@ export default function UserManagement() {
                       )}
                     </button>
                   </div>
-                  <p className="mt-1 text-xs text-purple-600">* Must be at least 8 characters</p>
+                  <p className="mt-1 text-xs text-purple-600">
+                    * Must be at least 8 characters
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <label
@@ -526,9 +598,13 @@ export default function UserManagement() {
                       placeholder="Confirm your password"
                     />
                   </div>
-                  {newUser.password && newUser.confirmPassword && newUser.password !== newUser.confirmPassword && (
-                    <p className="text-xs text-red-600 mt-1">Passwords do not match</p>
-                  )}
+                  {newUser.password &&
+                    newUser.confirmPassword &&
+                    newUser.password !== newUser.confirmPassword && (
+                      <p className="text-xs text-red-600 mt-1">
+                        Passwords do not match
+                      </p>
+                    )}
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">
@@ -536,7 +612,11 @@ export default function UserManagement() {
                   type="button"
                   onClick={() => {
                     setShowCreateForm(false);
-                    setNewUser({ email: "", password: "", confirmPassword: "" });
+                    setNewUser({
+                      email: "",
+                      password: "",
+                      confirmPassword: "",
+                    });
                   }}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                 >
@@ -562,13 +642,18 @@ export default function UserManagement() {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          
+
           <div className="bg-gray-50 rounded p-3 mb-3 flex justify-between items-center">
             <div className="text-sm text-gray-600">
-              Total administrators: <span className="font-semibold">{users.length}</span>
+              Total administrators:{" "}
+              <span className="font-semibold">{users.length}</span>
             </div>
             <div className="text-sm text-gray-600">
-              Showing: <span className="font-semibold">{sortedAndFilteredUsers.length}</span> result{sortedAndFilteredUsers.length !== 1 ? 's' : ''}
+              Showing:{" "}
+              <span className="font-semibold">
+                {sortedAndFilteredUsers.length}
+              </span>{" "}
+              result{sortedAndFilteredUsers.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
@@ -608,10 +693,12 @@ export default function UserManagement() {
                   >
                     <div className="flex flex-col items-center">
                       <Search className="h-12 w-12 text-gray-300 mb-2" />
-                      <p className="text-gray-500 mb-1">No administrators found</p>
+                      <p className="text-gray-500 mb-1">
+                        No administrators found
+                      </p>
                       <p className="text-sm text-gray-400">
-                        {searchTerm 
-                          ? "Try adjusting your search" 
+                        {searchTerm
+                          ? "Try adjusting your search"
                           : "Add a new administrator using the button above"}
                       </p>
                     </div>
@@ -686,7 +773,9 @@ export default function UserManagement() {
                             )}
                           </button>
                           <button
-                            onClick={() => handleDeleteUser(user.id, user.email)}
+                            onClick={() =>
+                              handleDeleteUser(user.id, user.email)
+                            }
                             className="p-2 rounded-full text-red-600 hover:text-red-900 hover:bg-red-50 transition-colors"
                             title="Delete user"
                           >
