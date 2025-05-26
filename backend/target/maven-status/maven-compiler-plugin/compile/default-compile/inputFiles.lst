@@ -26,6 +26,7 @@ C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\controllers\
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\models\Comment.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\security\JwtAuthenticationFilter.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\services\UserService.java
+C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\config\FileUploadConfig.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\controllers\NewsletterController.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\dto\CommentDto.java
 C:\Users\Maud\Downloads\b1\project\backend\src\main\java\com\avolta\repositories\UserRepository.java

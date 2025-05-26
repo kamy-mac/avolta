@@ -25,6 +25,7 @@ com\avolta\dto\NewsletterSubscriberDto.class
 com\avolta\models\NewsletterSubscriber.class
 com\avolta\dto\requests\CreateUserRequest.class
 com\avolta\security\JwtTokenProvider.class
+com\avolta\config\FileUploadConfig.class
 com\avolta\models\Publication$Status.class
 com\avolta\controllers\PublicationController.class
 com\avolta\repositories\UserRepository.class
