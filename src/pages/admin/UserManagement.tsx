@@ -184,19 +184,19 @@ if (newUser.password !== newUser.confirmPassword) {
 const motDePasse = newUser.password;
 const regles = [
   {
-    test: (mdp) => mdp.length >= 8,
+    test: (mdp: string) => mdp.length >= 8,
     message: "• Minimum 8 caractères",
   },
   {
-    test: (mdp) => /[A-Z]/.test(mdp),
+    test: (mdp: string) => /[A-Z]/.test(mdp),
     message: "• Au moins 1 lettre majuscule (A-Z)",
   },
   {
-    test: (mdp) => /[0-9]/.test(mdp),
+    test: (mdp: string) => /[0-9]/.test(mdp),
     message: "• Au moins 1 chiffre (0-9)",
   },
   {
-    test: (mdp) => /[@#$%&*!?£^]/.test(mdp),
+    test: (mdp: string) => /[@#$%&*!?£^]/.test(mdp),
     message: "• Au moins 1 caractère spécial (@, #, $, %, &, *, !, ?, £, ^)",
   },
 ];
