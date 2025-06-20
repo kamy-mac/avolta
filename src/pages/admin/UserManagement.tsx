@@ -218,7 +218,7 @@ if (erreurs.length > 0) {
         password: newUser.password,
         role: "ADMIN", // Changé de "admin" à "ADMIN" pour correspondre à l'enum du backend
       });
-      
+    
       setNewUser({ email: "", password: "", confirmPassword: "" });
       setShowCreateForm(false);
       setSuccess("Administrator created successfully");
